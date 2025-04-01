@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Initial system update
-sudo apt update -y && sudo apt upgrade -y && sudo apt autoremove -y
+sudo apt-get update -y && sudo apt-get upgrade -y && sudo apt-get autoremove -y
 
 # Git
 if [[ ! -f "/usr/bin/git" ]]; then
-    sudo apt install git -y
+    sudo apt-get install git -y
 fi

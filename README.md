@@ -1,85 +1,144 @@
 # Linux Setup Scripts
-- A repository of setup scripts for my personal debian linux environments
 
-# Instructions
+This repository contains a collections of scripts that I use to set up my personal Ubuntu linux environments.
 
 ## How to Use
+
+Clone the repository
+
+```bash
+git clone https://github.com/garretpatten/ubuntu-setup-scripts
 ```
-# Clone repository
-git clone https://github.com/garretpatten/arch-setup-scripts
 
-# Checkout repository
-cd arch-setup-scripts
+Checkout the root of the project
 
-# Initialize submodules
-git submodule init
-git submodule update --remote --recursive
-cd src/dotfiles
-git submodule init
-git submodule update --remote --recursive
+```bash
+cd ubuntu-setup-scripts
+```
 
-# Return to the root of the project
-cd ../..
+Update submodules
 
-# Run master script
+```bash
+git submodule update --init --remote --recursive src/dotfiles/
+```
+
+Make the scripts executable
+
+```bash
+chmod +x src/scripts/*.sh
+```
+
+Run the master script
+
+```bash
 bash src/scripts/master.sh
 ```
 
-# Installations
+## Configurations
 
-## CLI Tools and Terminal Applications
-- bat
-- clamav
-- curl
-- docker
-- docker-compose
-- exa
-- fastfetch
-- fd
-- flatpak
-- gh
-- git
-- htop
-- neovim
-- nmap
-- node
-- npm
-- openvpn
-- ripgrep
-- semgrep
-- shellcheck
-- src-cli
-- task
-- tmux
-- ufw
-- vim
-- wget
-- zsh
-
-# Configurations
 - Alacritty
-- Git Credential Helper
-- Home Directory
+- Git
+- Firewall
 - Neovim
-- Taskwarrior
+- System
+- Tmux
 - Vim
 - VS Code
-- Z-shell
+- Z Shell
 
-## Desktop Applications
-- 1Password
-- Alacritty
-- Brave
-- Burp Suite
+## Downloads
+
+### Payload Lists
+
+- [PayloadsAllTheThings](https://github.com/swisskyrepo/PayloadsAllTheThings)
+- [SecLists](https://github.com/danielmiessler/SecLists)
+
+## Installations
+
+### Development
+
+- docker
+- docker-compose
+- gh
+- neovim
+- nod
+- npm
+- nvm
 - Postman
-- Proton VPN
-- Signl Messenger
+- python
+- pip
+- semgrep
+- shellcheck
 - Sourcegraph
-- Spotify
-- Todoist
-- VLC Media Player
+- src-cli
 - VS Code
-- ZAProxy
 
-# Other
-- Hacking Wordlists
+### Fonts
+
+- Awesome Terminal Fonts
+- Fira Code Fonts
+- Meslo Nerd Fonts
+- Powerline Fonts (and Symbols)
+
+### General CLI Tools
+
+- bat
+- curl
+- eza
+- fastfetch
+- fd
+- git
+- htop
+- jq
+- ripgrep
+- tmux
+- vim
+- wget
+
+### Media
+
+- Brave
+- Duck Duck Go
+- Spotify
+- VLC
+
+### Productivity
+
+- Balena Etcher
+- Chat GPT
+- Notion
+- Proton Drive
+- Proton Mail
+- Raycast
+- Zoom
+
+### Security
+
+- 1Password
+- Burp Suite
+- clamscan
+- exiftool
+- nmap
+- op
+- openvpn
+- OWASP ZAP
+- Proton VPN
+- Signal Messenger
+
+### Shell
+
+- Alacritty
+- oh-my-posh
+- zsh
+- Zsh Auto Suggestions
+- Zsh Syntax Highlighting
+
+## Maintainers
+
+[@garretpatten](https://github.com/garretpatten/)
+
+*For questions, bug reports, or feature requests, please open an issue on this repository or contact the maintainer directly.*
+
+## License
+
+This project is licensed under the [MIT License](./LICENSE).

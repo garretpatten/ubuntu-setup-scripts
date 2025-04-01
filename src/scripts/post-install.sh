@@ -1,13 +1,11 @@
 #!/bin/bash
 
-workingDirectory=$1
-
 # Final system update
-sudo apt update -y && sudo apt upgrade -y && sudo apt autoremove -y
+sudo apt-get update -y && sudo apt-get upgrade -y && sudo apt-get autoremove -y
 
 printf "\n\n============================================================================\n\n"
 
-cat "$workingDirectory/src/assets/wolf.txt"
+cat "/src/assets/wolf.txt"
 
 printf "\n\n============================================================================\n\n"
 

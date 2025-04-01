@@ -1,16 +1,6 @@
 #!/bin/bash
 
-cliTools=("alacritty" "bat" "curl" "exa" "eza" "fd" "htop" "jq" "neovim" "openvpn" "ripgrep" "terminator" "tmux" "vim" "wget" "zsh")
-for cliTool in "${cliTools[@]}"; do
-    if [[ ! -f "/usr/bin/$cliTool" && ! -f "/usr/sbin/$cliTool" ]]; then
-        sudo apt install "$cliTool" -y
-    fi
-done
-
-# fastfetch
-sudo add-apt-repository ppa:zhangsongcui3371/fastfetch
-sudo apt update 
-sudo apt install fastfetch -y
+source "$(pwd)/src/scripts/utils.sh"
 
 ### Package managers ###
 
@@ -19,3 +9,17 @@ if [[ ! -f "/usr/bin/flatpak" ]]; then
     sudo apt install flatpak -y
     flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 fi
+
+### Tools ###
+
+cliTools=("bat" "curl" "eza" "fastfetch" "fd" "git" "htop" "jq" "ripgrep" "vim" "wget")
+for tool in "${cliTools[@]}"; do
+    if ! is_installed "$tool"; then
+        brew install "$tool"
+    fi
+done
+
+# fastfetch
+sudo add-apt-repository ppa:zhangsongcui3371/fastfetch
+sudo apt update 
+sudo apt install fastfetch -y

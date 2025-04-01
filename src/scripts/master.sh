@@ -1,36 +1,23 @@
 #!/bin/bash
 
-workingDirectory=$(pwd)
-
 bash "$workingDirectory/src/scripts/pre-install.sh"
 
 # Home directory customization
-bash "$workingDirectory/src/scripts/organizeHome.sh"
+bash "$(pwd)/src/scripts/organizeHome.sh"
 
 # CLI tools
-bash "$workingDirectory/src/scripts/cli.sh"
-
-# Browsers
-bash "$workingDirectory/src/scripts/web.sh"
-
-# Streaming and video applications
-bash "$workingDirectory/src/scripts/media.sh"
-
-# Productivity programs
-bash "$workingDirectory/src/scripts/productivity.sh" "$workingDirectory"
-
-# Security and privacy utilities
-bash "$workingDirectory/src/scripts/security.sh" "$workingDirectory"
-
-# IDE setup
-bash "$workingDirectory/src/scripts/ide.sh" "$workingDirectory"
+bash "$(pwd)/src/scripts/cli.sh"
 
 # Dev tools
-bash "$workingDirectory/src/scripts/dev.sh"
+bash "$(pwd)/src/scripts/dev.sh"
 
-# Penetration testing tools and wordlists
-bash "$workingDirectory/src/scripts/hacking.sh" "$workingDirectory"
+# Browsers, streaming, and video applications
+bash "$(pwd)/src/scripts/media.sh"
 
-zsh "$workingDirectory/src/scripts/shell.sh" "$workingDirectory"
+# Security and penetration testing utilities
+bash "$(pwd)/src/scripts/security.sh"
+
+# Shell setup
+bash "$(pwd)/src/scripts/shell.sh"
 
 bash "$workingDirectory/src/scripts/post-install.sh" "$workingDirectory"
