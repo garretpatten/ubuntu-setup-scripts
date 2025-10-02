@@ -61,7 +61,7 @@ bash src/scripts/master.sh
 - docker-compose
 - gh
 - neovim
-- nod
+- node
 - npm
 - nvm
 - Postman
