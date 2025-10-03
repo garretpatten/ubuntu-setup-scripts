@@ -201,7 +201,7 @@ configure_productivity_apps() {
     # Configure Redshift (blue light filter)
     configure_redshift() {
         local redshift_config="$HOME/.config/redshift.conf"
-        if [[ ! -f "$redshift_config" && is_installed "redshift" ]]; then
+        if [[ ! -f "$redshift_config" ]] && is_installed "redshift"; then
             log_info "Configuring Redshift blue light filter..."
             ensure_directory "$HOME/.config"
 

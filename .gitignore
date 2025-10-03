@@ -1,0 +1,7 @@
+# Log files
+setup_errors.log
+setup_summary.txt
+
+# System files
+.DS_Store
+

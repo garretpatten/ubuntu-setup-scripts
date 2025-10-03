@@ -159,36 +159,8 @@ install_dev_tools() {
         fi
     }
 
-    # Install Semgrep for code analysis
-    install_semgrep() {
-        if ! is_installed "semgrep"; then
-            log_info "Installing Semgrep code analysis tool..."
-            python3 -m pip install --user semgrep
-            log_success "Semgrep installed"
-        else
-            log_info "Semgrep is already installed"
-        fi
-    }
-
-    # Install Sourcegraph CLI
-    install_sourcegraph_cli() {
-        local src_binary="/usr/local/bin/src"
-        if [[ ! -f "$src_binary" ]]; then
-            log_info "Installing Sourcegraph CLI..."
-            local temp_src="$TEMP_DIR/src"
-            download_file_safe "https://sourcegraph.com/.api/src-cli/src_linux_amd64" "$temp_src"
-            sudo mv "$temp_src" "$src_binary"
-            sudo chmod +x "$src_binary"
-            log_success "Sourcegraph CLI installed"
-        else
-            log_info "Sourcegraph CLI is already installed"
-        fi
-    }
-
     install_neovim_packer
     install_postman
-    install_semgrep
-    install_sourcegraph_cli
 }
 
 # Configure development tools

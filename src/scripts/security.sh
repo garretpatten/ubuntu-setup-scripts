@@ -142,19 +142,43 @@ install_signal() {
     if ! is_installed "signal-desktop"; then
         log_info "Installing Signal Messenger..."
 
-        # Add Signal's GPG key
+        # Add Signal's GPG key with proper error handling
         if [[ ! -f "/usr/share/keyrings/signal-desktop-keyring.gpg" ]]; then
             log_info "Adding Signal GPG key..."
-            wget -O- https://updates.signal.org/desktop/apt/keys.asc | \
-                gpg --dearmor | sudo tee /usr/share/keyrings/signal-desktop-keyring.gpg > /dev/null
+
+            # Download and verify the GPG key
+            local temp_key_file="$TEMP_DIR/signal-key.asc"
+            if wget -O "$temp_key_file" https://updates.signal.org/desktop/apt/keys.asc; then
+                # Import the key
+                if gpg --dearmor < "$temp_key_file" | sudo tee /usr/share/keyrings/signal-desktop-keyring.gpg > /dev/null; then
+                    log_success "Signal GPG key added successfully"
+                else
+                    log_error "Failed to import Signal GPG key"
+                    return 1
+                fi
+            else
+                log_error "Failed to download Signal GPG key"
+                return 1
+            fi
+        else
+            log_info "Signal GPG key already exists"
         fi
 
         # Add Signal repository
-        if ! grep -q "updates.signal.org" /etc/apt/sources.list.d/*.list 2>/dev/null; then
+        local signal_list_file="/etc/apt/sources.list.d/signal-xenial.list"
+        if [[ ! -f "$signal_list_file" ]] || ! grep -q "updates.signal.org" "$signal_list_file" 2>/dev/null; then
             log_info "Adding Signal repository..."
             echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/signal-desktop-keyring.gpg] https://updates.signal.org/desktop/apt xenial main' | \
-                sudo tee /etc/apt/sources.list.d/signal-xenial.list > /dev/null
-            update_apt_cache
+                sudo tee "$signal_list_file" > /dev/null
+
+            # Update apt cache after adding repository
+            log_info "Updating package lists for Signal repository..."
+            if ! sudo apt-get update -y; then
+                log_error "Failed to update package lists after adding Signal repository"
+                return 1
+            fi
+        else
+            log_info "Signal repository already configured"
         fi
 
         # Install Signal
@@ -168,15 +192,40 @@ install_signal() {
 install_offensive_security_tools() {
     log_info "Installing offensive security tools..."
 
-    # Define offensive security tools
-    local security_tools=(
+    # Define APT security tools
+    local apt_security_tools=(
         "nmap"          # Network mapper
-        "zaproxy"       # OWASP ZAP web application security scanner
         "exiftool"      # EXIF metadata tool
     )
 
-    # Install security tools in batch
-    install_apt_packages "${security_tools[@]}"
+    # Install APT security tools in batch
+    install_apt_packages "${apt_security_tools[@]}"
+
+    # Install OWASP ZAP via Snap (not available in apt)
+    install_zaproxy_snap() {
+        if ! is_installed "zaproxy"; then
+            log_info "Installing OWASP ZAP via Snap..."
+
+            # Ensure snapd is installed
+            if ! is_installed "snap"; then
+                log_info "Installing snapd..."
+                install_apt_packages "snapd"
+            fi
+
+            # Install OWASP ZAP
+            if sudo snap install zaproxy --classic; then
+                log_success "OWASP ZAP installed successfully"
+            else
+                log_error "Failed to install OWASP ZAP via Snap"
+                return 1
+            fi
+        else
+            log_info "OWASP ZAP is already installed"
+        fi
+    }
+
+    # Install OWASP ZAP
+    install_zaproxy_snap
 
     # Create hacking directory structure
     setup_hacking_directories() {
