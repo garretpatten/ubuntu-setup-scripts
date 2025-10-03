@@ -119,6 +119,41 @@ install_shell_plugins() {
         else
             log_info "Oh My Posh is already installed"
         fi
+
+        # Install Oh My Posh themes
+        install_oh_my_posh_themes() {
+            local themes_dir="/usr/share/oh-my-posh/themes"
+
+            if [[ ! -d "$themes_dir" ]] || [[ -z "$(ls -A "$themes_dir" 2>/dev/null)" ]]; then
+                log_info "Installing Oh My Posh themes..."
+
+                # Create themes directory
+                sudo mkdir -p "$themes_dir"
+
+                # Clone Oh My Posh repository to get themes
+                local temp_repo_dir="$TEMP_DIR/oh-my-posh-repo"
+                if clone_repository_safe "https://github.com/JanDeDobbeleer/oh-my-posh.git" "$temp_repo_dir"; then
+                    # Copy themes to system directory
+                    if [[ -d "$temp_repo_dir/themes" ]]; then
+                        sudo cp -r "$temp_repo_dir/themes/"* "$themes_dir/"
+
+                        # Set proper permissions
+                        sudo chmod -R 755 "$themes_dir"
+                        sudo chown -R root:root "$themes_dir"
+
+                        log_success "Oh My Posh themes installed successfully to $themes_dir"
+                    else
+                        log_warning "Themes directory not found in Oh My Posh repository"
+                    fi
+                else
+                    log_warning "Failed to clone Oh My Posh repository for themes"
+                fi
+            else
+                log_info "Oh My Posh themes are already installed"
+            fi
+        }
+
+        install_oh_my_posh_themes
     }
 
     install_oh_my_posh
