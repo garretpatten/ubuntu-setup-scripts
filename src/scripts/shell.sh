@@ -1,92 +1,287 @@
 #!/bin/bash
 
-source "$(pwd)/src/scripts/utils.sh"
+# Shell and Terminal Setup Script
+# Installs and configures shells, terminal emulators, fonts, and plugins
+# Author: Garret Patten
 
-### Shells ###
+# Source utility functions
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=src/scripts/utils.sh
+source "$SCRIPT_DIR/utils.sh"
 
-# Alacritty
-if ! is_installed "alacritty"; then
-    sudo apt-get install alacritty -y
-fi
+# Install shells and terminal emulators
+install_shells_and_terminals() {
+    log_info "Installing shells and terminal emulators..."
 
-# Z Shell
-if ! is_installed "zsh"; then
-    sudo apt-get install zsh -y
-fi
+    # Define shell and terminal packages
+    local shell_packages=(
+        "zsh"           # Z Shell
+        "alacritty"     # GPU-accelerated terminal emulator
+        "tmux"          # Terminal multiplexer
+    )
 
-### Fonts ###
+    # Install packages in batch
+    install_apt_packages "${shell_packages[@]}"
+}
 
-# Awesome Terminal Fonts
-if [[ ! -d "/usr/share/fonts/awesome-terminal-fonts/" ]]; then
-    sudo apt-get install fonts-font-awesome -y
-fi
+# Install fonts for better terminal experience
+install_fonts() {
+    log_info "Installing terminal fonts..."
 
-# Fira Code Fonts
-if [[ ! -d "/usr/share/fonts/FiraCode/" ]]; then
-    sudo apt-get install fonts-firacode -y
-fi
+    # Define font packages
+    local font_packages=(
+        "fonts-font-awesome"    # Font Awesome icons
+        "fonts-firacode"        # Fira Code programming font
+        "fonts-freefont-ttf"    # Free TTF fonts
+        "fonts-powerline"       # Powerline fonts for status bars
+        "fonts-noto-color-emoji" # Color emoji support
+    )
 
-if [[ ! -d "/usr/share/fonts/TTF/" ]]; then
-    sudo apt-get install fonts-freefont-ttf -y
-fi
+    # Install font packages in batch
+    install_apt_packages "${font_packages[@]}"
 
-# Powerline Fonts
-if [[ ! -d "/usr/share/fonts/OTF/" ]]; then
-    sudo apt-get install fonts-powerline -y
-fi
+    # Update font cache
+    log_info "Updating font cache..."
+    fc-cache -fv || log_warning "Failed to update font cache"
+}
 
-### Plugins ###
+# Install shell plugins and enhancements
+install_shell_plugins() {
+    log_info "Installing shell plugins and enhancements..."
 
-### Oh-my-posh ###
-if [[ ! -f "/usr/bin/oh-my-posh" ]]; then
-    curl -s https://ohmyposh.dev/install.sh | bash -s
-fi
+    # Define shell plugin packages
+    local plugin_packages=(
+        "zsh-autosuggestions"       # Fish-like autosuggestions for zsh
+        "zsh-syntax-highlighting"   # Syntax highlighting for zsh
+    )
 
-# Tmux
-if ! is_installed "tmux"; then
-    sudo apt-get install tmux -y
-fi
+    # Install plugin packages in batch
+    install_apt_packages "${plugin_packages[@]}"
 
-# Zsh Autosuggestions
-if [[ ! -d "/usr/share/zsh/plugins/zsh-autosuggestions/" ]]; then
-    sudo apt-get install zsh-autosuggestions -y
-fi
+    # Install Oh My Posh (modern prompt theme engine)
+    install_oh_my_posh() {
+        if ! is_installed "oh-my-posh"; then
+            log_info "Installing Oh My Posh prompt theme engine..."
 
-# Zsh Syntax Highlighting
-if [[ ! -d "/usr/share/zsh/plugins/zsh-syntax-highlighting/" ]]; then
-    sudo apt-get install zsh-syntax-highlighting -y
-fi
+            # Download and install Oh My Posh
+            local omp_install_script="$TEMP_DIR/oh-my-posh-install.sh"
+            download_file_safe "https://ohmyposh.dev/install.sh" "$omp_install_script"
+            bash "$omp_install_script" -s -- --user
 
-### Terminal Configuration ###
-
-# Alacritty
-if [[ ! -d "$HOME/.config/alacritty/" ]]; then
-    mkdir -p "$HOME/.config/alacritty"
-    git clone https://github.com/alacritty/alacritty-theme "$HOME/.config/alacritty/" || {
-        echo "Failed to clone https://github.com/alacritty/alacritty-theme." >> "$ERROR_FILE";
+            log_success "Oh My Posh installed successfully"
+        else
+            log_info "Oh My Posh is already installed"
+        fi
     }
-    touch "$HOME/.config/alacritty/alacritty.toml"
-    cp "$workingDirectory/src/dotfiles/alacritty/alacritty.toml" "$HOME/.config/alacritty/alacritty.toml" || {
-        echo "Failed to configure alacritty." >> "$ERROR_FILE";
+
+    install_oh_my_posh
+}
+
+# Configure terminal applications
+configure_terminal_applications() {
+    log_info "Configuring terminal applications..."
+
+    # Configure Alacritty terminal emulator
+    configure_alacritty() {
+        local alacritty_config_dir="$HOME/.config/alacritty"
+        local alacritty_source_dir="$PROJECT_ROOT/src/dotfiles/alacritty"
+
+        if [[ ! -d "$alacritty_config_dir" ]]; then
+            log_info "Configuring Alacritty terminal emulator..."
+            ensure_directory "$alacritty_config_dir"
+
+            # Clone Alacritty themes repository
+            local themes_dir="$alacritty_config_dir/themes"
+            if [[ ! -d "$themes_dir" ]]; then
+                clone_repository_safe "https://github.com/alacritty/alacritty-theme" "$themes_dir"
+            fi
+
+            # Copy configuration file if available
+            if [[ -f "$alacritty_source_dir/alacritty.toml" ]]; then
+                copy_file_safe "$alacritty_source_dir/alacritty.toml" "$alacritty_config_dir/alacritty.toml"
+            else
+                log_warning "Alacritty configuration source not found: $alacritty_source_dir/alacritty.toml"
+                # Create a basic configuration file
+                cat > "$alacritty_config_dir/alacritty.toml" << 'EOF'
+# Alacritty Configuration
+[window]
+opacity = 0.95
+
+[font]
+size = 12.0
+
+[font.normal]
+family = "Fira Code"
+style = "Regular"
+
+[colors]
+# Import a theme (uncomment to use)
+# import = ["~/.config/alacritty/themes/dracula.toml"]
+EOF
+                log_info "Created basic Alacritty configuration"
+            fi
+        else
+            log_info "Alacritty is already configured"
+        fi
     }
+
+    # Configure Tmux terminal multiplexer
+    configure_tmux() {
+        local tmux_config_file="$HOME/.tmux.conf"
+        local tmux_source_file="$PROJECT_ROOT/src/dotfiles/tmux/.tmux.conf"
+
+        if [[ ! -f "$tmux_config_file" ]]; then
+            log_info "Configuring Tmux..."
+
+            if [[ -f "$tmux_source_file" ]]; then
+                copy_file_safe "$tmux_source_file" "$tmux_config_file"
+            else
+                log_warning "Tmux configuration source not found: $tmux_source_file"
+                # Create a basic tmux configuration
+                cat > "$tmux_config_file" << 'EOF'
+# Tmux Configuration
+# Set prefix to Ctrl-a
+unbind C-b
+set-option -g prefix C-a
+bind-key C-a send-prefix
+
+# Enable mouse mode
+set -g mouse on
+
+# Start windows and panes at 1, not 0
+set -g base-index 1
+setw -g pane-base-index 1
+
+# Reload config file
+bind r source-file ~/.tmux.conf \; display-message "Config reloaded!"
+
+# Split panes using | and -
+bind | split-window -h
+bind - split-window -v
+unbind '"'
+unbind %
+
+# Switch panes using Alt-arrow without prefix
+bind -n M-Left select-pane -L
+bind -n M-Right select-pane -R
+bind -n M-Up select-pane -U
+bind -n M-Down select-pane -D
+EOF
+                log_info "Created basic Tmux configuration"
+            fi
+        else
+            log_info "Tmux is already configured"
+        fi
+    }
+
+    # Configure Z Shell
+    configure_zsh() {
+        local zsh_config_file="$HOME/.zshrc"
+        local zsh_source_file="$PROJECT_ROOT/src/dotfiles/oh-my-posh/.zshrc"
+
+        if [[ ! -f "$zsh_config_file" ]]; then
+            log_info "Configuring Z Shell..."
+
+            if [[ -f "$zsh_source_file" ]]; then
+                copy_file_safe "$zsh_source_file" "$zsh_config_file"
+            else
+                log_warning "Zsh configuration source not found: $zsh_source_file"
+                # Create a basic zsh configuration
+                cat > "$zsh_config_file" << 'EOF'
+# Z Shell Configuration
+
+# Enable Oh My Posh if installed
+if command -v oh-my-posh >/dev/null 2>&1; then
+    eval "$(oh-my-posh init zsh)"
 fi
 
-# System
-chsh -s "$(which zsh)"
-sudo chsh -s "$(which zsh)"
-
-# Tmux
-if [[ ! -f "$HOME/.tmux.conf" ]]; then
-    touch "$HOME/.tmux.conf"
-    cp "$(pwd)/src/dotfiles/tmux/.tmux.conf" "$HOME/.tmux.conf" || {
-        echo "Failed to configure tmux." >> "$ERROR_FILE";
-    }
+# Enable zsh plugins if available
+if [[ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
+    source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 fi
 
-# Z Shell
-if [[ ! -f "$HOME/.zshrc" ]]; then
-    touch "$HOME/.zshrc"
-    cp "$(pwd)/src/dotfiles/oh-my-posh/.zshrc" "$HOME/.zshrc" || {
-        echo "Failed to configure zsh." >> "$ERROR_FILE";
-    }
+if [[ -f /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
+    source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 fi
+
+# History configuration
+HISTSIZE=10000
+SAVEHIST=10000
+HISTFILE=~/.zsh_history
+setopt SHARE_HISTORY
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_ALL_DUPS
+
+# Enable completion
+autoload -Uz compinit
+compinit
+
+# Aliases
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+alias grep='grep --color=auto'
+
+# Set default editor
+export EDITOR=vim
+EOF
+                log_info "Created basic Zsh configuration"
+            fi
+        else
+            log_info "Zsh is already configured"
+        fi
+    }
+
+    configure_alacritty
+    configure_tmux
+    configure_zsh
+}
+
+# Change default shell to zsh
+change_default_shell() {
+    log_info "Changing default shell to zsh..."
+
+    # Get zsh path
+    local zsh_path
+    zsh_path="$(which zsh)"
+
+    if [[ -n "$zsh_path" ]]; then
+        # Change shell for current user
+        if [[ "$SHELL" != "$zsh_path" ]]; then
+            log_info "Changing default shell for current user to zsh..."
+            chsh -s "$zsh_path" || log_warning "Failed to change user shell to zsh"
+        else
+            log_info "Default shell is already zsh"
+        fi
+
+        # Change shell for root (optional, with warning)
+        log_info "Note: Root shell change skipped for security reasons"
+        log_info "To change root shell manually: sudo chsh -s $zsh_path"
+    else
+        log_error "Zsh not found, cannot change default shell"
+        return 1
+    fi
+}
+
+# Main function
+main() {
+    log_info "Starting shell and terminal setup..."
+
+    # Update package cache
+    update_apt_cache
+
+    # Install and configure components
+    install_shells_and_terminals
+    install_fonts
+    install_shell_plugins
+    configure_terminal_applications
+    change_default_shell
+
+    log_success "Shell and terminal setup completed!"
+    log_info "Please log out and log back in for shell changes to take effect"
+    log_info "You may need to restart your terminal to see font changes"
+}
+
+# Execute main function
+main "$@"
+
