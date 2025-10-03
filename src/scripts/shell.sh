@@ -18,6 +18,7 @@ install_shells_and_terminals() {
         "zsh"           # Z Shell
         "alacritty"     # GPU-accelerated terminal emulator
         "tmux"          # Terminal multiplexer
+        "powerline"     # Powerline status line for terminals
     )
 
     # Install packages in batch
@@ -30,15 +31,61 @@ install_fonts() {
 
     # Define font packages
     local font_packages=(
-        "fonts-font-awesome"    # Font Awesome icons
-        "fonts-firacode"        # Fira Code programming font
-        "fonts-freefont-ttf"    # Free TTF fonts
-        "fonts-powerline"       # Powerline fonts for status bars
+        "fonts-font-awesome"     # Font Awesome icons
+        "fonts-firacode"         # Fira Code programming font
+        "fonts-freefont-ttf"     # Free TTF fonts
+        "fonts-powerline"        # Powerline fonts for status bars
         "fonts-noto-color-emoji" # Color emoji support
     )
 
     # Install font packages in batch
     install_apt_packages "${font_packages[@]}"
+
+        # Install Meslo Nerd Font for Oh My Posh themes
+    install_meslo_nerd_font() {
+        local font_dir="/usr/share/fonts/meslo-nerd-font"
+
+        if [[ ! -d "$font_dir" ]]; then
+            log_info "Installing Meslo Nerd Font for Oh My Posh themes..."
+
+            # Create temporary directory for font download
+            local temp_font_dir="$TEMP_DIR/meslo-font"
+            ensure_directory "$temp_font_dir"
+
+            # Download Meslo Nerd Font
+            local meslo_zip="$temp_font_dir/Meslo.zip"
+            local download_url="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/Meslo.zip"
+
+            if download_file_safe "$download_url" "$meslo_zip"; then
+                # Create system font directory
+                sudo mkdir -p "$font_dir"
+
+                # Extract fonts to temporary directory first
+                if unzip -q "$meslo_zip" -d "$temp_font_dir"; then
+                    # Move all font files to system font directory
+                    sudo mv "$temp_font_dir"/*.ttf "$font_dir/" 2>/dev/null || true
+                    sudo mv "$temp_font_dir"/*.otf "$font_dir/" 2>/dev/null || true
+
+                    # Set proper permissions
+                    sudo chmod 644 "$font_dir"/*.ttf 2>/dev/null || true
+                    sudo chmod 644 "$font_dir"/*.otf 2>/dev/null || true
+
+                    log_success "Meslo Nerd Font installed successfully to $font_dir"
+                else
+                    log_error "Failed to extract Meslo Nerd Font"
+                    return 1
+                fi
+            else
+                log_error "Failed to download Meslo Nerd Font"
+                return 1
+            fi
+        else
+            log_info "Meslo Nerd Font is already installed"
+        fi
+    }
+
+    # Install Meslo Nerd Font
+    install_meslo_nerd_font
 
     # Update font cache
     log_info "Updating font cache..."

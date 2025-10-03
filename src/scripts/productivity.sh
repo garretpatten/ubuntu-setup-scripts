@@ -102,12 +102,29 @@ install_communication_tools() {
 install_productivity_tools() {
     log_info "Installing productivity and note-taking tools..."
 
-    # Install Notion via Flatpak
+    # Install Notion via APT (community repackaged version)
     install_notion() {
-        if ! is_flatpak_installed "notion.so.Notion"; then
-            log_info "Installing Notion note-taking app..."
-            flatpak install -y flathub notion.so.Notion || \
-                log_warning "Failed to install Notion via Flatpak"
+        if ! is_installed "notion-app"; then
+            log_info "Installing Notion note-taking app (community repackaged)..."
+
+            # Add Notion repackaged repository
+            if ! grep -q "apt.fury.io/notion-repackaged" /etc/apt/sources.list.d/*.list 2>/dev/null; then
+                log_info "Adding Notion repackaged repository..."
+                echo "deb [trusted=yes] https://apt.fury.io/notion-repackaged/ /" | \
+                    sudo tee /etc/apt/sources.list.d/notion-repackaged.list > /dev/null
+
+                # Update package lists
+                sudo apt-get update -y || {
+                    log_warning "Failed to update package lists after adding Notion repository"
+                }
+            fi
+
+            # Install Notion
+            if sudo apt-get install -y notion-app; then
+                log_success "Notion installed successfully"
+            else
+                log_warning "Failed to install Notion. You can access Notion via web browser at https://notion.so"
+            fi
         else
             log_info "Notion is already installed"
         fi
@@ -149,12 +166,48 @@ install_productivity_tools() {
 install_system_utilities() {
     log_info "Installing system utilities..."
 
-    # Install Balena Etcher via Flatpak (for creating bootable USB drives)
+    # Install Balena Etcher via AppImage (more reliable than Flatpak)
     install_balena_etcher() {
-        if ! is_flatpak_installed "com.balena.Etcher"; then
-            log_info "Installing Balena Etcher USB imaging tool..."
-            flatpak install -y flathub com.balena.Etcher || \
-                log_warning "Failed to install Balena Etcher via Flatpak"
+        local etcher_dir="$HOME/.local/bin"
+        local etcher_path="$etcher_dir/balenaEtcher.AppImage"
+
+        if [[ ! -f "$etcher_path" ]]; then
+            log_info "Installing Balena Etcher USB imaging tool via AppImage..."
+
+            # Ensure directory exists
+            ensure_directory "$etcher_dir"
+
+            # Install libfuse2 dependency for AppImages
+            if ! is_package_installed "libfuse2"; then
+                log_info "Installing libfuse2 for AppImage support..."
+                install_apt_packages "libfuse2"
+            fi
+
+            # Download latest Balena Etcher AppImage
+            local download_url="https://github.com/balena-io/etcher/releases/latest/download/balenaEtcher-1.18.11-x64.AppImage"
+
+            if download_file_safe "$download_url" "$etcher_path"; then
+                # Make executable
+                chmod +x "$etcher_path"
+
+                # Create desktop entry
+                local desktop_file="$HOME/.local/share/applications/balena-etcher.desktop"
+                ensure_directory "$(dirname "$desktop_file")"
+
+                cat > "$desktop_file" << EOF
+[Desktop Entry]
+Name=balenaEtcher
+Comment=Flash OS images to SD cards and USB drives
+Exec=$etcher_path
+Icon=balena-etcher
+Type=Application
+Categories=System;Utility;
+EOF
+
+                log_success "Balena Etcher installed successfully"
+            else
+                log_warning "Failed to download Balena Etcher AppImage"
+            fi
         else
             log_info "Balena Etcher is already installed"
         fi

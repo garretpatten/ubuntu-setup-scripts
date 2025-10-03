@@ -137,6 +137,91 @@ install_protonvpn() {
     fi
 }
 
+# Install Proton Suite (Pass, Mail Bridge, Drive via rclone)
+install_proton_suite() {
+    log_info "Installing Proton suite applications..."
+
+    # Install Proton Pass
+    install_proton_pass() {
+        if ! is_installed "proton-pass"; then
+            log_info "Installing Proton Pass password manager..."
+
+            local proton_pass_deb="$TEMP_DIR/proton-pass.deb"
+            local download_url="https://proton.me/download/PassDesktop/linux/x64/ProtonPass.deb"
+
+            if download_file_safe "$download_url" "$proton_pass_deb"; then
+                # Install Proton Pass
+                if sudo dpkg -i "$proton_pass_deb"; then
+                    # Fix any dependency issues
+                    sudo apt-get install -f -y
+                    log_success "Proton Pass installed successfully"
+                else
+                    log_error "Failed to install Proton Pass"
+                    return 1
+                fi
+            else
+                log_warning "Failed to download Proton Pass. You can download it manually from https://proton.me/pass/download/linux"
+            fi
+        else
+            log_info "Proton Pass is already installed"
+        fi
+    }
+
+    # Install Proton Mail Bridge (for paid users)
+    install_proton_mail_bridge() {
+        if ! is_installed "protonmail-bridge"; then
+            log_info "Installing Proton Mail Bridge (for paid Proton Mail users)..."
+
+            local bridge_deb="$TEMP_DIR/protonmail-bridge.deb"
+            local download_url="https://proton.me/download/bridge/protonmail-bridge_3.9.1-1_amd64.deb"
+
+            if download_file_safe "$download_url" "$bridge_deb"; then
+                # Install Proton Mail Bridge
+                if sudo dpkg -i "$bridge_deb"; then
+                    # Fix any dependency issues
+                    sudo apt-get install -f -y
+                    log_success "Proton Mail Bridge installed successfully"
+                    log_info "Note: Proton Mail Bridge requires a paid Proton Mail subscription"
+                    log_info "Configure with your email client (Thunderbird, etc.) after setup"
+                else
+                    log_error "Failed to install Proton Mail Bridge"
+                    return 1
+                fi
+            else
+                log_warning "Failed to download Proton Mail Bridge. You can download it manually from https://proton.me/bridge/install"
+            fi
+        else
+            log_info "Proton Mail Bridge is already installed"
+        fi
+    }
+
+    # Install rclone for Proton Drive integration
+    install_proton_drive_rclone() {
+        if ! is_installed "rclone"; then
+            log_info "Installing rclone for Proton Drive integration..."
+
+            # Install rclone via official script
+            if curl https://rclone.org/install.sh | sudo bash; then
+                log_success "rclone installed successfully"
+                log_info "To configure Proton Drive with rclone:"
+                log_info "  1. Run: rclone config"
+                log_info "  2. Create new remote and select Proton Drive"
+                log_info "  3. Enter your Proton credentials"
+                log_info "  4. Mount with: rclone mount proton: ~/ProtonDrive --vfs-cache-mode writes"
+            else
+                log_warning "Failed to install rclone. You can install it manually or use Proton Drive web interface"
+            fi
+        else
+            log_info "rclone is already installed"
+        fi
+    }
+
+    # Install Proton applications
+    install_proton_pass
+    install_proton_mail_bridge
+    install_proton_drive_rclone
+}
+
 # Install Signal Messenger
 install_signal() {
     if ! is_installed "signal-desktop"; then
@@ -278,6 +363,7 @@ main() {
     install_authentication_tools
     install_defense_tools
     install_protonvpn
+    install_proton_suite
     install_signal
     install_offensive_security_tools
     install_additional_security_tools
