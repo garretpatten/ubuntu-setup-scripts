@@ -122,6 +122,51 @@ install_docker() {
     fi
 }
 
+# Install Neovim with latest version
+install_neovim() {
+    log_info "Installing Neovim with latest version..."
+
+    if ! is_installed "nvim"; then
+        # Add Neovim PPA for latest stable version
+        if ! grep -q "neovim-ppa" /etc/apt/sources.list.d/*.list 2>/dev/null; then
+            log_info "Adding Neovim PPA repository..."
+            sudo add-apt-repository -y ppa:neovim-ppa/stable
+            update_apt_cache
+        fi
+
+        # Install Neovim and Python support
+        local neovim_packages=(
+            "neovim"
+            "python3-neovim"
+            "python3-dev"
+            "python3-pip"
+        )
+        install_apt_packages "${neovim_packages[@]}"
+
+        # Install pynvim for better Python integration
+        if is_installed "pip3"; then
+            log_info "Installing pynvim for Python integration..."
+            pip3 install --user pynvim || log_warning "Failed to install pynvim"
+        fi
+
+        # Install additional LSP servers via npm (if available)
+        if is_installed "npm"; then
+            log_info "Installing additional LSP servers..."
+            npm install -g typescript-language-server pyright vscode-langservers-extracted || log_warning "Failed to install some LSP servers"
+        fi
+
+        # Install vsnip for snippet support (used in the dotfiles config)
+        if is_installed "npm"; then
+            log_info "Installing vsnip for snippet support..."
+            npm install -g vsnip || log_warning "Failed to install vsnip"
+        fi
+
+        log_success "Neovim installed successfully"
+    else
+        log_info "Neovim is already installed"
+    fi
+}
+
 # Install development tools
 install_dev_tools() {
     log_info "Installing development tools..."
@@ -129,7 +174,6 @@ install_dev_tools() {
     # Define development tools to install
     local dev_tools=(
         "gh"            # GitHub CLI
-        "neovim"        # Modern Vim
         "shellcheck"    # Shell script linter
         "git"           # Version control (if not already installed)
     )
@@ -137,12 +181,18 @@ install_dev_tools() {
     # Install development tools in batch
     install_apt_packages "${dev_tools[@]}"
 
+    # Install Neovim separately for better control
+    install_neovim
+
     # Install Neovim package manager (Packer)
     install_neovim_packer() {
         local packer_dir="$HOME/.local/share/nvim/site/pack/packer/start/packer.nvim"
         if [[ ! -d "$packer_dir" ]]; then
             log_info "Installing Neovim Packer plugin manager..."
             clone_repository_safe "https://github.com/wbthomason/packer.nvim" "$packer_dir" "1"
+
+            # Note: After installation, user should run :PackerSync in neovim to install plugins
+            log_info "Packer installed. Run :PackerSync in neovim to install plugins from your configuration."
         else
             log_info "Neovim Packer is already installed"
         fi
@@ -161,6 +211,54 @@ install_dev_tools() {
 
     install_neovim_packer
     install_postman
+}
+
+# Install Cursor IDE
+install_cursor_ide() {
+    log_info "Installing Cursor IDE..."
+
+    if ! is_installed "cursor"; then
+        # Download Cursor IDE .deb package
+        local cursor_deb="$TEMP_DIR/cursor.deb"
+        local cursor_url="https://downloader.cursor.sh/linux/appImage/x64"
+
+        # Try to get the latest .deb package URL
+        log_info "Downloading Cursor IDE..."
+
+        # Download the AppImage version (more reliable for Linux)
+        local cursor_appimage="$TEMP_DIR/cursor.AppImage"
+        if download_file_safe "$cursor_url" "$cursor_appimage"; then
+            # Make it executable
+            chmod +x "$cursor_appimage"
+
+            # Create a symlink in /usr/local/bin for easy access
+            sudo ln -sf "$cursor_appimage" /usr/local/bin/cursor
+
+            # Create desktop entry
+            local desktop_entry="$HOME/.local/share/applications/cursor.desktop"
+            ensure_directory "$(dirname "$desktop_entry")"
+
+            cat > "$desktop_entry" << EOF
+[Desktop Entry]
+Name=Cursor
+Comment=The AI-first code editor
+Exec=/usr/local/bin/cursor %U
+Icon=cursor
+Terminal=false
+Type=Application
+Categories=Development;TextEditor;
+MimeType=text/plain;text/x-chdr;text/x-csrc;text/x-c++hdr;text/x-c++src;text/x-java;text/x-dsrc;text/x-pascal;text/x-perl;text/x-python;application/x-php;application/x-httpd-php3;application/x-httpd-php4;application/x-httpd-php5;application/javascript;application/json;text/css;text/x-sql;text/xml;
+StartupWMClass=Cursor
+EOF
+
+            log_success "Cursor IDE installed successfully"
+        else
+            log_error "Failed to download Cursor IDE"
+            return 1
+        fi
+    else
+        log_info "Cursor IDE is already installed"
+    fi
 }
 
 # Configure development tools
@@ -189,14 +287,58 @@ configure_dev_tools() {
         local nvim_config_dir="$HOME/.config/nvim"
         local nvim_source_dir="$PROJECT_ROOT/src/dotfiles/nvim"
 
-        if [[ ! -d "$nvim_config_dir" && -d "$nvim_source_dir" ]]; then
+        if [[ ! -d "$nvim_config_dir" ]]; then
             log_info "Configuring Neovim..."
             ensure_directory "$nvim_config_dir"
-            cp -r "$nvim_source_dir/"* "$nvim_config_dir/" && \
-                log_success "Neovim configured successfully" || \
-                log_error "Failed to configure Neovim"
+
+            # Copy configuration from dotfiles directory
+            if [[ -d "$nvim_source_dir" ]]; then
+                log_info "Copying Neovim configuration from dotfiles..."
+                cp -r "$nvim_source_dir/"* "$nvim_config_dir/" && \
+                    log_success "Neovim configured from dotfiles" || \
+                    log_error "Failed to configure Neovim from dotfiles"
+            else
+                log_warning "Neovim configuration source not found at $nvim_source_dir"
+                log_info "Creating basic Neovim configuration..."
+
+                # Create minimal init.lua as fallback
+                cat > "$nvim_config_dir/init.lua" << 'EOF'
+-- Basic Neovim configuration
+vim.g.mapleader = " "
+vim.g.maplocalleader = "\\"
+
+-- Basic settings
+vim.opt.number = true
+vim.opt.relativenumber = true
+vim.opt.tabstop = 4
+vim.opt.shiftwidth = 4
+vim.opt.expandtab = true
+vim.opt.autoindent = true
+vim.opt.smartindent = true
+vim.opt.wrap = false
+vim.opt.swapfile = false
+vim.opt.backup = false
+vim.opt.undofile = true
+vim.opt.incsearch = true
+vim.opt.hlsearch = false
+vim.opt.ignorecase = true
+vim.opt.smartcase = true
+vim.opt.cursorline = true
+vim.opt.termguicolors = true
+vim.opt.scrolloff = 8
+vim.opt.updatetime = 50
+vim.opt.colorcolumn = "80"
+
+-- Key mappings
+vim.keymap.set("n", "<leader>h", ":nohlsearch<CR>", { desc = "Clear search highlight" })
+vim.keymap.set("n", "<leader>w", ":w<CR>", { desc = "Save file" })
+vim.keymap.set("n", "<leader>q", ":q<CR>", { desc = "Quit" })
+vim.keymap.set("n", "<leader>e", ":Ex<CR>", { desc = "Open file explorer" })
+EOF
+                log_success "Basic Neovim configuration created as fallback"
+            fi
         else
-            log_info "Neovim configuration already exists or source not found"
+            log_info "Neovim configuration already exists"
         fi
     }
 
@@ -230,10 +372,12 @@ main() {
     install_frameworks
     install_docker
     install_dev_tools
+    install_cursor_ide
     configure_dev_tools
 
     log_success "Development tools installation completed!"
     log_info "Note: You may need to log out and back in for Docker group permissions to take effect"
+    log_info "Neovim setup: After installation, open neovim and run :PackerSync to install plugins from your dotfiles configuration"
 }
 
 # Execute main function
