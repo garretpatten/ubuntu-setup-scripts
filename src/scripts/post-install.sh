@@ -194,13 +194,14 @@ generate_setup_summary() {
 main() {
     log_info "Starting post-installation cleanup and configuration..."
 
-    # Perform final tasks
-    perform_final_system_update
-    configure_system_services
-    generate_setup_summary
-    display_completion_info
+    # Perform final tasks with error handling
+    execute_with_fallback perform_final_system_update
+    execute_with_fallback configure_system_services
+    execute_with_fallback generate_setup_summary
+    execute_with_fallback display_completion_info
 
     log_success "Post-installation setup completed successfully!"
+    log_info "Check $ERROR_LOG_FILE for any failed operations"
 }
 
 # Execute main function

@@ -47,15 +47,43 @@ install_office_applications() {
 install_communication_tools() {
     log_info "Installing communication and collaboration tools..."
 
-    # Install Zoom via snap (more reliable than manual installation)
+    # Install Zoom with multiple fallback methods
     install_zoom() {
         if ! is_installed "zoom"; then
             log_info "Installing Zoom video conferencing..."
-            if is_installed "snap"; then
-                sudo snap install zoom-client
-                log_success "Zoom installed via snap"
+
+            # Try snap first (Ubuntu)
+            if is_snap_available; then
+                if sudo snap install zoom-client; then
+                    log_success "Zoom installed via snap"
+                    return 0
+                else
+                    log_warning "Snap installation failed, trying alternative methods..."
+                fi
+            fi
+
+            # Try Flatpak (works on both Ubuntu and Mint)
+            if is_flatpak_available; then
+                if flatpak install -y flathub us.zoom.Zoom; then
+                    log_success "Zoom installed via Flatpak"
+                    return 0
+                else
+                    log_warning "Flatpak installation failed, trying manual download..."
+                fi
+            fi
+
+            # Manual download as last resort
+            log_info "Attempting manual Zoom installation..."
+            local zoom_deb="$TEMP_DIR/zoom.deb"
+            if download_file_safe "https://zoom.us/client/latest/zoom_amd64.deb" "$zoom_deb"; then
+                if sudo dpkg -i "$zoom_deb"; then
+                    sudo apt-get install -f -y  # Fix dependencies
+                    log_success "Zoom installed via manual download"
+                else
+                    log_error "Manual Zoom installation failed"
+                fi
             else
-                log_warning "Snap not available, skipping Zoom installation"
+                log_warning "Failed to download Zoom, skipping installation"
                 log_info "You can install Zoom manually from https://zoom.us/download"
             fi
         else
@@ -63,31 +91,63 @@ install_communication_tools() {
         fi
     }
 
-    # Install Discord via snap
+    # Install Discord with multiple fallback methods
     install_discord() {
         if ! is_installed "discord"; then
             log_info "Installing Discord communication platform..."
-            if is_installed "snap"; then
-                sudo snap install discord
-                log_success "Discord installed via snap"
-            else
-                log_warning "Snap not available, skipping Discord installation"
+
+            # Try snap first (Ubuntu)
+            if is_snap_available; then
+                if sudo snap install discord; then
+                    log_success "Discord installed via snap"
+                    return 0
+                else
+                    log_warning "Snap installation failed, trying alternative methods..."
+                fi
             fi
+
+            # Try Flatpak (works on both Ubuntu and Mint)
+            if is_flatpak_available; then
+                if flatpak install -y flathub com.discordapp.Discord; then
+                    log_success "Discord installed via Flatpak"
+                    return 0
+                else
+                    log_warning "Flatpak installation failed"
+                fi
+            fi
+
+            log_warning "No suitable installation method available for Discord"
         else
             log_info "Discord is already installed"
         fi
     }
 
-    # Install Slack via snap
+    # Install Slack with multiple fallback methods
     install_slack() {
         if ! is_installed "slack"; then
             log_info "Installing Slack team communication..."
-            if is_installed "snap"; then
-                sudo snap install slack --classic
-                log_success "Slack installed via snap"
-            else
-                log_warning "Snap not available, skipping Slack installation"
+
+            # Try snap first (Ubuntu)
+            if is_snap_available; then
+                if sudo snap install slack --classic; then
+                    log_success "Slack installed via snap"
+                    return 0
+                else
+                    log_warning "Snap installation failed, trying alternative methods..."
+                fi
             fi
+
+            # Try Flatpak (works on both Ubuntu and Mint)
+            if is_flatpak_available; then
+                if flatpak install -y flathub com.slack.Slack; then
+                    log_success "Slack installed via Flatpak"
+                    return 0
+                else
+                    log_warning "Flatpak installation failed"
+                fi
+            fi
+
+            log_warning "No suitable installation method available for Slack"
         else
             log_info "Slack is already installed"
         fi
@@ -294,15 +354,16 @@ main() {
     # Update package cache
     update_apt_cache
 
-    # Install productivity components
-    install_office_applications
-    install_communication_tools
-    install_productivity_tools
-    install_system_utilities
-    configure_productivity_apps
+    # Install productivity components with error handling
+    execute_with_fallback install_office_applications
+    execute_with_fallback install_communication_tools
+    execute_with_fallback install_productivity_tools
+    execute_with_fallback install_system_utilities
+    execute_with_fallback configure_productivity_apps
 
     log_success "Productivity applications installation completed!"
     log_info "Note: Some applications may require additional configuration"
+    log_info "Check $ERROR_LOG_FILE for any failed installations"
 }
 
 # Execute main function

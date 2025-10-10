@@ -137,13 +137,14 @@ main() {
     # Check system requirements
     check_system_requirements
 
-    # Perform system updates and configuration
-    perform_system_update
-    install_essential_tools
-    configure_system_settings
+    # Perform system updates and configuration with error handling
+    execute_with_fallback perform_system_update
+    execute_with_fallback install_essential_tools
+    execute_with_fallback configure_system_settings
 
     log_success "Pre-installation setup completed!"
     log_info "System is ready for application installation"
+    log_info "Check $ERROR_LOG_FILE for any failed operations"
 }
 
 # Execute main function

@@ -352,16 +352,17 @@ main() {
     # Update package cache
     update_apt_cache
 
-    # Install and configure components
-    install_shells_and_terminals
-    install_fonts
-    install_shell_plugins
-    configure_terminal_applications
-    change_default_shell
+    # Install and configure components with error handling
+    execute_with_fallback install_shells_and_terminals
+    execute_with_fallback install_fonts
+    execute_with_fallback install_shell_plugins
+    execute_with_fallback configure_terminal_applications
+    execute_with_fallback change_default_shell
 
     log_success "Shell and terminal setup completed!"
     log_info "Please log out and log back in for shell changes to take effect"
     log_info "You may need to restart your terminal to see font changes"
+    log_info "Check $ERROR_LOG_FILE for any failed installations"
 }
 
 # Execute main function

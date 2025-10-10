@@ -127,11 +127,37 @@ install_neovim() {
     log_info "Installing Neovim with latest version..."
 
     if ! is_installed "nvim"; then
-        # Add Neovim PPA for latest stable version
+        # Try to add Neovim PPA for latest stable version
         if ! grep -q "neovim-ppa" /etc/apt/sources.list.d/*.list 2>/dev/null; then
             log_info "Adding Neovim PPA repository..."
-            sudo add-apt-repository -y ppa:neovim-ppa/stable
-            update_apt_cache
+            if sudo add-apt-repository -y ppa:neovim-ppa/stable; then
+                update_apt_cache
+            else
+                log_warning "Failed to add Neovim PPA, trying alternative installation method..."
+                # Fallback: try alternative installation methods
+                log_warning "Failed to add Neovim PPA, trying alternative installation methods..."
+
+                # Try snap if available (Ubuntu)
+                if command -v snap >/dev/null 2>&1; then
+                    log_info "Installing Neovim via Snap as fallback..."
+                    if sudo snap install nvim --classic; then
+                        log_success "Neovim installed via Snap"
+                        return 0
+                    else
+                        log_warning "Snap installation failed, trying other methods..."
+                    fi
+                fi
+
+                # Try installing from Ubuntu repositories (works on both Ubuntu and Mint)
+                log_info "Trying to install Neovim from standard repositories..."
+                if sudo apt-get install -y neovim; then
+                    log_success "Neovim installed from standard repositories"
+                    return 0
+                else
+                    log_error "All Neovim installation methods failed"
+                    return 1
+                fi
+            fi
         fi
 
         # Install Neovim and Python support
@@ -141,27 +167,42 @@ install_neovim() {
             "python3-dev"
             "python3-pip"
         )
-        install_apt_packages "${neovim_packages[@]}"
+
+        # Try to install packages, with individual fallback
+        if ! install_apt_packages "${neovim_packages[@]}"; then
+            log_warning "Batch installation failed, trying individual packages..."
+            for package in "${neovim_packages[@]}"; do
+                if ! sudo apt-get install -y "$package"; then
+                    log_error "Failed to install: $package"
+                fi
+            done
+        fi
 
         # Install pynvim for better Python integration
         if is_installed "pip3"; then
             log_info "Installing pynvim for Python integration..."
-            pip3 install --user pynvim || log_warning "Failed to install pynvim"
+            if ! pip3 install --user pynvim; then
+                log_warning "Failed to install pynvim"
+            fi
         fi
 
         # Install additional LSP servers via npm (if available)
         if is_installed "npm"; then
             log_info "Installing additional LSP servers..."
-            npm install -g typescript-language-server pyright vscode-langservers-extracted || log_warning "Failed to install some LSP servers"
+            if ! npm install -g typescript-language-server pyright vscode-langservers-extracted; then
+                log_warning "Failed to install some LSP servers"
+            fi
         fi
 
         # Install vsnip for snippet support (used in the dotfiles config)
         if is_installed "npm"; then
             log_info "Installing vsnip for snippet support..."
-            npm install -g vsnip || log_warning "Failed to install vsnip"
+            if ! npm install -g vsnip; then
+                log_warning "Failed to install vsnip"
+            fi
         fi
 
-        log_success "Neovim installed successfully"
+        log_success "Neovim installation process completed"
     else
         log_info "Neovim is already installed"
     fi
@@ -218,21 +259,27 @@ install_cursor_ide() {
     log_info "Installing Cursor IDE..."
 
     if ! is_installed "cursor"; then
-        # Download Cursor IDE .deb package
-        local cursor_deb="$TEMP_DIR/cursor.deb"
+        # Download Cursor IDE AppImage
+        local cursor_appimage="$TEMP_DIR/cursor.AppImage"
         local cursor_url="https://downloader.cursor.sh/linux/appImage/x64"
 
-        # Try to get the latest .deb package URL
-        log_info "Downloading Cursor IDE..."
+        log_info "Downloading Cursor IDE AppImage..."
 
         # Download the AppImage version (more reliable for Linux)
-        local cursor_appimage="$TEMP_DIR/cursor.AppImage"
         if download_file_safe "$cursor_url" "$cursor_appimage"; then
             # Make it executable
             chmod +x "$cursor_appimage"
 
+            # Create a permanent location for the AppImage
+            local cursor_install_dir="$HOME/.local/bin"
+            ensure_directory "$cursor_install_dir"
+            local cursor_installed="$cursor_install_dir/cursor.AppImage"
+
+            # Move AppImage to permanent location
+            mv "$cursor_appimage" "$cursor_installed"
+
             # Create a symlink in /usr/local/bin for easy access
-            sudo ln -sf "$cursor_appimage" /usr/local/bin/cursor
+            sudo ln -sf "$cursor_installed" /usr/local/bin/cursor
 
             # Create desktop entry
             local desktop_entry="$HOME/.local/share/applications/cursor.desktop"
@@ -242,7 +289,7 @@ install_cursor_ide() {
 [Desktop Entry]
 Name=Cursor
 Comment=The AI-first code editor
-Exec=/usr/local/bin/cursor %U
+Exec=$cursor_installed %U
 Icon=cursor
 Terminal=false
 Type=Application
@@ -251,7 +298,18 @@ MimeType=text/plain;text/x-chdr;text/x-csrc;text/x-c++hdr;text/x-c++src;text/x-j
 StartupWMClass=Cursor
 EOF
 
+            # Create an icon (using a generic text editor icon as fallback)
+            local icon_dir="$HOME/.local/share/icons"
+            ensure_directory "$icon_dir"
+
+            # Try to find a suitable icon or create a simple one
+            if command -v convert >/dev/null 2>&1; then
+                # Create a simple icon using ImageMagick if available
+                convert -size 64x64 xc:transparent -fill "#007ACC" -draw "circle 32,32 32,16" "$icon_dir/cursor.png" 2>/dev/null || true
+            fi
+
             log_success "Cursor IDE installed successfully"
+            log_info "Cursor AppImage installed to: $cursor_installed"
         else
             log_error "Failed to download Cursor IDE"
             return 1
@@ -367,17 +425,18 @@ main() {
     # Update package cache
     update_apt_cache
 
-    # Install components
-    install_runtimes
-    install_frameworks
-    install_docker
-    install_dev_tools
-    install_cursor_ide
-    configure_dev_tools
+    # Install components with error handling
+    execute_with_fallback install_runtimes
+    execute_with_fallback install_frameworks
+    execute_with_fallback install_docker
+    execute_with_fallback install_dev_tools
+    execute_with_fallback install_cursor_ide
+    execute_with_fallback configure_dev_tools
 
     log_success "Development tools installation completed!"
     log_info "Note: You may need to log out and back in for Docker group permissions to take effect"
     log_info "Neovim setup: After installation, open neovim and run :PackerSync to install plugins from your dotfiles configuration"
+    log_info "Check $ERROR_LOG_FILE for any failed installations"
 }
 
 # Execute main function
