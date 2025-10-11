@@ -267,6 +267,18 @@ install_signal() {
                 ubuntu_codename="jammy"  # Fallback for newer systems
             fi
 
+            # For Linux Mint, map to appropriate Ubuntu codename
+            case "$ubuntu_codename" in
+                "una"|"vanessa"|"vera"|"victoria"|"wilma")
+                    ubuntu_codename="jammy"  # Map Mint versions to Ubuntu 22.04
+                    log_info "Mapped Linux Mint codename to Ubuntu $ubuntu_codename for Signal repository"
+                    ;;
+                "ulyssa"|"uma"|"ulyana"|"tina"|"tricia")
+                    ubuntu_codename="focal"  # Map older Mint versions to Ubuntu 20.04
+                    log_info "Mapped Linux Mint codename to Ubuntu $ubuntu_codename for Signal repository"
+                    ;;
+            esac
+
             echo "deb [arch=amd64 signed-by=/usr/share/keyrings/signal-desktop-keyring.gpg] https://updates.signal.org/desktop/apt $ubuntu_codename main" | \
                 sudo tee "$signal_list_file" > /dev/null
 
@@ -282,6 +294,25 @@ install_signal() {
 
         # Install Signal
         install_apt_packages "signal-desktop"
+
+        # Verify Signal installation
+        verify_signal_installation() {
+            if is_installed "signal-desktop"; then
+                log_success "Signal Desktop installed successfully"
+            else
+                log_error "Signal Desktop installation verification failed"
+                # Try alternative installation method
+                log_info "Attempting alternative Signal installation..."
+                if sudo apt-get install -y --fix-missing signal-desktop; then
+                    log_success "Signal Desktop installed via alternative method"
+                else
+                    log_error "Failed to install Signal Desktop via alternative method"
+                    return 1
+                fi
+            fi
+        }
+
+        verify_signal_installation
     else
         log_info "Signal Messenger is already installed"
     fi
@@ -299,6 +330,27 @@ install_offensive_security_tools() {
 
     # Install APT security tools in batch
     install_apt_packages "${apt_security_tools[@]}"
+
+    # Verify nmap installation specifically
+    verify_nmap_installation() {
+        if is_installed "nmap"; then
+            local nmap_version
+            nmap_version=$(nmap --version 2>/dev/null | head -n1 || echo "unknown")
+            log_success "nmap installed successfully: $nmap_version"
+        else
+            log_error "nmap installation verification failed"
+            # Try alternative installation method
+            log_info "Attempting alternative nmap installation..."
+            if sudo apt-get install -y --fix-missing nmap; then
+                log_success "nmap installed via alternative method"
+            else
+                log_error "Failed to install nmap via alternative method"
+                return 1
+            fi
+        fi
+    }
+
+    verify_nmap_installation
 
     # Install OWASP ZAP with multiple fallback methods
     install_zaproxy_snap() {
