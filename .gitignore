@@ -2,6 +2,9 @@
 setup_errors.log
 setup_summary.txt
 
+# Node
+node_modules/
+
 # System files
 .DS_Store
 
