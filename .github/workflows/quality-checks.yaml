@@ -1,0 +1,22 @@
+---
+name: 'Quality Checks'
+
+on: [pull_request]
+
+jobs:
+  quality-checks:
+    name: 'Linters'
+    # yamllint disable-line rule:line-length
+    uses: garretpatten/quality-checks/.github/workflows/quality-checks.yaml@master
+    with:
+      actionlint_run: true
+      eslint_run: true
+      hadolint_run: true
+      jq_run: true
+      markdownlint_run: true
+      prettier_run: true
+      ruff_run: true
+      shellcheck_run: true
+      taplo_run: true
+      yamllint_run: true
+    secrets: inherit
