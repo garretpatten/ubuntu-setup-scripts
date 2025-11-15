@@ -1,0 +1,13 @@
+name: 'Security Checks'
+
+on: pull_request
+
+jobs:
+  scans:
+    name: 'Scans'
+    # yamllint disable-line rule:line-length
+    uses: garretpatten/security-checks/.github/workflows/security-checks.yaml@master
+    with:
+      semgrep_run: true
+      trufflehog_run: true
+    secrets: inherit

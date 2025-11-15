@@ -1,0 +1,10 @@
+---
+extends: default
+
+rules:
+  document-start: disable
+  line-length:
+    max: 80
+  truthy:
+    allowed-values: ['true', 'false', 'on', 'off']
+    check-keys: false

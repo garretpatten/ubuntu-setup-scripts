@@ -1,17 +1,25 @@
 {
+  "arrowParens": "always",
+  "bracketSameLine": false,
+  "bracketSpacing": true,
+  "embeddedLanguageFormatting": "auto",
+  "endOfLine": "lf",
+  "htmlWhitespaceSensitivity": "css",
+  "jsxSingleQuote": false,
+  "overrides": [
+    {
+      "files": "*.yaml,*.yml",
+      "options": {
+        "printWidth": 80
+      }
+    }
+  ],
   "printWidth": 100,
-  "tabWidth": 2,
-  "useTabs": false,
+  "proseWrap": "preserve",
+  "quoteProps": "as-needed",
   "semi": true,
   "singleQuote": true,
-  "quoteProps": "as-needed",
-  "jsxSingleQuote": false,
+  "tabWidth": 2,
   "trailingComma": "all",
-  "bracketSpacing": true,
-  "bracketSameLine": false,
-  "arrowParens": "always",
-  "endOfLine": "lf",
-  "proseWrap": "preserve",
-  "htmlWhitespaceSensitivity": "css",
-  "embeddedLanguageFormatting": "auto"
+  "useTabs": false
 }
