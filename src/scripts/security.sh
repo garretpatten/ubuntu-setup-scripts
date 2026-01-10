@@ -71,7 +71,6 @@ install_defense_tools() {
         "clamav-daemon" # ClamAV daemon
         "ufw"           # Uncomplicated Firewall
         "openvpn"       # OpenVPN client
-        "gnome-shell"   # Required for some VPN integrations
     )
 
     # Install defense tools in batch
@@ -122,13 +121,20 @@ install_protonvpn() {
         sudo dpkg -i "$protonvpn_deb"
         update_apt_cache
 
-        # Install ProtonVPN packages
+        # Install ProtonVPN packages (with fallback for non-GNOME systems)
         local protonvpn_packages=(
             "proton-vpn-gnome-desktop"
             "libayatana-appindicator3-1"
             "gir1.2-ayatanaappindicator3-0.1"
-            "gnome-shell-extension-appindicator"
         )
+
+        # Try to install gnome-shell-extension-appindicator, but don't fail if it's not available
+        if apt-cache show gnome-shell-extension-appindicator >/dev/null 2>&1; then
+            protonvpn_packages+=("gnome-shell-extension-appindicator")
+        else
+            log_info "gnome-shell-extension-appindicator not available, skipping..."
+        fi
+
         install_apt_packages "${protonvpn_packages[@]}"
 
         log_success "ProtonVPN installed successfully"
@@ -250,10 +256,30 @@ install_signal() {
         fi
 
         # Add Signal repository
-        local signal_list_file="/etc/apt/sources.list.d/signal-xenial.list"
+        local signal_list_file="/etc/apt/sources.list.d/signal-desktop.list"
         if [[ ! -f "$signal_list_file" ]] || ! grep -q "updates.signal.org" "$signal_list_file" 2>/dev/null; then
             log_info "Adding Signal repository..."
-            echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/signal-desktop-keyring.gpg] https://updates.signal.org/desktop/apt xenial main' | \
+            # Use the current Ubuntu codename or fallback to jammy for newer systems
+            local ubuntu_codename
+            if command -v lsb_release >/dev/null 2>&1; then
+                ubuntu_codename=$(lsb_release -cs)
+            else
+                ubuntu_codename="jammy"  # Fallback for newer systems
+            fi
+
+            # For Linux Mint, map to appropriate Ubuntu codename
+            case "$ubuntu_codename" in
+                "una"|"vanessa"|"vera"|"victoria"|"wilma")
+                    ubuntu_codename="jammy"  # Map Mint versions to Ubuntu 22.04
+                    log_info "Mapped Linux Mint codename to Ubuntu $ubuntu_codename for Signal repository"
+                    ;;
+                "ulyssa"|"uma"|"ulyana"|"tina"|"tricia")
+                    ubuntu_codename="focal"  # Map older Mint versions to Ubuntu 20.04
+                    log_info "Mapped Linux Mint codename to Ubuntu $ubuntu_codename for Signal repository"
+                    ;;
+            esac
+
+            echo "deb [arch=amd64 signed-by=/usr/share/keyrings/signal-desktop-keyring.gpg] https://updates.signal.org/desktop/apt $ubuntu_codename main" | \
                 sudo tee "$signal_list_file" > /dev/null
 
             # Update apt cache after adding repository
@@ -268,6 +294,25 @@ install_signal() {
 
         # Install Signal
         install_apt_packages "signal-desktop"
+
+        # Verify Signal installation
+        verify_signal_installation() {
+            if is_installed "signal-desktop"; then
+                log_success "Signal Desktop installed successfully"
+            else
+                log_error "Signal Desktop installation verification failed"
+                # Try alternative installation method
+                log_info "Attempting alternative Signal installation..."
+                if sudo apt-get install -y --fix-missing signal-desktop; then
+                    log_success "Signal Desktop installed via alternative method"
+                else
+                    log_error "Failed to install Signal Desktop via alternative method"
+                    return 1
+                fi
+            fi
+        }
+
+        verify_signal_installation
     else
         log_info "Signal Messenger is already installed"
     fi
@@ -286,23 +331,67 @@ install_offensive_security_tools() {
     # Install APT security tools in batch
     install_apt_packages "${apt_security_tools[@]}"
 
-    # Install OWASP ZAP via Snap (not available in apt)
+    # Verify nmap installation specifically
+    verify_nmap_installation() {
+        if is_installed "nmap"; then
+            local nmap_version
+            nmap_version=$(nmap --version 2>/dev/null | head -n1 || echo "unknown")
+            log_success "nmap installed successfully: $nmap_version"
+        else
+            log_error "nmap installation verification failed"
+            # Try alternative installation method
+            log_info "Attempting alternative nmap installation..."
+            if sudo apt-get install -y --fix-missing nmap; then
+                log_success "nmap installed via alternative method"
+            else
+                log_error "Failed to install nmap via alternative method"
+                return 1
+            fi
+        fi
+    }
+
+    verify_nmap_installation
+
+    # Install OWASP ZAP with multiple fallback methods
     install_zaproxy_snap() {
         if ! is_installed "zaproxy"; then
-            log_info "Installing OWASP ZAP via Snap..."
+            log_info "Installing OWASP ZAP..."
 
-            # Ensure snapd is installed
-            if ! is_installed "snap"; then
-                log_info "Installing snapd..."
-                install_apt_packages "snapd"
+            # Try snap first (Ubuntu)
+            if is_snap_available; then
+                if sudo snap install zaproxy --classic; then
+                    log_success "OWASP ZAP installed via snap"
+                    return 0
+                else
+                    log_warning "Snap installation failed, trying alternative methods..."
+                fi
+            else
+                log_info "Snap not available, trying alternative installation methods..."
             fi
 
-            # Install OWASP ZAP
-            if sudo snap install zaproxy --classic; then
-                log_success "OWASP ZAP installed successfully"
+            # Try Flatpak (works on both Ubuntu and Mint)
+            if is_flatpak_available; then
+                if flatpak install -y flathub org.zaproxy.ZAP; then
+                    log_success "OWASP ZAP installed via Flatpak"
+                    return 0
+                else
+                    log_warning "Flatpak installation failed, trying manual download..."
+                fi
+            fi
+
+            # Manual download as last resort
+            log_info "Attempting manual OWASP ZAP installation..."
+            local zap_jar="$TEMP_DIR/ZAP_2_14_0.jar"
+            if download_file_safe "https://github.com/zaproxy/zaproxy/releases/download/v2.14.0/ZAP_2_14_0_unix.sh" "$TEMP_DIR/zap_install.sh"; then
+                chmod +x "$TEMP_DIR/zap_install.sh"
+                if sudo "$TEMP_DIR/zap_install.sh" -q; then
+                    log_success "OWASP ZAP installed via manual download"
+                else
+                    log_error "Manual OWASP ZAP installation failed"
+                fi
             else
-                log_error "Failed to install OWASP ZAP via Snap"
-                return 1
+                log_warning "Failed to download OWASP ZAP, skipping installation"
+                log_info "You can install OWASP ZAP manually from https://www.zaproxy.org/download/"
             fi
         else
             log_info "OWASP ZAP is already installed"
@@ -359,18 +448,19 @@ main() {
     # Update package cache
     update_apt_cache
 
-    # Install components
-    install_authentication_tools
-    install_defense_tools
-    install_protonvpn
-    install_proton_suite
-    install_signal
-    install_offensive_security_tools
-    install_additional_security_tools
+    # Install components with error handling
+    execute_with_fallback install_authentication_tools
+    execute_with_fallback install_defense_tools
+    execute_with_fallback install_protonvpn
+    execute_with_fallback install_proton_suite
+    execute_with_fallback install_signal
+    execute_with_fallback install_offensive_security_tools
+    execute_with_fallback install_additional_security_tools
 
     log_success "Security tools installation completed!"
     log_info "Remember to configure your VPN and security tools after installation"
     log_info "UFW firewall has been enabled with default deny incoming policy"
+    log_info "Check $ERROR_LOG_FILE for any failed installations"
 }
 
 # Execute main function

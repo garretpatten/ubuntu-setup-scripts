@@ -120,15 +120,16 @@ set_directory_permissions() {
 main() {
     log_info "Starting home directory organization..."
 
-    # Organize home directory
-    remove_unused_directories
-    create_project_directories
-    setup_development_workspace
-    create_useful_symlinks
-    set_directory_permissions
+    # Organize home directory with error handling
+    execute_with_fallback remove_unused_directories
+    execute_with_fallback create_project_directories
+    execute_with_fallback setup_development_workspace
+    execute_with_fallback create_useful_symlinks
+    execute_with_fallback set_directory_permissions
 
     log_success "Home directory organization completed!"
     log_info "Your home directory has been organized with useful project folders"
+    log_info "Check $ERROR_LOG_FILE for any failed operations"
 }
 
 # Execute main function

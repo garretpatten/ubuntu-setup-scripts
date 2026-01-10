@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Bash strict mode for better error handling
-set -euo pipefail
+# Bash strict mode for better error handling (but allow partial failures)
+set -uo pipefail
 
 # Global configuration
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -58,7 +58,79 @@ is_directory_populated() {
     [[ -d "$directory" && -n "$(ls -A "$directory" 2>/dev/null)" ]]
 }
 
-# Install packages in batch to reduce apt calls
+# Detect distribution and provide compatibility info
+detect_distribution() {
+    local distro_id
+    local distro_codename
+    local distro_version
+
+    distro_id=$(lsb_release -si 2>/dev/null || echo "Unknown")
+    distro_codename=$(lsb_release -cs 2>/dev/null || echo "unknown")
+    distro_version=$(lsb_release -rs 2>/dev/null || echo "unknown")
+
+    log_info "Detected distribution: $distro_id $distro_version ($distro_codename)"
+
+    # Export distribution info for use in other scripts
+    export DISTRO_ID="$distro_id"
+    export DISTRO_CODENAME="$distro_codename"
+    export DISTRO_VERSION="$distro_version"
+
+    # Check for specific compatibility issues
+    case "$distro_id" in
+        "LinuxMint")
+            log_info "Linux Mint detected - some Ubuntu-specific features may not be available"
+            log_info "Snap support is limited, Flatpak will be preferred for applications"
+            ;;
+        "Ubuntu")
+            log_info "Ubuntu detected - full feature set available"
+            ;;
+        *)
+            log_info "Unknown distribution - using compatibility mode"
+            ;;
+    esac
+}
+
+# Check if snap is available and working
+is_snap_available() {
+    if command -v snap >/dev/null 2>&1; then
+        # Test if snap is actually working
+        if snap version >/dev/null 2>&1; then
+            return 0
+        fi
+    fi
+    return 1
+}
+
+# Check if flatpak is available and working
+is_flatpak_available() {
+    if command -v flatpak >/dev/null 2>&1; then
+        # Test if flatpak is actually working
+        if flatpak --version >/dev/null 2>&1; then
+            return 0
+        fi
+    fi
+    return 1
+}
+
+# Execute function with error handling (continues on failure)
+execute_with_fallback() {
+    local function_name="$1"
+    shift
+    local args=("$@")
+
+    log_info "Executing: $function_name"
+
+    if "$function_name" "${args[@]}"; then
+        log_success "Successfully completed: $function_name"
+        return 0
+    else
+        log_error "Failed to execute: $function_name"
+        log_error "Continuing with remaining tasks..."
+        return 1
+    fi
+}
+
+# Install packages in batch to reduce apt calls (with fallback)
 install_apt_packages() {
     local packages=("$@")
     local packages_to_install=()
@@ -77,11 +149,20 @@ install_apt_packages() {
     # Install packages in batch if any are needed
     if [[ ${#packages_to_install[@]} -gt 0 ]]; then
         log_info "Installing packages: ${packages_to_install[*]}"
-        sudo apt-get install -y "${packages_to_install[@]}" || {
+        if sudo apt-get install -y "${packages_to_install[@]}"; then
+            log_success "Successfully installed packages: ${packages_to_install[*]}"
+        else
             log_error "Failed to install packages: ${packages_to_install[*]}"
-            return 1
-        }
-        log_success "Successfully installed packages: ${packages_to_install[*]}"
+            # Try installing packages individually as fallback
+            log_info "Attempting individual package installation as fallback..."
+            for package in "${packages_to_install[@]}"; do
+                if sudo apt-get install -y "$package"; then
+                    log_success "Successfully installed: $package"
+                else
+                    log_error "Failed to install: $package"
+                fi
+            done
+        fi
     else
         log_info "All packages are already installed"
     fi
@@ -224,6 +305,7 @@ ensure_directory "$TEMP_DIR"
 export -f log_info log_success log_warning log_error
 export -f is_installed is_package_installed is_flatpak_installed is_directory_populated
 export -f install_apt_packages update_apt_cache ensure_directory remove_empty_directory
-export -f copy_file_safe download_file_safe clone_repository_safe
+export -f copy_file_safe download_file_safe clone_repository_safe execute_with_fallback
+export -f detect_distribution is_snap_available is_flatpak_available
 export PROJECT_ROOT SCRIPT_DIR ERROR_LOG_FILE TEMP_DIR
 

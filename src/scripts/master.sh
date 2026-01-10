@@ -18,6 +18,9 @@ main() {
     log_info "Project root: $PROJECT_ROOT"
     log_info "Script directory: $SCRIPT_DIR"
 
+    # Detect distribution for compatibility
+    detect_distribution
+
     # Array of setup scripts to execute in order
     local setup_scripts=(
         "pre-install.sh"
@@ -31,24 +34,24 @@ main() {
         "post-install.sh"
     )
 
-    # Execute each setup script
+    # Execute each setup script with error handling
     for script in "${setup_scripts[@]}"; do
         local script_path="$SCRIPT_DIR/$script"
 
         if [[ -f "$script_path" ]]; then
             log_info "Executing setup script: $script"
 
-            # Execute script and capture exit code
+            # Execute script and continue even if it fails
             if bash "$script_path"; then
                 log_success "Completed setup script: $script"
             else
                 log_error "Failed to execute setup script: $script"
+                log_error "Continuing with remaining scripts..."
                 log_error "Check $ERROR_LOG_FILE for details"
-                return 1
             fi
         else
             log_error "Setup script not found: $script_path"
-            return 1
+            log_error "Continuing with remaining scripts..."
         fi
     done
 

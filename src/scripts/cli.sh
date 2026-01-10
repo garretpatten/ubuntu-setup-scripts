@@ -58,11 +58,22 @@ install_fastfetch() {
     log_info "Installing fastfetch system information tool..."
 
     if ! is_installed "fastfetch"; then
-        # Add PPA repository for fastfetch
+        # Try PPA first (Ubuntu)
         if ! grep -q "zhangsongcui3371/fastfetch" /etc/apt/sources.list.d/*.list 2>/dev/null; then
             log_info "Adding fastfetch PPA repository..."
-            sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
-            update_apt_cache
+            if sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch; then
+                update_apt_cache
+            else
+                log_warning "Failed to add fastfetch PPA, trying alternative installation..."
+                # Try installing from standard repositories
+                if sudo apt-get install -y fastfetch; then
+                    log_success "fastfetch installed from standard repositories"
+                    return 0
+                else
+                    log_error "Failed to install fastfetch from any source"
+                    return 1
+                fi
+            fi
         fi
 
         # Install fastfetch
@@ -79,12 +90,13 @@ main() {
     # Update package cache
     update_apt_cache
 
-    # Install components
-    install_package_managers
-    install_cli_tools
-    install_fastfetch
+    # Install components with error handling
+    execute_with_fallback install_package_managers
+    execute_with_fallback install_cli_tools
+    execute_with_fallback install_fastfetch
 
     log_success "CLI tools installation completed!"
+    log_info "Check $ERROR_LOG_FILE for any failed installations"
 }
 
 # Execute main function

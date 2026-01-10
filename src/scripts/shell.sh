@@ -110,15 +110,56 @@ install_shell_plugins() {
         if ! is_installed "oh-my-posh"; then
             log_info "Installing Oh My Posh prompt theme engine..."
 
-            # Download and install Oh My Posh
-            local omp_install_script="$TEMP_DIR/oh-my-posh-install.sh"
-            download_file_safe "https://ohmyposh.dev/install.sh" "$omp_install_script"
-            bash "$omp_install_script" -s -- --user
+            # Get the latest version from GitHub API
+            local latest_version
+            latest_version=$(curl -s https://api.github.com/repos/JanDeDobbeleer/oh-my-posh/releases/latest | grep -o '"tag_name": "[^"]*' | grep -o '[^"]*$' || echo "v19.6.0")
+            log_info "Installing Oh My Posh version: $latest_version"
 
-            log_success "Oh My Posh installed successfully"
+            # Determine architecture
+            local arch
+            case "$(uname -m)" in
+                x86_64) arch="amd64" ;;
+                aarch64) arch="arm64" ;;
+                armv7l) arch="arm" ;;
+                *) arch="amd64" ;;  # fallback
+            esac
+
+            # Download Oh My Posh binary directly
+            local omp_binary="$TEMP_DIR/oh-my-posh"
+            local download_url="https://github.com/JanDeDobbeleer/oh-my-posh/releases/download/${latest_version}/posh-linux-${arch}"
+
+            if download_file_safe "$download_url" "$omp_binary"; then
+                # Make it executable
+                chmod +x "$omp_binary"
+
+                # Install to /usr/local/bin (which is in PATH)
+                if sudo mv "$omp_binary" /usr/local/bin/oh-my-posh; then
+                    log_success "Oh My Posh installed successfully to /usr/local/bin/oh-my-posh"
+                else
+                    log_error "Failed to move Oh My Posh binary to /usr/local/bin/"
+                    return 1
+                fi
+            else
+                log_error "Failed to download Oh My Posh binary"
+                return 1
+            fi
         else
             log_info "Oh My Posh is already installed"
         fi
+
+        # Verify Oh My Posh installation
+        verify_oh_my_posh_installation() {
+            if is_installed "oh-my-posh"; then
+                local omp_version
+                omp_version=$(oh-my-posh version 2>/dev/null | head -n1 || echo "unknown")
+                log_success "Oh My Posh installed successfully: $omp_version"
+            else
+                log_error "Oh My Posh installation verification failed"
+                return 1
+            fi
+        }
+
+        verify_oh_my_posh_installation
 
         # Install Oh My Posh themes
         install_oh_my_posh_themes() {
@@ -352,16 +393,17 @@ main() {
     # Update package cache
     update_apt_cache
 
-    # Install and configure components
-    install_shells_and_terminals
-    install_fonts
-    install_shell_plugins
-    configure_terminal_applications
-    change_default_shell
+    # Install and configure components with error handling
+    execute_with_fallback install_shells_and_terminals
+    execute_with_fallback install_fonts
+    execute_with_fallback install_shell_plugins
+    execute_with_fallback configure_terminal_applications
+    execute_with_fallback change_default_shell
 
     log_success "Shell and terminal setup completed!"
     log_info "Please log out and log back in for shell changes to take effect"
     log_info "You may need to restart your terminal to see font changes"
+    log_info "Check $ERROR_LOG_FILE for any failed installations"
 }
 
 # Execute main function
