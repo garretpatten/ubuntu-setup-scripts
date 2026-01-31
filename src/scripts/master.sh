@@ -14,10 +14,6 @@ source "$SCRIPT_DIR/utils.sh"
 
 # Main setup function
 main() {
-    log_info "Starting Ubuntu system setup..."
-    log_info "Project root: $PROJECT_ROOT"
-    log_info "Script directory: $SCRIPT_DIR"
-
     # Array of setup scripts to execute in order
     local setup_scripts=(
         "pre-install.sh"
@@ -36,26 +32,14 @@ main() {
         local script_path="$SCRIPT_DIR/$script"
 
         if [[ -f "$script_path" ]]; then
-            log_info "Executing setup script: $script"
-
-            # Execute script and capture exit code
-            if bash "$script_path"; then
-                log_success "Completed setup script: $script"
-            else
+            bash "$script_path" || {
                 log_error "Failed to execute setup script: $script"
-                log_error "Check $ERROR_LOG_FILE for details"
-                return 1
-            fi
+            }
         else
             log_error "Setup script not found: $script_path"
-            return 1
         fi
     done
-
-    log_success "Ubuntu system setup completed successfully!"
-    log_info "Check $ERROR_LOG_FILE for any warnings or errors"
 }
 
 # Execute main function
 main "$@"
-
