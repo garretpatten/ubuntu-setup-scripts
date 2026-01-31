@@ -55,9 +55,6 @@ local docker_packages=(
 )
 install_apt_packages "${docker_packages[@]}"
 
-docker image pull ubuntu:latest 2>>"$ERROR_LOG_FILE" || true
-docker image pull alpine:latest 2>>"$ERROR_LOG_FILE" || true
-
 sudo add-apt-repository -y ppa:neovim-ppa/stable 2>>"$ERROR_LOG_FILE" || true
 update_apt_cache
 
@@ -68,9 +65,6 @@ local neovim_packages=(
     "python3-pip"
 )
 install_apt_packages "${neovim_packages[@]}"
-
-pip3 install --user pynvim 2>>"$ERROR_LOG_FILE" || true
-npm install -g typescript-language-server pyright vscode-langservers-extracted vsnip 2>>"$ERROR_LOG_FILE" || true
 
 local packer_dir="$HOME/.local/share/nvim/site/pack/packer/start/packer.nvim"
 if [[ ! -d "$packer_dir" ]]; then

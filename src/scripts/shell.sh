@@ -22,9 +22,7 @@ fi
 local font_packages=(
     "fonts-font-awesome"
     "fonts-firacode"
-    "fonts-freefont-ttf"
     "fonts-powerline"
-    "fonts-noto-color-emoji"
 )
 install_apt_packages "${font_packages[@]}"
 

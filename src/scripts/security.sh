@@ -10,7 +10,6 @@ local defense_tools=(
     "clamav-daemon"
     "ufw"
     "openvpn"
-    "gnome-shell"
 )
 install_apt_packages "${defense_tools[@]}"
 
