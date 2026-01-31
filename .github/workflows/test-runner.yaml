@@ -40,6 +40,7 @@ jobs:
               if [[ -s "$FILTERED_LOG" ]]; then
                 echo "❌ Errors found in $ERROR_LOG:"
                 echo "Filtered log size: $(wc -l < "$FILTERED_LOG") lines"
+                echo ""
                 cat "$FILTERED_LOG"
                 rm -f "$FILTERED_LOG"
                 exit 1
