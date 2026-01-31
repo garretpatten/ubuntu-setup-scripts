@@ -5,19 +5,19 @@ source "$SCRIPT_DIR/utils.sh"
 
 update_apt_cache
 
-local node_setup_script="$TEMP_DIR/nodejs_setup.sh"
+node_setup_script="$TEMP_DIR/nodejs_setup.sh"
 download_file_safe "https://deb.nodesource.com/setup_lts.x" "$node_setup_script"
 sudo bash "$node_setup_script" 2>>"$ERROR_LOG_FILE" || true
 update_apt_cache
 install_apt_packages "nodejs"
 
 if [[ ! -d "$HOME/.nvm" ]]; then
-    local nvm_install_script="$TEMP_DIR/nvm_install.sh"
+    nvm_install_script="$TEMP_DIR/nvm_install.sh"
     download_file_safe "https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh" "$nvm_install_script"
     bash "$nvm_install_script" 2>>"$ERROR_LOG_FILE" || true
 fi
 
-local python_packages=(
+python_packages=(
     "python3"
     "python3-pip"
     "python3-venv"
@@ -27,7 +27,7 @@ install_apt_packages "${python_packages[@]}"
 
 sudo npm install -g @vue/cli 2>>"$ERROR_LOG_FILE" || true
 
-local docker_deps=(
+docker_deps=(
     "apt-transport-https"
     "ca-certificates"
     "software-properties-common"
@@ -47,7 +47,7 @@ if ! grep -q "download.docker.com" /etc/apt/sources.list.d/*.list 2>/dev/null; t
     update_apt_cache
 fi
 
-local docker_packages=(
+docker_packages=(
     "docker-ce"
     "docker-ce-cli"
     "containerd.io"
@@ -58,7 +58,7 @@ install_apt_packages "${docker_packages[@]}"
 sudo add-apt-repository -y ppa:neovim-ppa/stable 2>>"$ERROR_LOG_FILE" || true
 update_apt_cache
 
-local neovim_packages=(
+neovim_packages=(
     "neovim"
     "python3-neovim"
     "python3-dev"
@@ -66,12 +66,12 @@ local neovim_packages=(
 )
 install_apt_packages "${neovim_packages[@]}"
 
-local packer_dir="$HOME/.local/share/nvim/site/pack/packer/start/packer.nvim"
+packer_dir="$HOME/.local/share/nvim/site/pack/packer/start/packer.nvim"
 if [[ ! -d "$packer_dir" ]]; then
     clone_repository_safe "https://github.com/wbthomason/packer.nvim" "$packer_dir" "1"
 fi
 
-local dev_tools=(
+dev_tools=(
     "gh"
     "shellcheck"
     "git"
@@ -82,7 +82,7 @@ flatpak install -y flathub com.getpostman.Postman 2>>"$ERROR_LOG_FILE" || true
 
 pip3 install --user semgrep 2>>"$ERROR_LOG_FILE" || true
 
-local sg_binary="$TEMP_DIR/sg"
+sg_binary="$TEMP_DIR/sg"
 download_file_safe "https://sourcegraph.com/.api/src-cli/src_linux_amd64" "$sg_binary"
 if [[ -f "$sg_binary" ]]; then
     chmod +x "$sg_binary" 2>>"$ERROR_LOG_FILE" || true
@@ -99,16 +99,16 @@ if [[ ! -f "$HOME/.gitconfig" ]]; then
     git config --global init.defaultBranch main 2>>"$ERROR_LOG_FILE" || true
 fi
 
-local nvim_config_dir="$HOME/.config/nvim"
-local nvim_source_dir="$PROJECT_ROOT/src/dotfiles/nvim"
+nvim_config_dir="$HOME/.config/nvim"
+nvim_source_dir="$PROJECT_ROOT/src/dotfiles/nvim"
 
 if [[ ! -d "$nvim_config_dir" && -d "$nvim_source_dir" ]]; then
     ensure_directory "$nvim_config_dir"
     cp -r "$nvim_source_dir/"* "$nvim_config_dir/" 2>>"$ERROR_LOG_FILE" || true
 fi
 
-local vim_config_file="$HOME/.vimrc"
-local vim_source_file="$PROJECT_ROOT/src/dotfiles/vim/.vimrc"
+vim_config_file="$HOME/.vimrc"
+vim_source_file="$PROJECT_ROOT/src/dotfiles/vim/.vimrc"
 if [[ ! -f "$vim_config_file" && -f "$vim_source_file" ]]; then
 copy_file_safe "$vim_source_file" "$vim_config_file"
 fi

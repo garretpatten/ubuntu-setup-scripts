@@ -5,7 +5,7 @@ source "$SCRIPT_DIR/utils.sh"
 
 update_apt_cache
 
-local defense_tools=(
+defense_tools=(
     "clamav"
     "clamav-daemon"
     "ufw"
@@ -21,12 +21,12 @@ sudo ufw --force enable 2>>"$ERROR_LOG_FILE" || true
 
 sudo freshclam 2>>"$ERROR_LOG_FILE" || true
 
-local protonvpn_deb="$TEMP_DIR/protonvpn-stable-release.deb"
+protonvpn_deb="$TEMP_DIR/protonvpn-stable-release.deb"
 download_file_safe "https://repo.protonvpn.com/debian/dists/stable/main/binary-all/protonvpn-stable-release_1.0.8_all.deb" "$protonvpn_deb"
 if [[ -f "$protonvpn_deb" ]]; then
     sudo dpkg -i "$protonvpn_deb" 2>>"$ERROR_LOG_FILE" || true
     update_apt_cache
-    local protonvpn_packages=(
+    protonvpn_packages=(
         "proton-vpn-gnome-desktop"
         "libayatana-appindicator3-1"
         "gir1.2-ayatanaappindicator3-0.1"
@@ -35,14 +35,14 @@ if [[ -f "$protonvpn_deb" ]]; then
     install_apt_packages "${protonvpn_packages[@]}"
 fi
 
-local proton_pass_deb="$TEMP_DIR/proton-pass.deb"
+proton_pass_deb="$TEMP_DIR/proton-pass.deb"
 download_file_safe "https://proton.me/download/PassDesktop/linux/x64/ProtonPass.deb" "$proton_pass_deb"
 if [[ -f "$proton_pass_deb" ]]; then
     sudo dpkg -i "$proton_pass_deb" 2>>"$ERROR_LOG_FILE" || true
     sudo apt-get install -f -y 2>>"$ERROR_LOG_FILE" || true
 fi
 
-local proton_pass_cli="$TEMP_DIR/proton-pass-cli"
+proton_pass_cli="$TEMP_DIR/proton-pass-cli"
 download_file_safe "https://github.com/protonpass/cli/releases/latest/download/protonpass-cli-linux-amd64" "$proton_pass_cli"
 if [[ -f "$proton_pass_cli" ]]; then
     chmod +x "$proton_pass_cli"
@@ -50,14 +50,14 @@ if [[ -f "$proton_pass_cli" ]]; then
 fi
 
 if [[ ! -f "/usr/share/keyrings/signal-desktop-keyring.gpg" ]]; then
-    local temp_key_file="$TEMP_DIR/signal-key.asc"
+    temp_key_file="$TEMP_DIR/signal-key.asc"
     wget -O "$temp_key_file" https://updates.signal.org/desktop/apt/keys.asc 2>>"$ERROR_LOG_FILE" || true
     if [[ -f "$temp_key_file" ]]; then
         gpg --dearmor < "$temp_key_file" 2>>"$ERROR_LOG_FILE" | sudo tee /usr/share/keyrings/signal-desktop-keyring.gpg > /dev/null 2>>"$ERROR_LOG_FILE" || true
     fi
 fi
 
-local signal_list_file="/etc/apt/sources.list.d/signal-xenial.list"
+signal_list_file="/etc/apt/sources.list.d/signal-xenial.list"
 if [[ ! -f "$signal_list_file" ]] || ! grep -q "updates.signal.org" "$signal_list_file" 2>/dev/null; then
     echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/signal-desktop-keyring.gpg] https://updates.signal.org/desktop/apt xenial main' 2>>"$ERROR_LOG_FILE" | \
         sudo tee "$signal_list_file" > /dev/null 2>>"$ERROR_LOG_FILE" || true
@@ -65,7 +65,7 @@ if [[ ! -f "$signal_list_file" ]] || ! grep -q "updates.signal.org" "$signal_lis
 fi
 install_apt_packages "signal-desktop"
 
-local apt_security_tools=(
+apt_security_tools=(
     "nmap"
     "exiftool"
 )

@@ -9,7 +9,7 @@ sudo apt-get upgrade -y 2>>"$ERROR_LOG_FILE" || true
 sudo apt-get autoremove -y 2>>"$ERROR_LOG_FILE" || true
 sudo apt-get autoclean 2>>"$ERROR_LOG_FILE" || true
 
-local essential_tools=(
+essential_tools=(
     "git"
     "curl"
     "wget"

@@ -24,7 +24,7 @@ if command -v snap >/dev/null 2>&1; then
     sudo snap install spotify 2>>"$ERROR_LOG_FILE" || true
 fi
 
-local multimedia_packages=(
+multimedia_packages=(
     "ffmpeg"
     "gstreamer1.0-plugins-bad"
     "gstreamer1.0-plugins-ugly"

@@ -19,7 +19,7 @@ if command -v ufw >/dev/null 2>&1; then
     sudo ufw --force enable 2>>"$ERROR_LOG_FILE" || true
 fi
 
-local wolf_art_file="$PROJECT_ROOT/src/assets/wolf.txt"
+wolf_art_file="$PROJECT_ROOT/src/assets/wolf.txt"
 if [[ -f "$wolf_art_file" ]]; then
     echo
     echo "============================================================================"

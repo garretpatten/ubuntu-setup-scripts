@@ -5,7 +5,7 @@ source "$SCRIPT_DIR/utils.sh"
 
 update_apt_cache
 
-local libreoffice_packages=(
+libreoffice_packages=(
     "libreoffice"
     "libreoffice-gtk3"
     "libreoffice-style-breeze"
@@ -25,15 +25,15 @@ sudo apt-get install -y notion-app 2>>"$ERROR_LOG_FILE" || true
 
 flatpak install -y flathub org.standardnotes.standardnotes 2>>"$ERROR_LOG_FILE" || true
 
-local productivity_packages=(
+productivity_packages=(
     "keepassxc"
     "redshift"
     "flameshot"
 )
 install_apt_packages "${productivity_packages[@]}"
 
-local etcher_dir="$HOME/.local/bin"
-local etcher_path="$etcher_dir/balenaEtcher.AppImage"
+etcher_dir="$HOME/.local/bin"
+etcher_path="$etcher_dir/balenaEtcher.AppImage"
 if [[ ! -f "$etcher_path" ]]; then
     ensure_directory "$etcher_dir"
     install_apt_packages "libfuse2"
