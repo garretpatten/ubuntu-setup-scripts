@@ -12,19 +12,8 @@ local libreoffice_packages=(
 )
 install_apt_packages "${libreoffice_packages[@]}"
 
-local document_packages=(
-    "evince"
-    "okular"
-    "pandoc"
-    "texlive-latex-base"
-    "ghostscript"
-)
-install_apt_packages "${document_packages[@]}"
-
 if command -v snap >/dev/null 2>&1; then
     sudo snap install zoom-client 2>>"$ERROR_LOG_FILE" || true
-    sudo snap install discord 2>>"$ERROR_LOG_FILE" || true
-    sudo snap install slack --classic 2>>"$ERROR_LOG_FILE" || true
 fi
 
 if ! grep -q "apt.fury.io/notion-repackaged" /etc/apt/sources.list.d/*.list 2>/dev/null; then
@@ -34,16 +23,12 @@ if ! grep -q "apt.fury.io/notion-repackaged" /etc/apt/sources.list.d/*.list 2>/d
 fi
 sudo apt-get install -y notion-app 2>>"$ERROR_LOG_FILE" || true
 
-flatpak install -y flathub md.obsidian.Obsidian 2>>"$ERROR_LOG_FILE" || true
+flatpak install -y flathub org.standardnotes.standardnotes 2>>"$ERROR_LOG_FILE" || true
 
 local productivity_packages=(
-    "thunderbird"
-    "firefox"
     "keepassxc"
     "redshift"
     "flameshot"
-    "tree"
-    "ncdu"
 )
 install_apt_packages "${productivity_packages[@]}"
 
@@ -67,25 +52,6 @@ Categories=System;Utility;
 EOF
     fi
 fi
-
-local monitoring_packages=(
-    "htop"
-    "iotop"
-    "nethogs"
-    "dstat"
-    "lm-sensors"
-)
-install_apt_packages "${monitoring_packages[@]}"
-
-local file_packages=(
-    "ranger"
-    "mc"
-    "p7zip-full"
-    "unrar"
-    "zip"
-    "unzip"
-)
-install_apt_packages "${file_packages[@]}"
 
 local redshift_config="$HOME/.config/redshift.conf"
 if [[ ! -f "$redshift_config" ]]; then

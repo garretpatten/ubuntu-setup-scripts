@@ -90,13 +90,13 @@ You can also run individual setup scripts:
 ### 📊 **Productivity Tools** (`productivity.sh`)
 
 - **Office Suite**: LibreOffice with modern themes
-- **Communication**: Zoom, Discord, Slack, Thunderbird
-- **Note-taking**: Notion, Obsidian
+- **Communication**: Zoom
+- **Note-taking**: Notion, Standard Notes
 - **Utilities**: Balena Etcher, Flameshot, KeePassXC, Redshift
 
 ### 🔒 **Security Tools** (`security.sh`)
 
-- **Authentication**: 1Password (desktop + CLI)
+- **Authentication**: Proton Pass (desktop + CLI)
 - **Defense**: ClamAV antivirus, UFW firewall, OpenVPN
 - **VPN**: ProtonVPN with system tray integration
 - **Communication**: Signal Messenger
@@ -106,7 +106,7 @@ You can also run individual setup scripts:
 ### 🐚 **Shell & Terminal** (`shell.sh`)
 
 - **Shells**: Zsh with autosuggestions and syntax highlighting
-- **Terminal**: Alacritty with themes, Tmux multiplexer
+- **Terminal**: Ghostty with themes, Tmux multiplexer
 - **Fonts**: Fira Code, Font Awesome, Powerline fonts
 - **Prompt**: Oh My Posh theme engine
 

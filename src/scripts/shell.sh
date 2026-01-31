@@ -7,11 +7,17 @@ update_apt_cache
 
 local shell_packages=(
     "zsh"
-    "alacritty"
     "tmux"
     "powerline"
 )
 install_apt_packages "${shell_packages[@]}"
+
+local ghostty_deb="$TEMP_DIR/ghostty.deb"
+download_file_safe "https://github.com/ghostty-org/ghostty/releases/latest/download/ghostty-linux-x86_64.deb" "$ghostty_deb"
+if [[ -f "$ghostty_deb" ]]; then
+    sudo dpkg -i "$ghostty_deb" 2>>"$ERROR_LOG_FILE" || true
+    sudo apt-get install -f -y 2>>"$ERROR_LOG_FILE" || true
+fi
 
 local font_packages=(
     "fonts-font-awesome"
@@ -64,35 +70,13 @@ if [[ ! -d "$themes_dir" ]] || [[ -z "$(ls -A "$themes_dir" 2>/dev/null)" ]]; th
     fi
 fi
 
-local alacritty_config_dir="$HOME/.config/alacritty"
-local alacritty_source_dir="$PROJECT_ROOT/src/dotfiles/alacritty"
+local ghostty_config_dir="$HOME/.config/ghostty"
+local ghostty_source_file="$PROJECT_ROOT/src/dotfiles/ghostty/config"
 
-if [[ ! -d "$alacritty_config_dir" ]]; then
-    ensure_directory "$alacritty_config_dir"
-    local themes_dir="$alacritty_config_dir/themes"
-    if [[ ! -d "$themes_dir" ]]; then
-        clone_repository_safe "https://github.com/alacritty/alacritty-theme" "$themes_dir"
-    fi
-
-    if [[ -f "$alacritty_source_dir/alacritty.toml" ]]; then
-        copy_file_safe "$alacritty_source_dir/alacritty.toml" "$alacritty_config_dir/alacritty.toml"
-    else
-        cat > "$alacritty_config_dir/alacritty.toml" << 'EOF'
-# Alacritty Configuration
-[window]
-opacity = 0.95
-
-[font]
-size = 12.0
-
-[font.normal]
-family = "Fira Code"
-style = "Regular"
-
-[colors]
-# Import a theme (uncomment to use)
-# import = ["~/.config/alacritty/themes/dracula.toml"]
-EOF
+if [[ ! -d "$ghostty_config_dir" ]]; then
+    ensure_directory "$ghostty_config_dir"
+    if [[ -f "$ghostty_source_file" ]]; then
+        copy_file_safe "$ghostty_source_file" "$ghostty_config_dir/config"
     fi
 fi
 

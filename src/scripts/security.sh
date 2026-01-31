@@ -5,35 +5,6 @@ source "$SCRIPT_DIR/utils.sh"
 
 update_apt_cache
 
-local onepassword_tarball="$TEMP_DIR/1password-latest.tar.gz"
-download_file_safe "https://downloads.1password.com/linux/tar/stable/x86_64/1password-latest.tar.gz" "$onepassword_tarball"
-if [[ -f "$onepassword_tarball" ]]; then
-    cd "$TEMP_DIR" || true
-    tar -xf "$onepassword_tarball" 2>>"$ERROR_LOG_FILE" || true
-    sudo mkdir -p /opt/1Password
-    sudo mv 1password-*/* /opt/1Password/ 2>>"$ERROR_LOG_FILE" || true
-    sudo /opt/1Password/after-install.sh 2>>"$ERROR_LOG_FILE" || true
-fi
-
-if [[ ! -f "/usr/share/keyrings/1password-archive-keyring.gpg" ]]; then
-    curl -sS https://downloads.1password.com/linux/keys/1password.asc | \
-        sudo gpg --dearmor --output /usr/share/keyrings/1password-archive-keyring.gpg 2>>"$ERROR_LOG_FILE" || true
-
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/$(dpkg --print-architecture) stable main" | \
-        sudo tee /etc/apt/sources.list.d/1password.list > /dev/null
-
-    sudo mkdir -p /etc/debsig/policies/AC2D62742012EA22/
-    curl -sS https://downloads.1password.com/linux/debian/debsig/1password.pol | \
-        sudo tee /etc/debsig/policies/AC2D62742012EA22/1password.pol > /dev/null
-
-    sudo mkdir -p /usr/share/debsig/keyrings/AC2D62742012EA22
-    curl -sS https://downloads.1password.com/linux/keys/1password.asc | \
-        sudo gpg --dearmor --output /usr/share/debsig/keyrings/AC2D62742012EA22/debsig.gpg 2>>"$ERROR_LOG_FILE" || true
-
-    update_apt_cache
-fi
-install_apt_packages "1password-cli"
-
 local defense_tools=(
     "clamav"
     "clamav-daemon"
@@ -72,14 +43,12 @@ if [[ -f "$proton_pass_deb" ]]; then
     sudo apt-get install -f -y 2>>"$ERROR_LOG_FILE" || true
 fi
 
-local bridge_deb="$TEMP_DIR/protonmail-bridge.deb"
-download_file_safe "https://proton.me/download/bridge/protonmail-bridge_3.9.1-1_amd64.deb" "$bridge_deb"
-if [[ -f "$bridge_deb" ]]; then
-    sudo dpkg -i "$bridge_deb" 2>>"$ERROR_LOG_FILE" || true
-    sudo apt-get install -f -y 2>>"$ERROR_LOG_FILE" || true
+local proton_pass_cli="$TEMP_DIR/proton-pass-cli"
+download_file_safe "https://github.com/protonpass/cli/releases/latest/download/protonpass-cli-linux-amd64" "$proton_pass_cli"
+if [[ -f "$proton_pass_cli" ]]; then
+    chmod +x "$proton_pass_cli"
+    sudo mv "$proton_pass_cli" /usr/local/bin/protonpass 2>>"$ERROR_LOG_FILE" || true
 fi
-
-curl https://rclone.org/install.sh | sudo bash 2>>"$ERROR_LOG_FILE" || true
 
 if [[ ! -f "/usr/share/keyrings/signal-desktop-keyring.gpg" ]]; then
     local temp_key_file="$TEMP_DIR/signal-key.asc"

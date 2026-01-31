@@ -86,25 +86,13 @@ install_apt_packages "${dev_tools[@]}"
 
 flatpak install -y flathub com.getpostman.Postman 2>>"$ERROR_LOG_FILE" || true
 
-local cursor_appimage="$TEMP_DIR/cursor.AppImage"
-download_file_safe "https://downloader.cursor.sh/linux/appImage/x64" "$cursor_appimage"
-if [[ -f "$cursor_appimage" ]]; then
-    chmod +x "$cursor_appimage"
-    sudo ln -sf "$cursor_appimage" /usr/local/bin/cursor 2>>"$ERROR_LOG_FILE" || true
+pip3 install --user semgrep 2>>"$ERROR_LOG_FILE" || true
 
-    ensure_directory "$HOME/.local/share/applications"
-    cat > "$HOME/.local/share/applications/cursor.desktop" << 'EOF'
-[Desktop Entry]
-Name=Cursor
-Comment=The AI-first code editor
-Exec=/usr/local/bin/cursor %U
-Icon=cursor
-Terminal=false
-Type=Application
-Categories=Development;TextEditor;
-MimeType=text/plain;text/x-chdr;text/x-csrc;text/x-c++hdr;text/x-c++src;text/x-java;text/x-dsrc;text/x-pascal;text/x-perl;text/x-python;application/x-httpd-php3;application/x-httpd-php4;application/x-httpd-php5;application/javascript;application/json;text/css;text/x-sql;text/xml;
-StartupWMClass=Cursor
-EOF
+local sg_binary="$TEMP_DIR/sg"
+download_file_safe "https://sourcegraph.com/.api/src-cli/src_linux_amd64" "$sg_binary"
+if [[ -f "$sg_binary" ]]; then
+    chmod +x "$sg_binary"
+    sudo mv "$sg_binary" /usr/local/bin/sg 2>>"$ERROR_LOG_FILE" || true
 fi
 
 if [[ ! -f "$HOME/.gitconfig" ]]; then
