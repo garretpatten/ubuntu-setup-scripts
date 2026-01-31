@@ -43,10 +43,13 @@ if [[ -f "$proton_pass_deb" ]]; then
 fi
 
 proton_pass_cli="$TEMP_DIR/proton-pass-cli"
-download_file_safe "https://github.com/protonpass/cli/releases/latest/download/protonpass-cli-linux-amd64" "$proton_pass_cli"
-if [[ -f "$proton_pass_cli" ]]; then
-    chmod +x "$proton_pass_cli"
-    sudo mv "$proton_pass_cli" /usr/local/bin/protonpass 2>>"$ERROR_LOG_FILE" || true
+proton_pass_cli_url=$(curl -s https://api.github.com/repos/protonpass/cli/releases/latest 2>>"$ERROR_LOG_FILE" | grep "browser_download_url.*linux-amd64" | cut -d '"' -f 4)
+if [[ -n "$proton_pass_cli_url" ]]; then
+    download_file_safe "$proton_pass_cli_url" "$proton_pass_cli"
+    if [[ -f "$proton_pass_cli" ]]; then
+        chmod +x "$proton_pass_cli" 2>>"$ERROR_LOG_FILE" || true
+        sudo mv "$proton_pass_cli" /usr/local/bin/protonpass 2>>"$ERROR_LOG_FILE" || true
+    fi
 fi
 
 if [[ ! -f "/usr/share/keyrings/signal-desktop-keyring.gpg" ]]; then
