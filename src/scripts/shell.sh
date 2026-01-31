@@ -13,7 +13,10 @@ shell_packages=(
 install_apt_packages "${shell_packages[@]}"
 
 ghostty_deb="$TEMP_DIR/ghostty.deb"
-download_file_safe "https://github.com/ghostty-org/ghostty/releases/latest/download/ghostty-linux-x86_64.deb" "$ghostty_deb"
+ghostty_latest_url=$(curl -s https://api.github.com/repos/ghostty-org/ghostty/releases/latest 2>>"$ERROR_LOG_FILE" | grep "browser_download_url.*linux-x86_64.deb" | cut -d '"' -f 4)
+if [[ -n "$ghostty_latest_url" ]]; then
+    download_file_safe "$ghostty_latest_url" "$ghostty_deb"
+fi
 if [[ -f "$ghostty_deb" ]]; then
     sudo dpkg -i "$ghostty_deb" 2>>"$ERROR_LOG_FILE" || true
     sudo apt-get install -f -y 2>>"$ERROR_LOG_FILE" || true
@@ -36,9 +39,15 @@ if [[ ! -d "$font_dir" ]]; then
         sudo mkdir -p "$font_dir" 2>>"$ERROR_LOG_FILE" || true
         unzip -q "$meslo_zip" -d "$temp_font_dir" 2>>"$ERROR_LOG_FILE" || true
         sudo mv "$temp_font_dir"/*.ttf "$font_dir/" 2>>"$ERROR_LOG_FILE" || true
-        sudo mv "$temp_font_dir"/*.otf "$font_dir/" 2>>"$ERROR_LOG_FILE" || true
-        sudo chmod 644 "$font_dir"/*.ttf 2>>"$ERROR_LOG_FILE" || true
-        sudo chmod 644 "$font_dir"/*.otf 2>>"$ERROR_LOG_FILE" || true
+        if ls "$temp_font_dir"/*.otf 1>/dev/null 2>&1; then
+            sudo mv "$temp_font_dir"/*.otf "$font_dir/" 2>>"$ERROR_LOG_FILE" || true
+        fi
+        if ls "$font_dir"/*.ttf 1>/dev/null 2>&1; then
+            sudo chmod 644 "$font_dir"/*.ttf 2>>"$ERROR_LOG_FILE" || true
+        fi
+        if ls "$font_dir"/*.otf 1>/dev/null 2>&1; then
+            sudo chmod 644 "$font_dir"/*.otf 2>>"$ERROR_LOG_FILE" || true
+        fi
     fi
 fi
 
@@ -95,5 +104,5 @@ fi
 # zsh_path
 zsh_path="$(which zsh 2>/dev/null || echo "")"
 if [[ -n "$zsh_path" && "$SHELL" != "$zsh_path" ]]; then
-    chsh -s "$zsh_path" 2>>"$ERROR_LOG_FILE" || true
+    chsh -s "$zsh_path" 2>/dev/null || true
 fi

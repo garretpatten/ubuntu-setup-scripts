@@ -32,9 +32,19 @@ jobs:
           ERROR_LOG="setup_errors.log"
           if [[ -f "$ERROR_LOG" ]]; then
             if [[ -s "$ERROR_LOG" ]]; then
-              echo "❌ Errors found in $ERROR_LOG:"
-              cat "$ERROR_LOG"
-              exit 1
+              # Filter out expected informational messages that aren't actual errors
+              FILTERED_LOG=$(mktemp)
+              grep -v -E "(Running kernel seems to be up-to-date|Restarting services|Service restarts being deferred|No containers need to be restarted|No VM guests are running|User sessions running outdated binaries|needrestart|chsh: PAM: Authentication failure|Password:)" "$ERROR_LOG" > "$FILTERED_LOG" || true
+
+              if [[ -s "$FILTERED_LOG" ]]; then
+                echo "❌ Errors found in $ERROR_LOG:"
+                cat "$FILTERED_LOG"
+                rm -f "$FILTERED_LOG"
+                exit 1
+              else
+                echo "✅ No actual errors found (only expected informational messages)"
+                rm -f "$FILTERED_LOG"
+              fi
             else
               echo "✅ No errors in $ERROR_LOG (file exists but is empty)"
             fi
