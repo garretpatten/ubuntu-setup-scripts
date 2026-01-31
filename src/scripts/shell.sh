@@ -17,9 +17,11 @@ ghostty_latest_url=$(curl -s https://api.github.com/repos/ghostty-org/ghostty/re
 if [[ -n "$ghostty_latest_url" ]]; then
     download_file_safe "$ghostty_latest_url" "$ghostty_deb"
 fi
-if [[ -f "$ghostty_deb" ]]; then
-    sudo dpkg -i "$ghostty_deb" 2>>"$ERROR_LOG_FILE" || true
-    sudo apt-get install -f -y 2>>"$ERROR_LOG_FILE" || true
+if [[ -f "$ghostty_deb" ]] && [[ -s "$ghostty_deb" ]]; then
+    if file "$ghostty_deb" 2>/dev/null | grep -q "Debian binary"; then
+        sudo dpkg -i "$ghostty_deb" 2>>"$ERROR_LOG_FILE" || true
+        sudo apt-get install -f -y 2>>"$ERROR_LOG_FILE" || true
+    fi
 fi
 
 font_packages=(

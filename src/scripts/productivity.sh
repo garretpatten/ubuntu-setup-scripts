@@ -42,7 +42,7 @@ if [[ ! -f "$etcher_path" ]]; then
     etcher_url=$(curl -s https://api.github.com/repos/balena-io/etcher/releases/latest 2>>"$ERROR_LOG_FILE" | grep "browser_download_url.*x64.AppImage" | head -1 | cut -d '"' -f 4)
     if [[ -n "$etcher_url" ]]; then
         download_file_safe "$etcher_url" "$etcher_path"
-        if [[ -f "$etcher_path" ]]; then
+        if [[ -f "$etcher_path" ]] && [[ -s "$etcher_path" ]]; then
             chmod +x "$etcher_path" 2>>"$ERROR_LOG_FILE" || true
         fi
     fi

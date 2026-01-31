@@ -19,30 +19,34 @@ sudo ufw --force enable 2>>"$ERROR_LOG_FILE" || true
 
 protonvpn_deb="$TEMP_DIR/protonvpn-stable-release.deb"
 download_file_safe "https://repo.protonvpn.com/debian/dists/stable/main/binary-all/protonvpn-stable-release_1.0.8_all.deb" "$protonvpn_deb"
-if [[ -f "$protonvpn_deb" ]]; then
-    sudo dpkg -i "$protonvpn_deb" 2>>"$ERROR_LOG_FILE" || true
-    update_apt_cache
-    protonvpn_packages=(
-        "proton-vpn-gnome-desktop"
-        "libayatana-appindicator3-1"
-        "gir1.2-ayatanaappindicator3-0.1"
-        "gnome-shell-extension-appindicator"
-    )
-    install_apt_packages "${protonvpn_packages[@]}"
+if [[ -f "$protonvpn_deb" ]] && [[ -s "$protonvpn_deb" ]]; then
+    if file "$protonvpn_deb" 2>/dev/null | grep -q "Debian binary"; then
+        sudo dpkg -i "$protonvpn_deb" 2>>"$ERROR_LOG_FILE" || true
+        update_apt_cache
+        protonvpn_packages=(
+            "proton-vpn-gnome-desktop"
+            "libayatana-appindicator3-1"
+            "gir1.2-ayatanaappindicator3-0.1"
+            "gnome-shell-extension-appindicator"
+        )
+        install_apt_packages "${protonvpn_packages[@]}"
+    fi
 fi
 
 proton_pass_deb="$TEMP_DIR/proton-pass.deb"
 download_file_safe "https://proton.me/download/PassDesktop/linux/x64/ProtonPass.deb" "$proton_pass_deb"
-if [[ -f "$proton_pass_deb" ]]; then
-    sudo dpkg -i "$proton_pass_deb" 2>>"$ERROR_LOG_FILE" || true
-    sudo apt-get install -f -y 2>>"$ERROR_LOG_FILE" || true
+if [[ -f "$proton_pass_deb" ]] && [[ -s "$proton_pass_deb" ]]; then
+    if file "$proton_pass_deb" 2>/dev/null | grep -q "Debian binary"; then
+        sudo dpkg -i "$proton_pass_deb" 2>>"$ERROR_LOG_FILE" || true
+        sudo apt-get install -f -y 2>>"$ERROR_LOG_FILE" || true
+    fi
 fi
 
 proton_pass_cli="$TEMP_DIR/proton-pass-cli"
 proton_pass_cli_url=$(curl -s https://api.github.com/repos/protonpass/cli/releases/latest 2>>"$ERROR_LOG_FILE" | grep "browser_download_url.*linux-amd64" | cut -d '"' -f 4)
 if [[ -n "$proton_pass_cli_url" ]]; then
     download_file_safe "$proton_pass_cli_url" "$proton_pass_cli"
-    if [[ -f "$proton_pass_cli" ]]; then
+    if [[ -f "$proton_pass_cli" ]] && [[ -s "$proton_pass_cli" ]]; then
         chmod +x "$proton_pass_cli" 2>>"$ERROR_LOG_FILE" || true
         sudo mv "$proton_pass_cli" /usr/local/bin/protonpass 2>>"$ERROR_LOG_FILE" || true
     fi
