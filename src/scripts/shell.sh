@@ -33,12 +33,12 @@ if [[ ! -d "$font_dir" ]]; then
     local meslo_zip="$temp_font_dir/Meslo.zip"
     download_file_safe "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/Meslo.zip" "$meslo_zip"
     if [[ -f "$meslo_zip" ]]; then
-        sudo mkdir -p "$font_dir"
+        sudo mkdir -p "$font_dir" 2>>"$ERROR_LOG_FILE" || true
         unzip -q "$meslo_zip" -d "$temp_font_dir" 2>>"$ERROR_LOG_FILE" || true
-        sudo mv "$temp_font_dir"/*.ttf "$font_dir/" 2>/dev/null || true
-        sudo mv "$temp_font_dir"/*.otf "$font_dir/" 2>/dev/null || true
-        sudo chmod 644 "$font_dir"/*.ttf 2>/dev/null || true
-        sudo chmod 644 "$font_dir"/*.otf 2>/dev/null || true
+        sudo mv "$temp_font_dir"/*.ttf "$font_dir/" 2>>"$ERROR_LOG_FILE" || true
+        sudo mv "$temp_font_dir"/*.otf "$font_dir/" 2>>"$ERROR_LOG_FILE" || true
+        sudo chmod 644 "$font_dir"/*.ttf 2>>"$ERROR_LOG_FILE" || true
+        sudo chmod 644 "$font_dir"/*.otf 2>>"$ERROR_LOG_FILE" || true
     fi
 fi
 
@@ -58,7 +58,7 @@ fi
 
 local themes_dir="/usr/share/oh-my-posh/themes"
 if [[ ! -d "$themes_dir" ]] || [[ -z "$(ls -A "$themes_dir" 2>/dev/null)" ]]; then
-    sudo mkdir -p "$themes_dir"
+    sudo mkdir -p "$themes_dir" 2>>"$ERROR_LOG_FILE" || true
     local temp_repo_dir="$TEMP_DIR/oh-my-posh-repo"
     clone_repository_safe "https://github.com/JanDeDobbeleer/oh-my-posh.git" "$temp_repo_dir"
     if [[ -d "$temp_repo_dir/themes" ]]; then

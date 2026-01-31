@@ -1,0 +1,41 @@
+name: 'Test Runner'
+
+on:
+  push: [master]
+  pull_request: [master]
+
+jobs:
+  test:
+    name: 'Test Ubuntu Setup Scripts'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Make scripts executable
+        run: chmod +x src/scripts/*.sh
+
+      - name: Run setup scripts
+        run: |
+          cd src/scripts
+          bash master.sh || true
+
+      - name: Check error log
+        working-directory: ${{ github.workspace }}
+        run: |
+          ERROR_LOG="setup_errors.log"
+          if [[ -f "$ERROR_LOG" ]]; then
+            if [[ -s "$ERROR_LOG" ]]; then
+              echo "❌ Errors found in $ERROR_LOG:"
+              cat "$ERROR_LOG"
+              exit 1
+            else
+              echo "✅ No errors in $ERROR_LOG (file exists but is empty)"
+            fi
+          else
+            echo "✅ No error log file created (no errors occurred)"
+          fi

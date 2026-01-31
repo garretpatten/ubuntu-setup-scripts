@@ -37,13 +37,13 @@ local docker_deps=(
 install_apt_packages "${docker_deps[@]}"
 
 if [[ ! -f "/usr/share/keyrings/docker-archive-keyring.gpg" ]]; then
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg 2>>"$ERROR_LOG_FILE" | \
         sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg 2>>"$ERROR_LOG_FILE" || true
 fi
 
 if ! grep -q "download.docker.com" /etc/apt/sources.list.d/*.list 2>/dev/null; then
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | \
-        sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" 2>>"$ERROR_LOG_FILE" | \
+        sudo tee /etc/apt/sources.list.d/docker.list > /dev/null 2>>"$ERROR_LOG_FILE" || true
     update_apt_cache
 fi
 
@@ -85,18 +85,18 @@ pip3 install --user semgrep 2>>"$ERROR_LOG_FILE" || true
 local sg_binary="$TEMP_DIR/sg"
 download_file_safe "https://sourcegraph.com/.api/src-cli/src_linux_amd64" "$sg_binary"
 if [[ -f "$sg_binary" ]]; then
-    chmod +x "$sg_binary"
+    chmod +x "$sg_binary" 2>>"$ERROR_LOG_FILE" || true
     sudo mv "$sg_binary" /usr/local/bin/sg 2>>"$ERROR_LOG_FILE" || true
 fi
 
 if [[ ! -f "$HOME/.gitconfig" ]]; then
-    git config --global credential.helper store
-    git config --global http.postBuffer 157286400
-    git config --global pack.window 1
-    git config --global user.email "garret.patten@proton.me"
-    git config --global user.name "Garret Patten"
-    git config --global pull.rebase false
-    git config --global init.defaultBranch main
+    git config --global credential.helper store 2>>"$ERROR_LOG_FILE" || true
+    git config --global http.postBuffer 157286400 2>>"$ERROR_LOG_FILE" || true
+    git config --global pack.window 1 2>>"$ERROR_LOG_FILE" || true
+    git config --global user.email "garret.patten@proton.me" 2>>"$ERROR_LOG_FILE" || true
+    git config --global user.name "Garret Patten" 2>>"$ERROR_LOG_FILE" || true
+    git config --global pull.rebase false 2>>"$ERROR_LOG_FILE" || true
+    git config --global init.defaultBranch main 2>>"$ERROR_LOG_FILE" || true
 fi
 
 local nvim_config_dir="$HOME/.config/nvim"

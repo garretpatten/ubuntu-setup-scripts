@@ -14,5 +14,5 @@ ensure_directory "$HOME/Projects"
 ensure_directory "$HOME/Projects/opensource"
 ensure_directory "$HOME/Projects/personal"
 
-chmod 755 "$HOME/Scripts" 2>/dev/null || true
-chmod 700 "$HOME/Hacking" 2>/dev/null || true
+chmod 755 "$HOME/Scripts" 2>>"$ERROR_LOG_FILE" || true
+chmod 700 "$HOME/Hacking" 2>>"$ERROR_LOG_FILE" || true

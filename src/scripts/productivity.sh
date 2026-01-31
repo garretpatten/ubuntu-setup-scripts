@@ -17,8 +17,8 @@ if command -v snap >/dev/null 2>&1; then
 fi
 
 if ! grep -q "apt.fury.io/notion-repackaged" /etc/apt/sources.list.d/*.list 2>/dev/null; then
-    echo "deb [trusted=yes] https://apt.fury.io/notion-repackaged/ /" | \
-        sudo tee /etc/apt/sources.list.d/notion-repackaged.list > /dev/null
+    echo "deb [trusted=yes] https://apt.fury.io/notion-repackaged/ /" 2>>"$ERROR_LOG_FILE" | \
+        sudo tee /etc/apt/sources.list.d/notion-repackaged.list > /dev/null 2>>"$ERROR_LOG_FILE" || true
     update_apt_cache
 fi
 sudo apt-get install -y notion-app 2>>"$ERROR_LOG_FILE" || true
@@ -39,6 +39,6 @@ if [[ ! -f "$etcher_path" ]]; then
     install_apt_packages "libfuse2"
     download_file_safe "https://github.com/balena-io/etcher/releases/latest/download/balenaEtcher-1.18.11-x64.AppImage" "$etcher_path"
     if [[ -f "$etcher_path" ]]; then
-        chmod +x "$etcher_path"
+        chmod +x "$etcher_path" 2>>"$ERROR_LOG_FILE" || true
     fi
 fi
