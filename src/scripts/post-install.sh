@@ -4,6 +4,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/utils.sh"
 
 update_apt_cache
+
 sudo apt-get upgrade -y 2>>"$ERROR_LOG_FILE" || true
 sudo apt-get autoremove -y 2>>"$ERROR_LOG_FILE" || true
 sudo apt-get autoclean 2>>"$ERROR_LOG_FILE" || true
