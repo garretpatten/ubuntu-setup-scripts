@@ -25,7 +25,7 @@ python_packages=(
 )
 install_apt_packages "${python_packages[@]}"
 
-sudo npm install -g @vue/cli 2>>"$ERROR_LOG_FILE" || true
+sudo npm install -g @vue/cli --loglevel=error 2>>"$ERROR_LOG_FILE" || true
 
 docker_deps=(
     "apt-transport-https"
@@ -78,7 +78,9 @@ dev_tools=(
 )
 install_apt_packages "${dev_tools[@]}"
 
-flatpak install -y flathub com.getpostman.Postman 2>>"$ERROR_LOG_FILE" || true
+if flatpak remote-info flathub >/dev/null 2>&1; then
+    flatpak install -y flathub com.getpostman.Postman 2>>"$ERROR_LOG_FILE" || true
+fi
 
 pip3 install --user semgrep 2>>"$ERROR_LOG_FILE" || true
 

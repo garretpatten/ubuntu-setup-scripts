@@ -6,7 +6,7 @@ source "$SCRIPT_DIR/utils.sh"
 update_apt_cache
 
 install_apt_packages "flatpak"
-flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo 2>>"$ERROR_LOG_FILE" || true
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo 2>/dev/null || true
 
 cli_tools=(
 	"bat"

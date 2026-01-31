@@ -23,7 +23,9 @@ if ! grep -q "apt.fury.io/notion-repackaged" /etc/apt/sources.list.d/*.list 2>/d
 fi
 sudo apt-get install -y notion-app 2>>"$ERROR_LOG_FILE" || true
 
-flatpak install -y flathub org.standardnotes.standardnotes 2>>"$ERROR_LOG_FILE" || true
+if flatpak remote-info flathub >/dev/null 2>&1; then
+    flatpak install -y flathub org.standardnotes.standardnotes 2>>"$ERROR_LOG_FILE" || true
+fi
 
 productivity_packages=(
     "keepassxc"

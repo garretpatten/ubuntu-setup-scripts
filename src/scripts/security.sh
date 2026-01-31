@@ -19,7 +19,9 @@ sudo ufw default allow outgoing 2>>"$ERROR_LOG_FILE" || true
 sudo ufw allow ssh 2>>"$ERROR_LOG_FILE" || true
 sudo ufw --force enable 2>>"$ERROR_LOG_FILE" || true
 
-sudo freshclam 2>>"$ERROR_LOG_FILE" || true
+if [[ -d "/var/log/clamav" ]] && sudo touch /var/log/clamav/freshclam.log 2>/dev/null; then
+    sudo freshclam 2>>"$ERROR_LOG_FILE" || true
+fi
 
 protonvpn_deb="$TEMP_DIR/protonvpn-stable-release.deb"
 download_file_safe "https://repo.protonvpn.com/debian/dists/stable/main/binary-all/protonvpn-stable-release_1.0.8_all.deb" "$protonvpn_deb"

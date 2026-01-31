@@ -19,7 +19,7 @@ log_error() {
 # Install packages - multi-run safe
 install_apt_packages() {
     local packages=("$@")
-    sudo apt-get install -y "${packages[@]}" 2>>"$ERROR_LOG_FILE" || {
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "${packages[@]}" 2>>"$ERROR_LOG_FILE" || {
         log_error "Failed to install packages: ${packages[*]}"
     }
 }

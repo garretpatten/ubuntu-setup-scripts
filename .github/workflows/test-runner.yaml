@@ -34,7 +34,7 @@ jobs:
             if [[ -s "$ERROR_LOG" ]]; then
               # Filter out expected informational messages that aren't actual errors
               FILTERED_LOG=$(mktemp)
-              grep -v -E "(Running kernel seems to be up-to-date|Restarting services|Service restarts being deferred|No containers need to be restarted|No VM guests are running|User sessions running outdated binaries|runner @ user manager service|needrestart|chsh: PAM: Authentication failure|Password:|systemctl restart|WARNING: apt does not have a stable CLI|npm warn|error: No remote refs found for 'flathub'|Flatpak system operation|ERROR: Problem with internal logger|ERROR: initialize: libfreshclam|ERROR: Initialization error|Synchronizing state of docker|Executing: /usr/lib/systemd|^Cloning into|^Updating files:|^Resolving |^Connecting to |^HTTP request sent|^Length:|^Saving to:|^--[0-9]{4}-[0-9]{2}-[0-9]{2}|^[[:space:]]*[0-9]+K|done\.$|^[[:space:]]*100%)" "$ERROR_LOG" > "$FILTERED_LOG" || true
+              grep -v -E "(Running kernel seems to be up-to-date|Restarting services|Service restarts being deferred|No containers need to be restarted|No VM guests are running|User sessions running outdated binaries|runner @ user manager service|needrestart|chsh: PAM: Authentication failure|Password:|systemctl restart|WARNING: apt does not have a stable CLI|Synchronizing state of docker|Executing: /usr/lib/systemd|^Cloning into|^Updating files:|^Resolving |^Connecting to |^HTTP request sent|^Length:|^Saving to:|^--[0-9]{4}-[0-9]{2}-[0-9]{2}|^[0-9]{4}-[0-9]{2}-[0-9]{2}.*saved|^[[:space:]]*[0-9]+K|done\.$|^[[:space:]]*100%)" "$ERROR_LOG" > "$FILTERED_LOG" || true
 
               if [[ -s "$FILTERED_LOG" ]]; then
                 echo "❌ Errors found in $ERROR_LOG:"
