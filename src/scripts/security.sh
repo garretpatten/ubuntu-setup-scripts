@@ -108,16 +108,11 @@ if command -v snap >/dev/null 2>&1; then
 fi
 
 ensure_directory "$HOME/Hacking"
-local repos=(
-    "https://github.com/swisskyrepo/PayloadsAllTheThings:PayloadsAllTheThings"
-    "https://github.com/danielmiessler/SecLists:SecLists"
-)
 
-for repo_info in "${repos[@]}"; do
-    local repo_url="${repo_info%:*}"
-    local repo_name="${repo_info#*:}"
-    local repo_path="$HOME/Hacking/$repo_name"
-    if [[ ! -d "$repo_path" ]]; then
-        clone_repository_safe "$repo_url" "$repo_path"
-    fi
-done
+if [[ ! -d "$HOME/Hacking/PayloadsAllTheThings" ]]; then
+    clone_repository_safe "https://github.com/swisskyrepo/PayloadsAllTheThings" "$HOME/Hacking/PayloadsAllTheThings"
+fi
+
+if [[ ! -d "$HOME/Hacking/SecLists" ]]; then
+    clone_repository_safe "https://github.com/danielmiessler/SecLists" "$HOME/Hacking/SecLists"
+fi
