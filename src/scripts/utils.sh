@@ -64,7 +64,7 @@ download_file_safe() {
     local url="$1"
     local destination="$2"
 
-    curl -L --connect-timeout 30 --max-time 300 --fail --show-error "$url" -o "$destination" 2>>"$ERROR_LOG_FILE" || {
+    curl -sSL --connect-timeout 30 --max-time 300 --fail --show-error "$url" -o "$destination" 2>>"$ERROR_LOG_FILE" || {
         log_error "Failed to download $url"
         rm -f "$destination" 2>/dev/null || true
         return 1
