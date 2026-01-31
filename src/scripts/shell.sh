@@ -1,15 +1,10 @@
 #!/bin/bash
 
-# Shell and Terminal Setup Script
-# Installs and configures shells, terminal emulators, fonts, and plugins
-# Author: Garret Patten
-
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/utils.sh"
 
 update_apt_cache
 
-# Install shells and terminals
 local shell_packages=(
     "zsh"
     "alacritty"
@@ -18,7 +13,6 @@ local shell_packages=(
 )
 install_apt_packages "${shell_packages[@]}"
 
-# Install fonts
 local font_packages=(
     "fonts-font-awesome"
     "fonts-firacode"
@@ -28,7 +22,6 @@ local font_packages=(
 )
 install_apt_packages "${font_packages[@]}"
 
-# Install Meslo Nerd Font
 local font_dir="/usr/share/fonts/meslo-nerd-font"
 if [[ ! -d "$font_dir" ]]; then
     local temp_font_dir="$TEMP_DIR/meslo-font"
@@ -47,21 +40,18 @@ fi
 
 fc-cache -fv 2>>"$ERROR_LOG_FILE" || true
 
-# Install shell plugins
 local plugin_packages=(
     "zsh-autosuggestions"
     "zsh-syntax-highlighting"
 )
 install_apt_packages "${plugin_packages[@]}"
 
-# Install Oh My Posh
 local omp_install_script="$TEMP_DIR/oh-my-posh-install.sh"
 download_file_safe "https://ohmyposh.dev/install.sh" "$omp_install_script"
 if [[ -f "$omp_install_script" ]]; then
     bash "$omp_install_script" -s -- --user 2>>"$ERROR_LOG_FILE" || true
 fi
 
-# Install Oh My Posh themes
 local themes_dir="/usr/share/oh-my-posh/themes"
 if [[ ! -d "$themes_dir" ]] || [[ -z "$(ls -A "$themes_dir" 2>/dev/null)" ]]; then
     sudo mkdir -p "$themes_dir"
@@ -74,7 +64,6 @@ if [[ ! -d "$themes_dir" ]] || [[ -z "$(ls -A "$themes_dir" 2>/dev/null)" ]]; th
     fi
 fi
 
-# Configure Alacritty
 local alacritty_config_dir="$HOME/.config/alacritty"
 local alacritty_source_dir="$PROJECT_ROOT/src/dotfiles/alacritty"
 
@@ -107,7 +96,6 @@ EOF
     fi
 fi
 
-# Configure Tmux
 local tmux_config_file="$HOME/.tmux.conf"
 local tmux_source_file="$PROJECT_ROOT/src/dotfiles/tmux/.tmux.conf"
 
@@ -147,7 +135,6 @@ EOF
     fi
 fi
 
-# Configure Z Shell
 local zsh_config_file="$HOME/.zshrc"
 local zsh_source_file="$PROJECT_ROOT/src/dotfiles/oh-my-posh/.zshrc"
 
@@ -196,7 +183,6 @@ EOF
     fi
 fi
 
-# Change default shell to zsh
 local zsh_path
 zsh_path="$(which zsh 2>/dev/null || echo "")"
 if [[ -n "$zsh_path" && "$SHELL" != "$zsh_path" ]]; then

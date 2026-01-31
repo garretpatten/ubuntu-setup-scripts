@@ -1,15 +1,10 @@
 #!/bin/bash
 
-# Security Tools Installation Script
-# Installs authentication, defense, and offensive security tools
-# Author: Garret Patten
-
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/utils.sh"
 
 update_apt_cache
 
-# Install 1Password
 local onepassword_tarball="$TEMP_DIR/1password-latest.tar.gz"
 download_file_safe "https://downloads.1password.com/linux/tar/stable/x86_64/1password-latest.tar.gz" "$onepassword_tarball"
 if [[ -f "$onepassword_tarball" ]]; then
@@ -20,7 +15,6 @@ if [[ -f "$onepassword_tarball" ]]; then
     sudo /opt/1Password/after-install.sh 2>>"$ERROR_LOG_FILE" || true
 fi
 
-# Add 1Password CLI repository
 if [[ ! -f "/usr/share/keyrings/1password-archive-keyring.gpg" ]]; then
     curl -sS https://downloads.1password.com/linux/keys/1password.asc | \
         sudo gpg --dearmor --output /usr/share/keyrings/1password-archive-keyring.gpg 2>>"$ERROR_LOG_FILE" || true
@@ -40,7 +34,6 @@ if [[ ! -f "/usr/share/keyrings/1password-archive-keyring.gpg" ]]; then
 fi
 install_apt_packages "1password-cli"
 
-# Install defense tools
 local defense_tools=(
     "clamav"
     "clamav-daemon"
@@ -50,17 +43,14 @@ local defense_tools=(
 )
 install_apt_packages "${defense_tools[@]}"
 
-# Configure firewall
 sudo ufw --force reset 2>>"$ERROR_LOG_FILE" || true
 sudo ufw default deny incoming 2>>"$ERROR_LOG_FILE" || true
 sudo ufw default allow outgoing 2>>"$ERROR_LOG_FILE" || true
 sudo ufw allow ssh 2>>"$ERROR_LOG_FILE" || true
 sudo ufw --force enable 2>>"$ERROR_LOG_FILE" || true
 
-# Update ClamAV
 sudo freshclam 2>>"$ERROR_LOG_FILE" || true
 
-# Install ProtonVPN
 local protonvpn_deb="$TEMP_DIR/protonvpn-stable-release.deb"
 download_file_safe "https://repo.protonvpn.com/debian/dists/stable/main/binary-all/protonvpn-stable-release_1.0.8_all.deb" "$protonvpn_deb"
 if [[ -f "$protonvpn_deb" ]]; then
@@ -75,7 +65,6 @@ if [[ -f "$protonvpn_deb" ]]; then
     install_apt_packages "${protonvpn_packages[@]}"
 fi
 
-# Install Proton Pass
 local proton_pass_deb="$TEMP_DIR/proton-pass.deb"
 download_file_safe "https://proton.me/download/PassDesktop/linux/x64/ProtonPass.deb" "$proton_pass_deb"
 if [[ -f "$proton_pass_deb" ]]; then
@@ -83,7 +72,6 @@ if [[ -f "$proton_pass_deb" ]]; then
     sudo apt-get install -f -y 2>>"$ERROR_LOG_FILE" || true
 fi
 
-# Install Proton Mail Bridge
 local bridge_deb="$TEMP_DIR/protonmail-bridge.deb"
 download_file_safe "https://proton.me/download/bridge/protonmail-bridge_3.9.1-1_amd64.deb" "$bridge_deb"
 if [[ -f "$bridge_deb" ]]; then
@@ -91,10 +79,8 @@ if [[ -f "$bridge_deb" ]]; then
     sudo apt-get install -f -y 2>>"$ERROR_LOG_FILE" || true
 fi
 
-# Install rclone
 curl https://rclone.org/install.sh | sudo bash 2>>"$ERROR_LOG_FILE" || true
 
-# Install Signal
 if [[ ! -f "/usr/share/keyrings/signal-desktop-keyring.gpg" ]]; then
     local temp_key_file="$TEMP_DIR/signal-key.asc"
     wget -O "$temp_key_file" https://updates.signal.org/desktop/apt/keys.asc 2>>"$ERROR_LOG_FILE" || true
@@ -111,19 +97,16 @@ if [[ ! -f "$signal_list_file" ]] || ! grep -q "updates.signal.org" "$signal_lis
 fi
 install_apt_packages "signal-desktop"
 
-# Install offensive security tools
 local apt_security_tools=(
     "nmap"
     "exiftool"
 )
 install_apt_packages "${apt_security_tools[@]}"
 
-# Install OWASP ZAP via snap
 if command -v snap >/dev/null 2>&1; then
     sudo snap install zaproxy --classic 2>>"$ERROR_LOG_FILE" || true
 fi
 
-# Setup hacking directories
 ensure_directory "$HOME/Hacking"
 local repos=(
     "https://github.com/swisskyrepo/PayloadsAllTheThings:PayloadsAllTheThings"

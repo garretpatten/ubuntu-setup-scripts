@@ -1,15 +1,10 @@
 #!/bin/bash
 
-# Productivity Applications Installation Script
-# Installs productivity tools, office applications, and utilities
-# Author: Garret Patten
-
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/utils.sh"
 
 update_apt_cache
 
-# Install LibreOffice
 local libreoffice_packages=(
     "libreoffice"
     "libreoffice-gtk3"
@@ -17,7 +12,6 @@ local libreoffice_packages=(
 )
 install_apt_packages "${libreoffice_packages[@]}"
 
-# Install document tools
 local document_packages=(
     "evince"
     "okular"
@@ -27,14 +21,12 @@ local document_packages=(
 )
 install_apt_packages "${document_packages[@]}"
 
-# Install communication tools via snap
 if command -v snap >/dev/null 2>&1; then
     sudo snap install zoom-client 2>>"$ERROR_LOG_FILE" || true
     sudo snap install discord 2>>"$ERROR_LOG_FILE" || true
     sudo snap install slack --classic 2>>"$ERROR_LOG_FILE" || true
 fi
 
-# Install Notion
 if ! grep -q "apt.fury.io/notion-repackaged" /etc/apt/sources.list.d/*.list 2>/dev/null; then
     echo "deb [trusted=yes] https://apt.fury.io/notion-repackaged/ /" | \
         sudo tee /etc/apt/sources.list.d/notion-repackaged.list > /dev/null
@@ -42,10 +34,8 @@ if ! grep -q "apt.fury.io/notion-repackaged" /etc/apt/sources.list.d/*.list 2>/d
 fi
 sudo apt-get install -y notion-app 2>>"$ERROR_LOG_FILE" || true
 
-# Install Obsidian via Flatpak
 flatpak install -y flathub md.obsidian.Obsidian 2>>"$ERROR_LOG_FILE" || true
 
-# Install productivity tools
 local productivity_packages=(
     "thunderbird"
     "firefox"
@@ -57,7 +47,6 @@ local productivity_packages=(
 )
 install_apt_packages "${productivity_packages[@]}"
 
-# Install Balena Etcher
 local etcher_dir="$HOME/.local/bin"
 local etcher_path="$etcher_dir/balenaEtcher.AppImage"
 if [[ ! -f "$etcher_path" ]]; then
@@ -79,7 +68,6 @@ EOF
     fi
 fi
 
-# Install monitoring tools
 local monitoring_packages=(
     "htop"
     "iotop"
@@ -89,7 +77,6 @@ local monitoring_packages=(
 )
 install_apt_packages "${monitoring_packages[@]}"
 
-# Install file tools
 local file_packages=(
     "ranger"
     "mc"
@@ -100,7 +87,6 @@ local file_packages=(
 )
 install_apt_packages "${file_packages[@]}"
 
-# Configure Redshift
 local redshift_config="$HOME/.config/redshift.conf"
 if [[ ! -f "$redshift_config" ]]; then
     ensure_directory "$HOME/.config"

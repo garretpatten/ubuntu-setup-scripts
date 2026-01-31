@@ -1,29 +1,22 @@
 #!/bin/bash
 
-# Development Tools Installation Script
-# Installs programming languages, frameworks, and development tools
-# Author: Garret Patten
-
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/utils.sh"
 
 update_apt_cache
 
-# Install Node.js
 local node_setup_script="$TEMP_DIR/nodejs_setup.sh"
 download_file_safe "https://deb.nodesource.com/setup_lts.x" "$node_setup_script"
 sudo bash "$node_setup_script" 2>>"$ERROR_LOG_FILE" || true
 update_apt_cache
 install_apt_packages "nodejs"
 
-# Install NVM
 if [[ ! -d "$HOME/.nvm" ]]; then
     local nvm_install_script="$TEMP_DIR/nvm_install.sh"
     download_file_safe "https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh" "$nvm_install_script"
     bash "$nvm_install_script" 2>>"$ERROR_LOG_FILE" || true
 fi
 
-# Install Python
 local python_packages=(
     "python3"
     "python3-pip"
@@ -32,10 +25,8 @@ local python_packages=(
 )
 install_apt_packages "${python_packages[@]}"
 
-# Install Vue.js CLI
 sudo npm install -g @vue/cli 2>>"$ERROR_LOG_FILE" || true
 
-# Install Docker
 local docker_deps=(
     "apt-transport-https"
     "ca-certificates"
@@ -45,7 +36,6 @@ local docker_deps=(
 )
 install_apt_packages "${docker_deps[@]}"
 
-# Add Docker GPG key and repository
 if [[ ! -f "/usr/share/keyrings/docker-archive-keyring.gpg" ]]; then
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \
         sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg 2>>"$ERROR_LOG_FILE" || true
@@ -65,11 +55,9 @@ local docker_packages=(
 )
 install_apt_packages "${docker_packages[@]}"
 
-# Pull common Docker images
 docker image pull ubuntu:latest 2>>"$ERROR_LOG_FILE" || true
 docker image pull alpine:latest 2>>"$ERROR_LOG_FILE" || true
 
-# Install Neovim
 sudo add-apt-repository -y ppa:neovim-ppa/stable 2>>"$ERROR_LOG_FILE" || true
 update_apt_cache
 
@@ -81,17 +69,14 @@ local neovim_packages=(
 )
 install_apt_packages "${neovim_packages[@]}"
 
-# Install pynvim and LSP servers
 pip3 install --user pynvim 2>>"$ERROR_LOG_FILE" || true
 npm install -g typescript-language-server pyright vscode-langservers-extracted vsnip 2>>"$ERROR_LOG_FILE" || true
 
-# Install Neovim Packer
 local packer_dir="$HOME/.local/share/nvim/site/pack/packer/start/packer.nvim"
 if [[ ! -d "$packer_dir" ]]; then
     clone_repository_safe "https://github.com/wbthomason/packer.nvim" "$packer_dir" "1"
 fi
 
-# Install development tools
 local dev_tools=(
     "gh"
     "shellcheck"
@@ -99,10 +84,8 @@ local dev_tools=(
 )
 install_apt_packages "${dev_tools[@]}"
 
-# Install Postman via Flatpak
 flatpak install -y flathub com.getpostman.Postman 2>>"$ERROR_LOG_FILE" || true
 
-# Install Cursor IDE
 local cursor_appimage="$TEMP_DIR/cursor.AppImage"
 download_file_safe "https://downloader.cursor.sh/linux/appImage/x64" "$cursor_appimage"
 if [[ -f "$cursor_appimage" ]]; then
@@ -124,7 +107,6 @@ StartupWMClass=Cursor
 EOF
 fi
 
-# Configure Git
 if [[ ! -f "$HOME/.gitconfig" ]]; then
     git config --global credential.helper store
     git config --global http.postBuffer 157286400
@@ -135,7 +117,6 @@ if [[ ! -f "$HOME/.gitconfig" ]]; then
     git config --global init.defaultBranch main
 fi
 
-# Configure Neovim
 local nvim_config_dir="$HOME/.config/nvim"
 local nvim_source_dir="$PROJECT_ROOT/src/dotfiles/nvim"
 
@@ -180,7 +161,6 @@ EOF
     fi
 fi
 
-# Configure Vim
 local vim_config_file="$HOME/.vimrc"
 local vim_source_file="$PROJECT_ROOT/src/dotfiles/vim/.vimrc"
 if [[ ! -f "$vim_config_file" && -f "$vim_source_file" ]]; then
