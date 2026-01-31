@@ -21,15 +21,6 @@ local essential_tools=(
 )
 install_apt_packages "${essential_tools[@]}"
 
-if [[ ! -f "/etc/apt/apt.conf.d/20auto-upgrades" ]]; then
-    sudo tee /etc/apt/apt.conf.d/20auto-upgrades > /dev/null << 'EOF'
-APT::Periodic::Update-Package-Lists "1";
-APT::Periodic::Download-Upgradeable-Packages "1";
-APT::Periodic::AutocleanInterval "7";
-APT::Periodic::Unattended-Upgrade "1";
-EOF
-fi
-
 if [[ "$(timedatectl show --property=Timezone --value)" == "UTC" ]]; then
     sudo timedatectl set-timezone America/New_York 2>>"$ERROR_LOG_FILE" || true
 fi

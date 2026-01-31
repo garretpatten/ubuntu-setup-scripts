@@ -102,45 +102,9 @@ fi
 local nvim_config_dir="$HOME/.config/nvim"
 local nvim_source_dir="$PROJECT_ROOT/src/dotfiles/nvim"
 
-if [[ ! -d "$nvim_config_dir" ]]; then
+if [[ ! -d "$nvim_config_dir" && -d "$nvim_source_dir" ]]; then
     ensure_directory "$nvim_config_dir"
-    if [[ -d "$nvim_source_dir" ]]; then
-        cp -r "$nvim_source_dir/"* "$nvim_config_dir/" 2>>"$ERROR_LOG_FILE" || true
-    else
-        cat > "$nvim_config_dir/init.lua" << 'EOF'
--- Basic Neovim configuration
-vim.g.mapleader = " "
-vim.g.maplocalleader = "\\"
-
--- Basic settings
-vim.opt.number = true
-vim.opt.relativenumber = true
-vim.opt.tabstop = 4
-vim.opt.shiftwidth = 4
-vim.opt.expandtab = true
-vim.opt.autoindent = true
-vim.opt.smartindent = true
-vim.opt.wrap = false
-vim.opt.swapfile = false
-vim.opt.backup = false
-vim.opt.undofile = true
-vim.opt.incsearch = true
-vim.opt.hlsearch = false
-vim.opt.ignorecase = true
-vim.opt.smartcase = true
-vim.opt.cursorline = true
-vim.opt.termguicolors = true
-vim.opt.scrolloff = 8
-vim.opt.updatetime = 50
-vim.opt.colorcolumn = "80"
-
--- Key mappings
-vim.keymap.set("n", "<leader>h", ":nohlsearch<CR>", { desc = "Clear search highlight" })
-vim.keymap.set("n", "<leader>w", ":w<CR>", { desc = "Save file" })
-vim.keymap.set("n", "<leader>q", ":q<CR>", { desc = "Quit" })
-vim.keymap.set("n", "<leader>e", ":Ex<CR>", { desc = "Open file explorer" })
-EOF
-    fi
+    cp -r "$nvim_source_dir/"* "$nvim_config_dir/" 2>>"$ERROR_LOG_FILE" || true
 fi
 
 local vim_config_file="$HOME/.vimrc"

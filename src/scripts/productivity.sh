@@ -40,33 +40,5 @@ if [[ ! -f "$etcher_path" ]]; then
     download_file_safe "https://github.com/balena-io/etcher/releases/latest/download/balenaEtcher-1.18.11-x64.AppImage" "$etcher_path"
     if [[ -f "$etcher_path" ]]; then
         chmod +x "$etcher_path"
-        ensure_directory "$HOME/.local/share/applications"
-        cat > "$HOME/.local/share/applications/balena-etcher.desktop" << EOF
-[Desktop Entry]
-Name=balenaEtcher
-Comment=Flash OS images to SD cards and USB drives
-Exec=$etcher_path
-Icon=balena-etcher
-Type=Application
-Categories=System;Utility;
-EOF
     fi
-fi
-
-local redshift_config="$HOME/.config/redshift.conf"
-if [[ ! -f "$redshift_config" ]]; then
-    ensure_directory "$HOME/.config"
-    cat > "$redshift_config" << 'EOF'
-[redshift]
-temp-day=6500
-temp-night=4500
-fade=1
-gamma=0.8
-location-provider=manual
-adjustment-method=randr
-
-[manual]
-lat=40.7
-lon=-74.0
-EOF
 fi

@@ -81,88 +81,15 @@ fi
 local tmux_config_file="$HOME/.tmux.conf"
 local tmux_source_file="$PROJECT_ROOT/src/dotfiles/tmux/.tmux.conf"
 
-if [[ ! -f "$tmux_config_file" ]]; then
-    if [[ -f "$tmux_source_file" ]]; then
-        copy_file_safe "$tmux_source_file" "$tmux_config_file"
-    else
-        cat > "$tmux_config_file" << 'EOF'
-# Tmux Configuration
-# Set prefix to Ctrl-a
-unbind C-b
-set-option -g prefix C-a
-bind-key C-a send-prefix
-
-# Enable mouse mode
-set -g mouse on
-
-# Start windows and panes at 1, not 0
-set -g base-index 1
-setw -g pane-base-index 1
-
-# Reload config file
-bind r source-file ~/.tmux.conf \; display-message "Config reloaded!"
-
-# Split panes using | and -
-bind | split-window -h
-bind - split-window -v
-unbind '"'
-unbind %
-
-# Switch panes using Alt-arrow without prefix
-bind -n M-Left select-pane -L
-bind -n M-Right select-pane -R
-bind -n M-Up select-pane -U
-bind -n M-Down select-pane -D
-EOF
-    fi
+if [[ ! -f "$tmux_config_file" && -f "$tmux_source_file" ]]; then
+    copy_file_safe "$tmux_source_file" "$tmux_config_file"
 fi
 
 local zsh_config_file="$HOME/.zshrc"
 local zsh_source_file="$PROJECT_ROOT/src/dotfiles/oh-my-posh/.zshrc"
 
-if [[ ! -f "$zsh_config_file" ]]; then
-    if [[ -f "$zsh_source_file" ]]; then
-        copy_file_safe "$zsh_source_file" "$zsh_config_file"
-    else
-        cat > "$zsh_config_file" << 'EOF'
-# Z Shell Configuration
-
-# Enable Oh My Posh if installed
-if command -v oh-my-posh >/dev/null 2>&1; then
-    eval "$(oh-my-posh init zsh)"
-fi
-
-# Enable zsh plugins if available
-if [[ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
-    source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-fi
-
-if [[ -f /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
-    source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-fi
-
-# History configuration
-HISTSIZE=10000
-SAVEHIST=10000
-HISTFILE=~/.zsh_history
-setopt SHARE_HISTORY
-setopt HIST_IGNORE_DUPS
-setopt HIST_IGNORE_ALL_DUPS
-
-# Enable completion
-autoload -Uz compinit
-compinit
-
-# Aliases
-alias ll='ls -alF'
-alias la='ls -A'
-alias l='ls -CF'
-alias grep='grep --color=auto'
-
-# Set default editor
-export EDITOR=vim
-EOF
-    fi
+if [[ ! -f "$zsh_config_file" && -f "$zsh_source_file" ]]; then
+    copy_file_safe "$zsh_source_file" "$zsh_config_file"
 fi
 
 local zsh_path
