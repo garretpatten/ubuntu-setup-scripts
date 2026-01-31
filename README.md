@@ -97,7 +97,7 @@ You can also run individual setup scripts:
 ### 🔒 **Security Tools** (`security.sh`)
 
 - **Authentication**: Proton Pass (desktop + CLI)
-- **Defense**: ClamAV antivirus, UFW firewall, OpenVPN
+- **Defense**: UFW firewall, OpenVPN
 - **VPN**: ProtonVPN with system tray integration
 - **Communication**: Signal Messenger
 - **Penetration Testing**: Nmap, OWASP ZAP, ExifTool
