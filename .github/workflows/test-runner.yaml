@@ -41,7 +41,9 @@ jobs:
                 echo "❌ Errors found in $ERROR_LOG:"
                 echo "Filtered log size: $(wc -l < "$FILTERED_LOG") lines"
                 echo ""
-                cat "$FILTERED_LOG"
+                echo "=== START OF ERRORS ==="
+                cat "$FILTERED_LOG" || true
+                echo "=== END OF ERRORS ==="
                 rm -f "$FILTERED_LOG"
                 exit 1
               else
