@@ -42,7 +42,9 @@ jobs:
                 echo "Filtered log size: $(wc -l < "$FILTERED_LOG") lines"
                 echo ""
                 echo "=== START OF ERRORS ==="
-                cat "$FILTERED_LOG" || true
+                while IFS= read -r line; do
+                  echo "$line"
+                done < "$FILTERED_LOG"
                 echo "=== END OF ERRORS ==="
                 rm -f "$FILTERED_LOG"
                 exit 1
