@@ -41,7 +41,7 @@ python_packages=(
 )
 install_apt_packages "${python_packages[@]}"
 
-sudo npm install -g @vue/cli --loglevel=error 2>>"$ERROR_LOG_FILE" || true
+sudo npm install -g @vue/cli --loglevel=error --no-update-notifier 2>>"$ERROR_LOG_FILE" || true
 
 docker_deps=(
     "apt-transport-https"
