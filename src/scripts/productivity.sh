@@ -16,13 +16,6 @@ if command -v snap >/dev/null 2>&1; then
     sudo snap install zoom-client 2>>"$ERROR_LOG_FILE" || true
 fi
 
-if ! grep -q "apt.fury.io/notion-repackaged" /etc/apt/sources.list.d/*.list 2>/dev/null; then
-    echo "deb [trusted=yes] https://apt.fury.io/notion-repackaged/ /" 2>>"$ERROR_LOG_FILE" | \
-        sudo tee /etc/apt/sources.list.d/notion-repackaged.list > /dev/null 2>>"$ERROR_LOG_FILE" || true
-    update_apt_cache
-fi
-sudo apt-get install -y notion-app 2>>"$ERROR_LOG_FILE" || true
-
 if flatpak remote-info flathub >/dev/null 2>&1; then
     flatpak install -y flathub org.standardnotes.standardnotes 2>>"$ERROR_LOG_FILE" || true
 fi

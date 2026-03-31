@@ -91,7 +91,7 @@ You can also run individual setup scripts:
 
 - **Office Suite**: LibreOffice with modern themes
 - **Communication**: Zoom
-- **Note-taking**: Notion, Standard Notes
+- **Note-taking**: Standard Notes (Flatpak)
 - **Utilities**: Balena Etcher, Flameshot, KeePassXC, Redshift
 
 ### 🔒 **Security Tools** (`security.sh`)
@@ -106,7 +106,8 @@ You can also run individual setup scripts:
 ### 🐚 **Shell & Terminal** (`shell.sh`)
 
 - **Shells**: Zsh with autosuggestions and syntax highlighting
-- **Terminal**: Ghostty with themes, Tmux multiplexer
+- **Terminal**: Ghostty via [ghostty-ubuntu](https://github.com/mkasberg/ghostty-ubuntu) install script; Tmux multiplexer
+- **Dotfiles**: Ghostty `config` is copied from `src/dotfiles/ghostty/config` to `~/.config/ghostty/config` when that file is not already present
 - **Fonts**: Fira Code, Font Awesome, Powerline fonts
 - **Prompt**: Oh My Posh theme engine
 
@@ -118,7 +119,7 @@ The scripts automatically configure:
 - **Firewall**: UFW with secure defaults (deny incoming, allow outgoing)
 - **Docker**: Service enablement and user group management
 - **Shell**: Zsh as default with custom configurations
-- **Terminal**: Alacritty, Tmux, and shell plugin setup
+- **Terminal**: Ghostty, Tmux, and shell plugin setup
 - **Security**: Automatic updates and timezone configuration
 
 ## 📊 Monitoring & Logs
