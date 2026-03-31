@@ -76,7 +76,7 @@ You can also run individual setup scripts:
 
 ### 💻 **Development Environment** (`dev.sh`)
 
-- **Languages**: Node.js (LTS), Python 3, NVM
+- **Languages**: Node.js 24 (NodeSource `nodejs` package, includes npm), Python 3, NVM
 - **Frameworks**: Vue.js CLI
 - **Tools**: Docker, GitHub CLI, Neovim, Postman, Semgrep, Shellcheck, Sourcegraph CLI
 - **Configuration**: Git setup, Neovim/Vim configurations
