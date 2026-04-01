@@ -32,7 +32,7 @@ jobs:
           ERROR_LOG="setup_errors.log"
           if [[ -f "$ERROR_LOG" ]] && [[ -s "$ERROR_LOG" ]]; then
             FILTERED_LOG=$(mktemp)
-            grep -v -E "(Running kernel seems to be up-to-date|Restarting services|Service restarts being deferred|No containers need to be restarted|No VM guests are running|User sessions running outdated binaries|runner @ user manager service|needrestart|chsh: PAM: Authentication failure|Password:|systemctl restart|WARNING: apt does not have a stable CLI|Synchronizing state of docker|Executing: /usr/lib/systemd|^Cloning into|^Updating files:|^Resolving |^Connecting to |^HTTP request sent|^Length:|^Saving to:|^--[0-9]{4}-[0-9]{2}-[0-9]{2}|^[0-9]{4}-[0-9]{2}-[0-9]{2}.*saved|^[[:space:]]*[0-9]+K|done\.$|^[[:space:]]*100%)" "$ERROR_LOG" | grep -v '^[[:space:]]*$' > "$FILTERED_LOG" || true
+            grep -v -E "(Running kernel seems to be up-to-date|Restarting services|Service restarts being deferred|No containers need to be restarted|No VM guests are running|User sessions running outdated binaries|runner @ user manager service|needrestart|chsh: PAM: Authentication failure|Password:|systemctl restart|WARNING: apt does not have a stable CLI|Synchronizing state of docker|Executing: /usr/lib/systemd|^Cloning into|^Updating files:|^Resolving |^Connecting to |^HTTP request sent|^Length:|^Saving to:|^--[0-9]{4}-[0-9]{2}-[0-9]{2}|^[0-9]{4}-[0-9]{2}-[0-9]{2}.*saved|^[[:space:]]*[0-9]+K|done\.$|^[[:space:]]*100%|^npm notice|% Total|% Received|% Xferd|Average Speed|Dload  Upload|Time    Time     Time  Current|--:--:--)" "$ERROR_LOG" | grep -v '^[[:space:]]*$' > "$FILTERED_LOG" || true
 
             if [[ -s "$FILTERED_LOG" ]]; then
               echo "❌ Errors found:"
