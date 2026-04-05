@@ -12,16 +12,9 @@ shell_packages=(
 )
 install_apt_packages "${shell_packages[@]}"
 
-ghostty_deb="$TEMP_DIR/ghostty.deb"
-ghostty_latest_url=$(curl -s https://api.github.com/repos/ghostty-org/ghostty/releases/latest 2>>"$ERROR_LOG_FILE" | grep "browser_download_url.*linux-x86_64.deb" | cut -d '"' -f 4)
-if [[ -n "$ghostty_latest_url" ]]; then
-    download_file_safe "$ghostty_latest_url" "$ghostty_deb"
-fi
-if [[ -f "$ghostty_deb" ]] && [[ -s "$ghostty_deb" ]]; then
-    if file "$ghostty_deb" 2>/dev/null | grep -q "Debian binary"; then
-        sudo dpkg -i "$ghostty_deb" 2>>"$ERROR_LOG_FILE" || true
-        sudo apt-get install -f -y 2>>"$ERROR_LOG_FILE" || true
-    fi
+ghostty_ubuntu_install_script="$TEMP_DIR/ghostty-ubuntu-install.sh"
+if download_file_safe "https://raw.githubusercontent.com/mkasberg/ghostty-ubuntu/HEAD/install.sh" "$ghostty_ubuntu_install_script"; then
+    sudo /bin/bash "$ghostty_ubuntu_install_script" 2>>"$ERROR_LOG_FILE" || log_error "Ghostty Ubuntu install script failed"
 fi
 
 font_packages=(
@@ -81,12 +74,11 @@ fi
 
 ghostty_config_dir="$HOME/.config/ghostty"
 ghostty_source_file="$PROJECT_ROOT/src/dotfiles/ghostty/config"
+ghostty_dest_file="$ghostty_config_dir/config"
 
-if [[ ! -d "$ghostty_config_dir" ]]; then
-    ensure_directory "$ghostty_config_dir"
-    if [[ -f "$ghostty_source_file" ]]; then
-        copy_file_safe "$ghostty_source_file" "$ghostty_config_dir/config"
-    fi
+ensure_directory "$ghostty_config_dir"
+if [[ -f "$ghostty_source_file" && ! -f "$ghostty_dest_file" ]]; then
+    copy_file_safe "$ghostty_source_file" "$ghostty_dest_file"
 fi
 
 tmux_config_file="$HOME/.tmux.conf"

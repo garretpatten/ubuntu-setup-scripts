@@ -94,7 +94,7 @@ Headless or minimal installs skip `gsettings` steps; run from a logged-in Ubuntu
 
 ### 💻 **Development Environment** (`dev.sh`)
 
-- **Languages**: Node.js (LTS), Python 3, NVM
+- **Languages**: Node.js 24 (NodeSource `nodejs` package, includes npm), Python 3, NVM
 - **Frameworks**: Vue.js CLI
 - **Tools**: Docker, GitHub CLI, Neovim, Postman, Semgrep, Shellcheck, Sourcegraph CLI
 - **Configuration**: Git setup, Neovim/Vim configurations
@@ -109,7 +109,7 @@ Headless or minimal installs skip `gsettings` steps; run from a logged-in Ubuntu
 
 - **Office Suite**: LibreOffice with modern themes
 - **Communication**: Zoom
-- **Note-taking**: Notion, Standard Notes
+- **Note-taking**: Standard Notes (Flatpak)
 - **Utilities**: Balena Etcher, Flameshot, KeePassXC, Redshift
 
 ### 🔒 **Security Tools** (`security.sh`)
@@ -124,7 +124,8 @@ Headless or minimal installs skip `gsettings` steps; run from a logged-in Ubuntu
 ### 🐚 **Shell & Terminal** (`shell.sh`)
 
 - **Shells**: Zsh with autosuggestions and syntax highlighting
-- **Terminal**: Ghostty with themes, Tmux multiplexer
+- **Terminal**: Ghostty via [ghostty-ubuntu](https://github.com/mkasberg/ghostty-ubuntu) install script; Tmux multiplexer
+- **Dotfiles**: Ghostty `config` is copied from `src/dotfiles/ghostty/config` to `~/.config/ghostty/config` when that file is not already present
 - **Fonts**: Fira Code, Font Awesome, Powerline fonts
 - **Prompt**: Oh My Posh theme engine
 
