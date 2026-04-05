@@ -51,6 +51,9 @@ chmod +x src/scripts/*.sh
 You can also run individual setup scripts:
 
 ```bash
+# Apply only desktop / system preferences (GNOME; Ubuntu Desktop session recommended)
+./src/scripts/system-config.sh
+
 # Install only development tools
 ./src/scripts/dev.sh
 
@@ -68,6 +71,21 @@ You can also run individual setup scripts:
 - Removes unused default directories (Music, Public, Templates)
 - Creates organized project structure (Projects, Hacking, Scripts, Tools)
 - Sets up development workspace with proper permissions
+
+### ⚙️ **Desktop & system preferences** (`system-config.sh`)
+
+- **GNOME (when a desktop session is available)**: Dark appearance, reduced UI animations, clock with date/weekday, optional battery percentage hidden
+- **Input**: Classic (non-natural) scrolling for touchpad and mouse; fast key repeat
+- **Files (Nautilus)**: Hidden files, list view, path in the location bar, tighter local search scope
+- **Screenshots**: Save to `~/Pictures/Screenshots` (folder created if needed); no window shadow when supported
+- **Dock**: Dash to Dock autohide with short delays (Ubuntu’s default extension)
+- **Night Light**: Enabled with automatic schedule and warm temperature (pick **Night Light or Redshift** from `productivity.sh`, not both)
+- **Session & lock**: Screen lock enabled; short delay before lock after idle
+- **Privacy**: Fewer recent-file traces; old temp file cleanup
+- **APT**: `unattended-upgrades` installed; periodic unattended upgrades enabled when `20auto-upgrades` is not already present
+- **System (sudo)**: Guest login disabled via GDM when applicable; Apport crash UI toned down; `logind` lid behavior; optional TCP keepalive sysctl tuning
+
+Headless or minimal installs skip `gsettings` steps; run from a logged-in Ubuntu Desktop session for full effect.
 
 ### 🛠️ **CLI Tools** (`cli.sh`)
 
@@ -114,12 +132,13 @@ You can also run individual setup scripts:
 
 The scripts automatically configure:
 
+- **Desktop & session** (`system-config.sh`): GNOME preferences (appearance, input, Files, Dock, Night Light, lock/privacy), unattended security updates, and related system defaults
 - **Git**: User information and performance settings
 - **Firewall**: UFW with secure defaults (deny incoming, allow outgoing)
 - **Docker**: Service enablement and user group management
 - **Shell**: Zsh as default with custom configurations
-- **Terminal**: Alacritty, Tmux, and shell plugin setup
-- **Security**: Automatic updates and timezone configuration
+- **Terminal**: Ghostty, Tmux, and shell plugin setup
+- **Timezone & APT**: Timezone when still UTC (`pre-install.sh`); automatic updates via `unattended-upgrades` where configured
 
 ## 📊 Monitoring & Logs
 
@@ -132,9 +151,11 @@ After installation, check:
 ## ⚠️ Post-Installation Notes
 
 1. **Restart Required**: Log out and back in for shell and group changes
-2. **Docker**: User added to docker group (logout required for effect)
-3. **Firewall**: UFW enabled with SSH access allowed
-4. **Manual Setup**: Some applications (like 1Password, ProtonVPN) may require additional configuration
+2. **GNOME / desktop**: Some `system-config.sh` preferences apply fully after re-login or when running the script from an active desktop session
+3. **Docker**: User added to docker group (logout required for effect)
+4. **Firewall**: UFW enabled with SSH access allowed
+5. **Night Light vs Redshift**: If you use GNOME Night Light from `system-config.sh`, disable or uninstall Redshift from `productivity.sh` to avoid conflicting color temperature
+6. **Manual Setup**: Some applications (like 1Password, ProtonVPN) may require additional configuration
 
 ## 🔍 Troubleshooting
 
