@@ -21,6 +21,7 @@ jobs:
       - name: Make scripts executable
         run: chmod +x src/scripts/*.sh
 
+      # ubuntu-latest is a server image: no GNOME schemas, so system-config.sh skips gsettings (expected).
       - name: Run setup scripts
         run: |
           cd src/scripts

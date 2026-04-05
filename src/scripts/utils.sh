@@ -97,10 +97,26 @@ clone_repository_safe() {
     }
 }
 
+# GNOME gsettings helpers — only when desktop schemas are installed (e.g. not on minimal/CI images).
+gsettings_ok() {
+    command -v gsettings >/dev/null 2>&1 || return 1
+    [[ -S "/run/user/$(id -u)/bus" ]] || return 1
+    gsettings list-schemas 2>/dev/null | grep -qx org.gnome.desktop.interface
+}
+
+gsettings_set() {
+    gsettings set "$@" 2>>"$ERROR_LOG_FILE" || true
+}
+
+gsettings_schema_exists() {
+    gsettings list-schemas 2>/dev/null | grep -qx "$1"
+}
+
 # Create temporary directory
 mkdir -p "$TEMP_DIR"
 
 # Export functions and variables for use in other scripts
 export -f log_error install_apt_packages update_apt_cache ensure_directory remove_empty_directory
 export -f copy_file_safe download_file_safe clone_repository_safe
+export -f gsettings_ok gsettings_set gsettings_schema_exists
 export PROJECT_ROOT SCRIPT_DIR ERROR_LOG_FILE TEMP_DIR
