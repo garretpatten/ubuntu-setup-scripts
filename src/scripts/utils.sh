@@ -97,10 +97,11 @@ clone_repository_safe() {
     }
 }
 
-# GNOME session helpers (gsettings is a no-op when no desktop session)
+# GNOME gsettings helpers — only when desktop schemas are installed (e.g. not on minimal/CI images).
 gsettings_ok() {
     command -v gsettings >/dev/null 2>&1 || return 1
-    [[ -n "${DBUS_SESSION_BUS_ADDRESS:-}" || -n "${WAYLAND_DISPLAY:-}" || -n "${DISPLAY:-}" || -S "/run/user/$(id -u)/bus" ]]
+    [[ -S "/run/user/$(id -u)/bus" ]] || return 1
+    gsettings list-schemas 2>/dev/null | grep -qx org.gnome.desktop.interface
 }
 
 gsettings_set() {
@@ -108,7 +109,7 @@ gsettings_set() {
 }
 
 gsettings_schema_exists() {
-    gsettings list-schemas 2>>"$ERROR_LOG_FILE" | grep -qx "$1"
+    gsettings list-schemas 2>/dev/null | grep -qx "$1"
 }
 
 # Create temporary directory

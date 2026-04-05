@@ -80,8 +80,9 @@ fi
 if [[ -f /etc/default/apport ]]; then
     sed -i "s/^enabled=.*/enabled=0/" /etc/default/apport 2>>"$ERROR_LOG_FILE" || true
 fi
-systemctl stop apport.service 2>>"$ERROR_LOG_FILE" || true
-systemctl disable apport.service 2>>"$ERROR_LOG_FILE" || true
+# Best-effort; apport is often not a native unit on minimal/CI images (noisy stderr).
+systemctl stop apport.service 2>/dev/null || true
+systemctl disable apport.service 2>/dev/null || true
 
 logind_dropin="/etc/systemd/logind.conf.d/50-lid.conf"
 mkdir -p "$(dirname "$logind_dropin")" 2>>"$ERROR_LOG_FILE" || true
