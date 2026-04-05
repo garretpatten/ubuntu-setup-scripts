@@ -97,10 +97,25 @@ clone_repository_safe() {
     }
 }
 
+# GNOME session helpers (gsettings is a no-op when no desktop session)
+gsettings_ok() {
+    command -v gsettings >/dev/null 2>&1 || return 1
+    [[ -n "${DBUS_SESSION_BUS_ADDRESS:-}" || -n "${WAYLAND_DISPLAY:-}" || -n "${DISPLAY:-}" || -S "/run/user/$(id -u)/bus" ]]
+}
+
+gsettings_set() {
+    gsettings set "$@" 2>>"$ERROR_LOG_FILE" || true
+}
+
+gsettings_schema_exists() {
+    gsettings list-schemas 2>>"$ERROR_LOG_FILE" | grep -qx "$1"
+}
+
 # Create temporary directory
 mkdir -p "$TEMP_DIR"
 
 # Export functions and variables for use in other scripts
 export -f log_error install_apt_packages update_apt_cache ensure_directory remove_empty_directory
 export -f copy_file_safe download_file_safe clone_repository_safe
+export -f gsettings_ok gsettings_set gsettings_schema_exists
 export PROJECT_ROOT SCRIPT_DIR ERROR_LOG_FILE TEMP_DIR
