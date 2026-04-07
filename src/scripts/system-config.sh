@@ -4,6 +4,7 @@
 # Run from a logged-in session for gsettings; headless installs skip those steps.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck disable=SC1091
 source "$SCRIPT_DIR/utils.sh"
 
 if [[ "$OSTYPE" != linux-gnu* ]]; then

@@ -1,12 +1,17 @@
 # Ubuntu Setup Scripts
 
-A comprehensive collection of bash scripts for setting up Ubuntu development environments with security tools, productivity applications, and system configurations. These scripts are designed for reliable execution at scale across Ubuntu-based Linux distributions.
+A comprehensive collection of bash scripts for setting up Ubuntu development
+environments with security tools, productivity applications, and system
+configurations. These scripts are designed for reliable execution at scale
+across Ubuntu-based Linux distributions.
 
 ## ✨ Features
 
 - **🔧 Automated Setup**: Complete system configuration with a single command
-- **🛡️ Security First**: Built-in security tools, firewall configuration, and safe installation practices
-- **⚡ Optimized Performance**: Batch installations and smart caching for faster execution
+- **🛡️ Security First**: Built-in security tools, firewall configuration, and
+  safe installation practices
+- **⚡ Optimized Performance**: Batch installations and smart caching for
+  faster execution
 - **🔄 Idempotent**: Safe to run multiple times without issues
 - **📝 Comprehensive Logging**: Detailed progress tracking and error reporting
 - **🎯 Modular Design**: Run individual components or the complete setup
@@ -28,19 +33,19 @@ git clone https://github.com/garretpatten/ubuntu-setup-scripts
 cd ubuntu-setup-scripts
 ```
 
-2. **Update submodules** (for dotfiles)
+1. **Update submodules** (for dotfiles)
 
 ```bash
 git submodule update --init --remote --recursive src/dotfiles/
 ```
 
-3. **Make scripts executable**
+1. **Make scripts executable**
 
 ```bash
 chmod +x src/scripts/*.sh
 ```
 
-4. **Run the complete setup**
+1. **Run the complete setup**
 
 ```bash
 ./src/scripts/master.sh
@@ -74,30 +79,43 @@ You can also run individual setup scripts:
 
 ### ⚙️ **Desktop & system preferences** (`system-config.sh`)
 
-- **GNOME (when a desktop session is available)**: Dark appearance, reduced UI animations, clock with date/weekday, optional battery percentage hidden
-- **Input**: Classic (non-natural) scrolling for touchpad and mouse; fast key repeat
-- **Files (Nautilus)**: Hidden files, list view, path in the location bar, tighter local search scope
-- **Screenshots**: Save to `~/Pictures/Screenshots` (folder created if needed); no window shadow when supported
+- **GNOME (when a desktop session is available)**: Dark appearance, reduced UI
+  animations, clock with date/weekday, optional battery percentage hidden
+- **Input**: Classic (non-natural) scrolling for touchpad and mouse; fast key
+  repeat
+- **Files (Nautilus)**: Hidden files, list view, path in the location bar,
+  tighter local search scope
+- **Screenshots**: Save to `~/Pictures/Screenshots` (folder created if needed);
+  no window shadow when supported
 - **Dock**: Dash to Dock autohide with short delays (Ubuntu’s default extension)
-- **Night Light**: Enabled with automatic schedule and warm temperature (pick **Night Light or Redshift** from `productivity.sh`, not both)
+- **Night Light**: Enabled with automatic schedule and warm temperature (pick
+  **Night Light or Redshift** from `productivity.sh`, not both)
 - **Session & lock**: Screen lock enabled; short delay before lock after idle
 - **Privacy**: Fewer recent-file traces; old temp file cleanup
-- **APT**: `unattended-upgrades` installed; periodic unattended upgrades enabled when `20auto-upgrades` is not already present
-- **System (sudo)**: Guest login disabled via GDM when applicable; Apport crash UI toned down; `logind` lid behavior; optional TCP keepalive sysctl tuning
+- **APT**: `unattended-upgrades` installed; periodic unattended upgrades enabled
+  when `20auto-upgrades` is not already present
+- **System (sudo)**: Guest login disabled via GDM when applicable; Apport crash
+  UI toned down; `logind` lid behavior; optional TCP keepalive sysctl tuning
 
-Headless or minimal installs skip `gsettings` steps; run from a logged-in Ubuntu Desktop session for full effect.
+Headless or minimal installs skip `gsettings` steps; run from a logged-in Ubuntu
+Desktop session for full effect.
 
 ### 🛠️ **CLI Tools** (`cli.sh`)
 
 - **Package Managers**: Flatpak with Flathub repository
-- **Essential Tools**: bat, curl, eza, fastfetch, fd-find, git, htop, jq, ripgrep, vim, wget
+- **Essential Tools**: bat, curl, eza, fastfetch, fd-find, git, htop, jq,
+  ripgrep, vim, wget
 
 ### 💻 **Development Environment** (`dev.sh`)
 
-- **Languages**: Node.js 24 (NodeSource `nodejs` package, includes npm), Python 3, NVM
+- **Languages**: Node.js 24 (NodeSource `nodejs` package, includes npm), Python
+  3, NVM
 - **Frameworks**: Vue.js CLI
-- **Tools**: Docker, GitHub CLI, Neovim, Postman, Semgrep, Shellcheck, Sourcegraph CLI
-- **Configuration**: Git setup, Neovim/Vim configurations
+- **Tools**: Docker, GitHub CLI, Neovim, Postman, Semgrep, Shellcheck,
+  Sourcegraph CLI
+- **Configuration**: Git setup; dotfiles **`config/`** tree synced to
+  `~/.config` (Neovim with lazy.nvim, terminals, etc.); `home/.vimrc` to
+  `~/.vimrc` when absent
 
 ### 🎬 **Media Applications** (`media.sh`)
 
@@ -124,8 +142,17 @@ Headless or minimal installs skip `gsettings` steps; run from a logged-in Ubuntu
 ### 🐚 **Shell & Terminal** (`shell.sh`)
 
 - **Shells**: Zsh with autosuggestions and syntax highlighting
-- **Terminal**: Ghostty via [ghostty-ubuntu](https://github.com/mkasberg/ghostty-ubuntu) install script; Tmux multiplexer
-- **Dotfiles**: Ghostty `config` is copied from `src/dotfiles/ghostty/config` to `~/.config/ghostty/config` when that file is not already present
+- **Terminal**: Ghostty via
+  [ghostty-ubuntu](https://github.com/mkasberg/ghostty-ubuntu) install script;
+  Tmux multiplexer
+- **Dotfiles**:
+  - `src/dotfiles/config/*` is copied into `~/.config/` for each app (Ghostty,
+    Neovim, Alacritty, Kitty, Zellij, Oh My Posh themes, etc.) only when that
+    `~/.config/<app>` path does not already exist
+  - **`home/`** files (`.zshrc`, `.tmux.conf`, optional `.bashrc`) are copied
+    from `src/dotfiles/home/` when the target file in `$HOME` is missing
+  - **`~/.dotfiles_path`** is written to point at `src/dotfiles` so
+    `home/.zshrc` can resolve `DOTFILES` and source `home/zsh/ubuntu.zsh`
 - **Fonts**: Fira Code, Font Awesome, Powerline fonts
 - **Prompt**: Oh My Posh theme engine
 
@@ -133,13 +160,16 @@ Headless or minimal installs skip `gsettings` steps; run from a logged-in Ubuntu
 
 The scripts automatically configure:
 
-- **Desktop & session** (`system-config.sh`): GNOME preferences (appearance, input, Files, Dock, Night Light, lock/privacy), unattended security updates, and related system defaults
+- **Desktop & session** (`system-config.sh`): GNOME preferences (appearance,
+  input, Files, Dock, Night Light, lock/privacy), unattended security updates,
+  and related system defaults
 - **Git**: User information and performance settings
 - **Firewall**: UFW with secure defaults (deny incoming, allow outgoing)
 - **Docker**: Service enablement and user group management
 - **Shell**: Zsh as default with custom configurations
 - **Terminal**: Ghostty, Tmux, and shell plugin setup
-- **Timezone & APT**: Timezone when still UTC (`pre-install.sh`); automatic updates via `unattended-upgrades` where configured
+- **Timezone & APT**: Timezone when still UTC (`pre-install.sh`); automatic
+  updates via `unattended-upgrades` where configured
 
 ## 📊 Monitoring & Logs
 
@@ -152,11 +182,15 @@ After installation, check:
 ## ⚠️ Post-Installation Notes
 
 1. **Restart Required**: Log out and back in for shell and group changes
-2. **GNOME / desktop**: Some `system-config.sh` preferences apply fully after re-login or when running the script from an active desktop session
-3. **Docker**: User added to docker group (logout required for effect)
-4. **Firewall**: UFW enabled with SSH access allowed
-5. **Night Light vs Redshift**: If you use GNOME Night Light from `system-config.sh`, disable or uninstall Redshift from `productivity.sh` to avoid conflicting color temperature
-6. **Manual Setup**: Some applications (like 1Password, ProtonVPN) may require additional configuration
+1. **GNOME / desktop**: Some `system-config.sh` preferences apply fully after
+   re-login or when running the script from an active desktop session
+1. **Docker**: User added to docker group (logout required for effect)
+1. **Firewall**: UFW enabled with SSH access allowed
+1. **Night Light vs Redshift**: If you use GNOME Night Light from
+   `system-config.sh`, disable or uninstall Redshift from `productivity.sh` to
+   avoid conflicting color temperature
+1. **Manual Setup**: Some applications (like 1Password, ProtonVPN) may require
+   additional configuration
 
 ## 🔍 Troubleshooting
 
@@ -211,7 +245,8 @@ chsh -s $(which zsh)
 
 [@garretpatten](https://github.com/garretpatten/)
 
-_For questions, bug reports, or feature requests, please open an issue on this repository or contact the maintainer directly._
+_For questions, bug reports, or feature requests, please open an issue on this
+repository or contact the maintainer directly._
 
 ## License
 
