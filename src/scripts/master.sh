@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+# shellcheck disable=SC1091
 source "$SCRIPT_DIR/utils.sh"
 
 bash "$SCRIPT_DIR/pre-install.sh" 2>>"$ERROR_LOG_FILE" || log_error "Failed to execute pre-install.sh"
