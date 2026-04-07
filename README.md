@@ -97,7 +97,7 @@ Headless or minimal installs skip `gsettings` steps; run from a logged-in Ubuntu
 - **Languages**: Node.js 24 (NodeSource `nodejs` package, includes npm), Python 3, NVM
 - **Frameworks**: Vue.js CLI
 - **Tools**: Docker, GitHub CLI, Neovim, Postman, Semgrep, Shellcheck, Sourcegraph CLI
-- **Configuration**: Git setup, Neovim/Vim configurations
+- **Configuration**: Git setup; dotfiles **`config/`** tree synced to `~/.config` (Neovim with lazy.nvim, terminals, etc.); `home/.vimrc` to `~/.vimrc` when absent
 
 ### 🎬 **Media Applications** (`media.sh`)
 
@@ -125,7 +125,7 @@ Headless or minimal installs skip `gsettings` steps; run from a logged-in Ubuntu
 
 - **Shells**: Zsh with autosuggestions and syntax highlighting
 - **Terminal**: Ghostty via [ghostty-ubuntu](https://github.com/mkasberg/ghostty-ubuntu) install script; Tmux multiplexer
-- **Dotfiles**: Ghostty `config` is copied from `src/dotfiles/ghostty/config` to `~/.config/ghostty/config` when that file is not already present
+- **Dotfiles**: `src/dotfiles/config/*` is copied into `~/.config/` for each app (Ghostty, Neovim, Alacritty, Kitty, Zellij, Oh My Posh themes, etc.) only when that `~/.config/<app>` path does not already exist; **`home/`** files (`.zshrc`, `.tmux.conf`, optional `.bashrc`) are copied from `src/dotfiles/home/` when the target file in `$HOME` is missing; **`~/.dotfiles_path`** is written to point at `src/dotfiles` so `home/.zshrc` can resolve `DOTFILES` and source `home/zsh/ubuntu.zsh`
 - **Fonts**: Fira Code, Font Awesome, Powerline fonts
 - **Prompt**: Oh My Posh theme engine
 

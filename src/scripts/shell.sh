@@ -72,27 +72,27 @@ if [[ ! -d "$themes_dir" ]] || [[ -z "$(ls -A "$themes_dir" 2>/dev/null)" ]]; th
     fi
 fi
 
-ghostty_config_dir="$HOME/.config/ghostty"
-ghostty_source_file="$PROJECT_ROOT/src/dotfiles/ghostty/config"
-ghostty_dest_file="$ghostty_config_dir/config"
-
-ensure_directory "$ghostty_config_dir"
-if [[ -f "$ghostty_source_file" && ! -f "$ghostty_dest_file" ]]; then
-    copy_file_safe "$ghostty_source_file" "$ghostty_dest_file"
-fi
+# Ghostty and other XDG configs under ~/.config are installed from src/dotfiles/config/ in dev.sh
 
 tmux_config_file="$HOME/.tmux.conf"
-tmux_source_file="$PROJECT_ROOT/src/dotfiles/tmux/.tmux.conf"
+tmux_source_file="$PROJECT_ROOT/src/dotfiles/home/.tmux.conf"
 
 if [[ ! -f "$tmux_config_file" && -f "$tmux_source_file" ]]; then
     copy_file_safe "$tmux_source_file" "$tmux_config_file"
 fi
 
 zsh_config_file="$HOME/.zshrc"
-zsh_source_file="$PROJECT_ROOT/src/dotfiles/oh-my-posh/.zshrc"
+zsh_source_file="$PROJECT_ROOT/src/dotfiles/home/.zshrc"
 
 if [[ ! -f "$zsh_config_file" && -f "$zsh_source_file" ]]; then
     copy_file_safe "$zsh_source_file" "$zsh_config_file"
+    printf '%s\n' "$PROJECT_ROOT/src/dotfiles" >"$HOME/.dotfiles_path" 2>>"$ERROR_LOG_FILE" || true
+fi
+
+bashrc_config_file="$HOME/.bashrc"
+bashrc_source_file="$PROJECT_ROOT/src/dotfiles/home/.bashrc"
+if [[ ! -f "$bashrc_config_file" && -f "$bashrc_source_file" ]]; then
+    copy_file_safe "$bashrc_source_file" "$bashrc_config_file"
 fi
 
 # zsh_path
