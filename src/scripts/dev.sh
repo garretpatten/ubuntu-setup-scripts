@@ -1,6 +1,7 @@
 #!/bin/bash
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck disable=SC1091
 source "$SCRIPT_DIR/utils.sh"
 
 update_apt_cache
@@ -82,9 +83,19 @@ neovim_packages=(
 )
 install_apt_packages "${neovim_packages[@]}"
 
-packer_dir="$HOME/.local/share/nvim/site/pack/packer/start/packer.nvim"
-if [[ ! -d "$packer_dir" ]]; then
-    clone_repository_safe "https://github.com/wbthomason/packer.nvim" "$packer_dir" "1"
+# Dotfiles: XDG app configs (Neovim lazy.nvim bootstraps in config/nvim/init.lua — no Packer)
+dotfiles_config_root="$PROJECT_ROOT/src/dotfiles/config"
+xdg_config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
+ensure_directory "$xdg_config_home"
+if [[ -d "$dotfiles_config_root" ]]; then
+    for entry in "$dotfiles_config_root"/*; do
+        [[ -e "$entry" ]] || continue
+        name=$(basename "$entry")
+        dest="$xdg_config_home/$name"
+        if [[ ! -e "$dest" ]]; then
+            cp -r "$entry" "$dest" 2>>"$ERROR_LOG_FILE" || true
+        fi
+    done
 fi
 
 dev_tools=(
@@ -117,16 +128,8 @@ if [[ ! -f "$HOME/.gitconfig" ]]; then
     git config --global init.defaultBranch main 2>>"$ERROR_LOG_FILE" || true
 fi
 
-nvim_config_dir="$HOME/.config/nvim"
-nvim_source_dir="$PROJECT_ROOT/src/dotfiles/nvim"
-
-if [[ ! -d "$nvim_config_dir" && -d "$nvim_source_dir" ]]; then
-    ensure_directory "$nvim_config_dir"
-    cp -r "$nvim_source_dir/"* "$nvim_config_dir/" 2>>"$ERROR_LOG_FILE" || true
-fi
-
 vim_config_file="$HOME/.vimrc"
-vim_source_file="$PROJECT_ROOT/src/dotfiles/vim/.vimrc"
+vim_source_file="$PROJECT_ROOT/src/dotfiles/home/.vimrc"
 if [[ ! -f "$vim_config_file" && -f "$vim_source_file" ]]; then
 copy_file_safe "$vim_source_file" "$vim_config_file"
 fi

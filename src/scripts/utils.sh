@@ -1,8 +1,10 @@
 #!/bin/bash
 
 # Global configuration
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" || exit 1
+readonly SCRIPT_DIR
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)" || exit 1
+readonly PROJECT_ROOT
 readonly ERROR_LOG_FILE="${PROJECT_ROOT}/setup_errors.log"
 readonly TEMP_DIR="/tmp/ubuntu-setup-$$"
 
