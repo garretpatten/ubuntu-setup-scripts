@@ -35,12 +35,28 @@ if [[ -f "$protonvpn_deb" ]] && [[ -s "$protonvpn_deb" ]]; then
 fi
 
 proton_pass_deb="$TEMP_DIR/proton-pass.deb"
-download_file_safe "https://proton.me/download/PassDesktop/linux/x64/ProtonPass.deb" "$proton_pass_deb"
-if [[ -f "$proton_pass_deb" ]] && [[ -s "$proton_pass_deb" ]]; then
-    if file "$proton_pass_deb" 2>/dev/null | grep -q "Debian binary"; then
-        sudo dpkg -i "$proton_pass_deb" 2>>"$ERROR_LOG_FILE" || true
-        sudo apt-get install -f -y 2>>"$ERROR_LOG_FILE" || true
+proton_pass_urls=(
+    "https://proton.me/download/PassDesktop/linux/x64/ProtonPass.deb"
+    "https://proton.me/download/pass/linux/x64/ProtonPass.deb"
+)
+proton_pass_downloaded=0
+for proton_pass_url in "${proton_pass_urls[@]}"; do
+    rm -f "$proton_pass_deb" 2>/dev/null || true
+    if curl -sSL --connect-timeout 30 --max-time 300 --retry 3 --retry-delay 2 --retry-all-errors \
+        -A "Mozilla/5.0 (X11; Linux x86_64) UbuntuSetupScripts/1.0" \
+        "$proton_pass_url" -o "$proton_pass_deb" 2>>"$ERROR_LOG_FILE"; then
+        if [[ -s "$proton_pass_deb" ]] && file "$proton_pass_deb" 2>/dev/null | grep -q "Debian binary"; then
+            proton_pass_downloaded=1
+            break
+        fi
     fi
+done
+
+if [[ "$proton_pass_downloaded" -eq 1 ]]; then
+    sudo dpkg -i "$proton_pass_deb" 2>>"$ERROR_LOG_FILE" || true
+    sudo apt-get install -f -y 2>>"$ERROR_LOG_FILE" || true
+else
+    log_error "Failed to download a valid Proton Pass Debian package"
 fi
 
 proton_pass_cli="$TEMP_DIR/proton-pass-cli"
