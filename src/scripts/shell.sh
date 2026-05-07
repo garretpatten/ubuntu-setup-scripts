@@ -6,6 +6,9 @@ source "$SCRIPT_DIR/utils.sh"
 
 update_apt_cache
 
+dotfiles_root="$PROJECT_ROOT/src/dotfiles"
+dotfiles_home_root="$dotfiles_root/home"
+
 shell_packages=(
     "zsh"
     "tmux"
@@ -76,22 +79,32 @@ fi
 # Ghostty and other XDG configs under ~/.config are installed from src/dotfiles/config/ in dev.sh
 
 tmux_config_file="$HOME/.tmux.conf"
-tmux_source_file="$PROJECT_ROOT/src/dotfiles/home/.tmux.conf"
+tmux_source_file="$dotfiles_home_root/.tmux.conf"
 
 if [[ ! -f "$tmux_config_file" && -f "$tmux_source_file" ]]; then
     copy_file_safe "$tmux_source_file" "$tmux_config_file"
 fi
 
 zsh_config_file="$HOME/.zshrc"
-zsh_source_file="$PROJECT_ROOT/src/dotfiles/home/.zshrc"
+zsh_source_file="$dotfiles_home_root/.zshrc"
 
 if [[ ! -f "$zsh_config_file" && -f "$zsh_source_file" ]]; then
     copy_file_safe "$zsh_source_file" "$zsh_config_file"
-    printf '%s\n' "$PROJECT_ROOT/src/dotfiles" >"$HOME/.dotfiles_path" 2>>"$ERROR_LOG_FILE" || true
+fi
+
+# Keep the zsh DOTFILES cache in sync so home/.zshrc can source home/zsh/<os>.zsh.
+if [[ -d "$dotfiles_home_root/zsh" ]]; then
+    current_dotfiles_path=""
+    if [[ -f "$HOME/.dotfiles_path" ]]; then
+        IFS= read -r current_dotfiles_path <"$HOME/.dotfiles_path" || true
+    fi
+    if [[ "$current_dotfiles_path" != "$dotfiles_root" ]]; then
+        printf '%s\n' "$dotfiles_root" >"$HOME/.dotfiles_path" 2>>"$ERROR_LOG_FILE" || true
+    fi
 fi
 
 bashrc_config_file="$HOME/.bashrc"
-bashrc_source_file="$PROJECT_ROOT/src/dotfiles/home/.bashrc"
+bashrc_source_file="$dotfiles_home_root/.bashrc"
 if [[ ! -f "$bashrc_config_file" && -f "$bashrc_source_file" ]]; then
     copy_file_safe "$bashrc_source_file" "$bashrc_config_file"
 fi

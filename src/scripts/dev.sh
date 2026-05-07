@@ -6,6 +6,10 @@ source "$SCRIPT_DIR/utils.sh"
 
 update_apt_cache
 
+dotfiles_root="$PROJECT_ROOT/src/dotfiles"
+dotfiles_config_root="$dotfiles_root/config"
+dotfiles_home_root="$dotfiles_root/home"
+
 # Node.js + npm from NodeSource (https://github.com/nodesource/distributions)
 NODE_MAJOR=24
 nodesource_key="/etc/apt/keyrings/nodesource.gpg"
@@ -84,10 +88,10 @@ neovim_packages=(
 install_apt_packages "${neovim_packages[@]}"
 
 # Dotfiles: XDG app configs (Neovim lazy.nvim bootstraps in config/nvim/init.lua — no Packer)
-dotfiles_config_root="$PROJECT_ROOT/src/dotfiles/config"
 xdg_config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
 ensure_directory "$xdg_config_home"
 if [[ -d "$dotfiles_config_root" ]]; then
+    shopt -s dotglob nullglob
     for entry in "$dotfiles_config_root"/*; do
         [[ -e "$entry" ]] || continue
         name=$(basename "$entry")
@@ -96,6 +100,7 @@ if [[ -d "$dotfiles_config_root" ]]; then
             cp -r "$entry" "$dest" 2>>"$ERROR_LOG_FILE" || true
         fi
     done
+    shopt -u dotglob nullglob
 fi
 
 dev_tools=(
@@ -129,7 +134,7 @@ if [[ ! -f "$HOME/.gitconfig" ]]; then
 fi
 
 vim_config_file="$HOME/.vimrc"
-vim_source_file="$PROJECT_ROOT/src/dotfiles/home/.vimrc"
+vim_source_file="$dotfiles_home_root/.vimrc"
 if [[ ! -f "$vim_config_file" && -f "$vim_source_file" ]]; then
-copy_file_safe "$vim_source_file" "$vim_config_file"
+    copy_file_safe "$vim_source_file" "$vim_config_file"
 fi
