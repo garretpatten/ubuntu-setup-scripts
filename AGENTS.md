@@ -7,13 +7,13 @@ session).
 
 ## Repository layout
 
-| Path | Purpose |
-| --- | --- |
-| `src/scripts/` | Install scripts; `master.sh` runs them in order |
-| `src/scripts/utils.sh` | Shared helpers, paths, logging, apt/gsettings utilities |
-| `src/dotfiles/` | **Git submodule** ([garretpatten/dotfiles](https://github.com/garretpatten/dotfiles)) — `config/`, `home/`, Neovim, shells |
-| `src/assets/` | Static assets (e.g. post-install art) |
-| `.github/workflows/` | CI: full `master.sh` on push/PR; quality checks on PR |
+| Path                   | Purpose                                                                                                                    |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `src/scripts/`         | Install scripts; `master.sh` runs them in order                                                                            |
+| `src/scripts/utils.sh` | Shared helpers, paths, logging, apt/gsettings utilities                                                                    |
+| `src/dotfiles/`        | **Git submodule** ([garretpatten/dotfiles](https://github.com/garretpatten/dotfiles)) — `config/`, `home/`, Neovim, shells |
+| `src/assets/`          | Static assets (e.g. post-install art)                                                                                      |
+| `.github/workflows/`   | CI: full `master.sh` on push/PR; quality checks on PR                                                                      |
 
 **Orchestration** (`master.sh`): `pre-install.sh` → `organizeHome.sh` →
 `system-config.sh` → `cli.sh` → `dev.sh` → `media.sh` → `productivity.sh` →
@@ -50,20 +50,19 @@ Paths:
 ## Testing and CI
 
 - **Test Runner** (`.github/workflows/test-runner.yaml`): `chmod +x src/scripts/*.sh`, run `src/scripts/master.sh` on `ubuntu-latest` (errors tolerated with `|| true`), then fail if `setup_errors.log` has non-whitelisted lines after filtering known apt/docker/chsh noise.
-- **Quality checks** (PR): Prettier, ShellCheck, yamllint, markdownlint via reusable workflow.
-- Local checks: `shellcheck src/scripts/*.sh`; format YAML/Markdown with Prettier per `.prettierrc`.
+- **Quality checks** (PR): Prettier, ShellCheck, markdownlint, and **yamllint** (yamllint is CI-only; agents do not need to run it locally).
 
 When adding install steps, consider whether they produce benign noise in CI logs; extend the test-runner filter only for known false positives, not to hide real failures.
 
 ## Making changes
 
-| Task | Where to edit |
-| --- | --- |
-| New packages or tools | Appropriate topical script (`dev.sh`, `security.sh`, etc.) or new script + `master.sh` entry |
-| Shared install/download logic | `utils.sh` |
-| Desktop / APT / system defaults | `system-config.sh`, `pre-install.sh`, `post-install.sh` |
-| Shell, terminal, dotfile deploy | `shell.sh`; dotfile content in submodule `src/dotfiles/` |
-| User-facing behavior docs | `README.md` |
+| Task                            | Where to edit                                                                                |
+| ------------------------------- | -------------------------------------------------------------------------------------------- |
+| New packages or tools           | Appropriate topical script (`dev.sh`, `security.sh`, etc.) or new script + `master.sh` entry |
+| Shared install/download logic   | `utils.sh`                                                                                   |
+| Desktop / APT / system defaults | `system-config.sh`, `pre-install.sh`, `post-install.sh`                                      |
+| Shell, terminal, dotfile deploy | `shell.sh`; dotfile content in submodule `src/dotfiles/`                                     |
+| User-facing behavior docs       | `README.md`                                                                                  |
 
 Keep diffs focused: one concern per change. Match existing style (lowercase `log_error` messages, `readonly` globals in `utils.sh`, `shellcheck disable=SC1091` for sourced files).
 
@@ -72,6 +71,20 @@ Keep diffs focused: one concern per change. Match existing style (lowercase `log
 - Do not create commits or open PRs unless the user asks.
 - Follow existing commit message tone (short, imperative summary).
 - PRs should note manual test plan on real Ubuntu desktop when touching `gsettings`, dock, or display-related code.
+
+## Verify before you finish
+
+Before wrapping up edits, run **Prettier**, **ShellCheck**, and **markdownlint** on Markdown (`*.md` via [markdownlint-cli2](https://github.com/DavidAnson/markdownlint-cli2)—not YAML). PR workflows also run **yamllint** on YAML workflow files in CI; you do **not** need to run `yamllint` locally. Install ShellCheck via your OS package manager if it is missing. From the **repository root**:
+
+```bash
+npm install
+
+npx prettier --check .
+shellcheck src/scripts/*.sh
+npx markdownlint-cli2 "**/*.md" "#node_modules" "#src/dotfiles/node_modules"
+```
+
+All three commands must exit 0. Use `npx prettier --write .` only to apply formatting, then re-run `--check`. If you changed files under `src/dotfiles/`, run the same tools there as well (that submodule has its own `package.json` and CI).
 
 ## License
 
