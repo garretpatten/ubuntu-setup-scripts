@@ -1,0 +1,5 @@
+default: true
+
+# Match macOS-setup-scripts defaults: prose and tables exceed 80 columns.
+MD013: false
+MD060: false

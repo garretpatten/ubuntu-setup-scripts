@@ -3,9 +3,8 @@
 # Ubuntu Desktop: GNOME defaults, unattended upgrades, and a few system-wide settings.
 # Run from a logged-in session for gsettings; headless installs skip those steps.
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck disable=SC1091
-source "$SCRIPT_DIR/utils.sh"
+# shellcheck source=../utils.sh
+source "$(dirname "$0")/../utils.sh"
 
 if [[ "$OSTYPE" != linux-gnu* ]]; then
     log_error "system-config.sh targets Linux (Ubuntu)"

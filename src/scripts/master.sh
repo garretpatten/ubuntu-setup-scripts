@@ -1,16 +1,38 @@
 #!/bin/bash
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck disable=SC1091
-source "$SCRIPT_DIR/utils.sh"
+# Full provisioning: interleaved installs and configuration — same chronological
+# idea as sibling macOS-setup-scripts (`master.sh`): defaults and home layout
+# early; dev dotfiles immediately after development packages; shell dotfiles
+# after apt maintenance/post-install hooks.
 
-bash "$SCRIPT_DIR/pre-install.sh" 2>>"$ERROR_LOG_FILE" || log_error "Failed to execute pre-install.sh"
-bash "$SCRIPT_DIR/organizeHome.sh" 2>>"$ERROR_LOG_FILE" || log_error "Failed to execute organizeHome.sh"
-bash "$SCRIPT_DIR/system-config.sh" 2>>"$ERROR_LOG_FILE" || log_error "Failed to execute system-config.sh"
-bash "$SCRIPT_DIR/cli.sh" 2>>"$ERROR_LOG_FILE" || log_error "Failed to execute cli.sh"
-bash "$SCRIPT_DIR/dev.sh" 2>>"$ERROR_LOG_FILE" || log_error "Failed to execute dev.sh"
-bash "$SCRIPT_DIR/media.sh" 2>>"$ERROR_LOG_FILE" || log_error "Failed to execute media.sh"
-bash "$SCRIPT_DIR/productivity.sh" 2>>"$ERROR_LOG_FILE" || log_error "Failed to execute productivity.sh"
-bash "$SCRIPT_DIR/security.sh" 2>>"$ERROR_LOG_FILE" || log_error "Failed to execute security.sh"
-bash "$SCRIPT_DIR/shell.sh" 2>>"$ERROR_LOG_FILE" || log_error "Failed to execute shell.sh"
-bash "$SCRIPT_DIR/post-install.sh" 2>>"$ERROR_LOG_FILE" || log_error "Failed to execute post-install.sh"
+# shellcheck source=utils.sh
+source "$(dirname "$0")/utils.sh"
+
+ROOT="$(dirname "$0")"
+IDIR="$ROOT/install"
+CDIR="$ROOT/config"
+
+run() {
+    bash "$1" 2>>"$ERROR_LOG_FILE" || log_error "Failed to execute $1"
+}
+
+run "$IDIR/pre-install.sh"
+
+run "$CDIR/system-config.sh"
+run "$CDIR/organizeHome.sh"
+
+run "$IDIR/cli.sh"
+run "$IDIR/media.sh"
+run "$IDIR/productivity.sh"
+
+run "$IDIR/dev.sh"
+run "$CDIR/dev.sh"
+
+run "$IDIR/security.sh"
+run "$CDIR/security.sh"
+
+run "$IDIR/shell.sh"
+
+run "$IDIR/post-install.sh"
+
+run "$CDIR/shell.sh"

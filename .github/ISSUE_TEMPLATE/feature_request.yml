@@ -1,0 +1,46 @@
+name: Feature request
+description: Suggest tooling, sequencing, docs, or safety improvements
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: >-
+        State **why**, environment constraints, and install vs config fit.
+        Read **CONTRIBUTING.md** before submitting.
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: What changes and intended outcome?
+    validations:
+      required: true
+
+  - type: textarea
+    id: rationale
+    attributes:
+      label: Problem / rationale
+      description: What gap exists today?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: bundle
+    attributes:
+      label: Primary surface
+      options:
+        - install/ (APT, installers, clones)
+        - config/ (GNOME, dotfiles, UFW posture)
+        - docs / tooling / CI
+        - submodule dotfiles consumed here
+      default: 0
+
+  - type: textarea
+    id: footprint
+    attributes:
+      label: Constraints (optional)
+      description: Offline, Debian fork, regulated env, CI noise, …
+      render: plaintext
+    validations:
+      required: false

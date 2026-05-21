@@ -1,0 +1,50 @@
+name: Bug report
+description: Incorrect behavior during or after provisioning
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: >-
+        Give **Ubuntu version**, **repro**, and `setup_errors.log` excerpts.
+        Read **CONTRIBUTING.md** before submitting.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Expected vs actual
+      description: What should happen versus what occurred.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction steps
+      description: >
+        Commands and entrypoint (`master.sh`, `run-install.sh`, `run-config.sh`,
+        or a single category script path).
+      placeholder: |
+        sudo ./src/scripts/master.sh
+        …
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Ubuntu and environment
+      description: Paste `uname -a` and `lsb_release -a` if available.
+      placeholder: |-
+        Ubuntu 24.04.1 LTS, headless ubuntu-latest CI, or Desktop GNOME, etc.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs (optional but helpful)
+      description: Relevant excerpt from repo-root `setup_errors.log` or CI URL.
+      render: plaintext
+    validations:
+      required: false

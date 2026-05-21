@@ -1,8 +1,7 @@
 #!/bin/bash
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck disable=SC1091
-source "$SCRIPT_DIR/utils.sh"
+# shellcheck source=../utils.sh
+source "$(dirname "$0")/../utils.sh"
 
 update_apt_cache
 
@@ -20,11 +19,11 @@ if command -v ufw >/dev/null 2>&1; then
     sudo ufw --force enable 2>>"$ERROR_LOG_FILE" || true
 fi
 
-wolf_art_file="$PROJECT_ROOT/src/assets/wolf.txt"
-if [[ -f "$wolf_art_file" ]]; then
+ubuntu_art_file="$PROJECT_ROOT/src/assets/ubuntu.txt"
+if [[ -f "$ubuntu_art_file" ]]; then
     echo
     echo "============================================================================"
-    cat "$wolf_art_file" 2>/dev/null || true
+    cat "$ubuntu_art_file" 2>/dev/null || true
     echo "============================================================================"
     echo
 fi
