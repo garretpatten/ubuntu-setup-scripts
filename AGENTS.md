@@ -1,90 +1,101 @@
 # Agent guide — ubuntu-setup-scripts
 
 Bash automation for Ubuntu (20.04+) development machines: modular install scripts,
-shared helpers, and a `src/dotfiles` git submodule. Changes should stay
-**idempotent**, **safe to re-run**, and compatible with **headless CI** (no GNOME
-session).
+shared helpers, and a `src/dotfiles` git submodule. Changes should stay **idempotent**,
+**safe to re-run**, and compatible with **headless CI** (no GNOME session).
 
 ## Repository layout
 
-| Path                   | Purpose                                                                                                                    |
-| ---------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `src/scripts/`         | Install scripts; `master.sh` runs them in order                                                                            |
-| `src/scripts/utils.sh` | Shared helpers, paths, logging, apt/gsettings utilities                                                                    |
-| `src/dotfiles/`        | **Git submodule** ([garretpatten/dotfiles](https://github.com/garretpatten/dotfiles)) — `config/`, `home/`, Neovim, shells |
-| `src/assets/`          | Static assets (e.g. post-install art)                                                                                      |
-| `.github/workflows/`   | CI: full `master.sh` on push/PR; quality checks on PR                                                                      |
+| Path                   | Purpose                                                                                                              |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `src/scripts/`         | `utils.sh`, `master.sh`, `run-install.sh`, `run-config.sh`                                                           |
+| `src/scripts/install/` | APT/Flatpak, third-party installers, repo clones (no `gsettings`/dotfiles)                                           |
+| `src/scripts/config/`  | GNOME defaults, home layout, UFW policy after packages, targeted dotfile copies into `~`, `~/.dotfiles_path`, `chsh` |
+| `src/scripts/utils.sh` | Helpers, `SCRIPTS_DIR`, paths, logging, safe copy/download                                                           |
+| `src/dotfiles/`        | Submodule — [garretpatten/dotfiles](https://github.com/garretpatten/dotfiles)                                        |
+| `src/assets/`          | Banner assets                                                                                                        |
+| `.github/workflows/`   | CI: `master.sh` + quality workflows                                                                                  |
 
-**Orchestration** (`master.sh`): `pre-install.sh` → `organizeHome.sh` →
-`system-config.sh` → `cli.sh` → `dev.sh` → `media.sh` → `productivity.sh` →
-`security.sh` → `shell.sh` → `post-install.sh`.
+### Orchestration
+
+- **`master.sh`**: `install/pre-install.sh` → `config/system-config.sh` → `config/organizeHome.sh`
+  → `install/cli.sh` / `media.sh` / `productivity.sh` → `install/dev.sh` → `config/dev.sh`
+  → `install/security.sh` → `config/security.sh` → `install/shell.sh` → `install/post-install.sh`
+  → `config/shell.sh`.
+- **`run-install.sh`**: `install/` only (`$SCRIPTS_DIR/install`).
+- **`run-config.sh`**: `config/` only (`$SCRIPTS_DIR/config`).
+- **`npm run all`** / **`npm run installs`** / **`npm run config`** delegate to those scripts (**`npm install`** at repo root first).
 
 ## Script conventions
 
-Every script under `src/scripts/` should:
+Scripts in **`install/`** and **`config/`**:
 
-1. Start with `#!/bin/bash`, resolve `SCRIPT_DIR`, and `source "$SCRIPT_DIR/utils.sh"`.
-2. Use helpers from `utils.sh` instead of ad-hoc `apt`, `curl`, or `cp` when possible:
-   `install_apt_packages`, `update_apt_cache`, `download_file_safe`, `copy_file_safe`,
-   `clone_repository_safe`, `ensure_directory`, `log_error`.
-3. Append failures to `"$ERROR_LOG_FILE"` (`setup_errors.log` at repo root) via `2>>"$ERROR_LOG_FILE"` or `log_error`.
-4. Prefer **non-fatal** steps in CI: `master.sh` uses `|| log_error` per stage; individual commands often use `|| true` where a partial failure is acceptable.
-5. Remain **idempotent**: skip work if already done (existing dirs, keyrings, clones, dotfile targets).
+1. `#!/bin/bash`, then `# shellcheck source=../utils.sh` and `source "$(dirname "$0")/../utils.sh"`.
+2. Scripts next to **`utils.sh`** use `# shellcheck source=utils.sh` and `source "$(dirname "$0")/utils.sh"`.
+
+3. Prefer helpers from **`utils.sh`** (`install_apt_packages`, `copy_directory_safe`,
+   `download_file_safe`, `gsettings_ok`, …).
+
+4. Non-fatal style where the rest of the repo does: `|| true`, `2>>"$ERROR_LOG_FILE"`, **`log_error`**
+   from orchestrators only for stage failures.
+
+5. **Headless-safe**: **`gsettings`** only behind **`gsettings_ok`**;
+   **`config/security.sh`** exits quietly if **`ufw`** is not installed (**`npm run config`**
+   alone on a minimal box).
 
 Paths:
 
-- `PROJECT_ROOT` — repository root (two levels above `src/scripts/`).
-- Dotfiles live at `$PROJECT_ROOT/src/dotfiles`; scripts copy into `~/.config` and `$HOME` only when targets are missing (see `shell.sh`, `dev.sh`).
+- **`PROJECT_ROOT`** is the repo root (two levels above **`src/scripts/`**).
+- Dotfiles checkout: **`$PROJECT_ROOT/src/dotfiles`**. **`config/dev.sh`** and **`config/shell.sh`**
+  copy selective **`config/<app>/`** trees (parity with **`macOS-setup-scripts`**). **`home/.tmux.conf`**
+  in the submodule expects **`config/tmux/`** under **`~/.config`**; see **`src/dotfiles/README.md`**.
+  For every app: **`(cd src/dotfiles && ./setup.sh --link-xdg-config)`**.
 
-**GNOME / desktop**: Use `gsettings_ok` before `gsettings_set`. Headless runners have no D-Bus session; `gsettings` steps must no-op safely. Do not assume a logged-in desktop in CI.
-
-**Dotfiles submodule**: After clone, run `git submodule update --init --recursive src/dotfiles/`. Config edits that belong in personal dotfiles should go in the **dotfiles repo**, not duplicated in setup scripts unless the script is the single source of install-time behavior.
+**Submodule workflow**: **`git submodule update --init --recursive src/dotfiles/`**. Content edits
+belong upstream in **dotfiles**; bump copies here when a new subtree is mandatory for provisioning.
 
 ## Product and safety constraints
 
-- **Night Light** (`system-config.sh`) vs **Redshift** (`productivity.sh`): do not enable both; document conflicts in README if you change either.
-- **Security**: Prefer verified downloads (GPG keyrings, `download_file_safe`), least-privilege directory permissions, and UFW defaults from `security.sh` / `post-install.sh`.
-- **User impact**: Many changes need logout/relogin (docker group, default shell, GNOME). Mention that in README when adding steps that require it.
-- Do not commit secrets, API keys, or machine-specific paths in scripts or dotfiles.
+- **Night Light** (`config/system-config.sh`) conflicts with **Redshift** (`install/productivity.sh`); pick one policy.
+- **Security**: Verified downloads/keyrings, **`download_file_safe`**, least-privilege dirs, **`config/security.sh`** **`ufw`** defaults.
+- **User impact**: Logout/login for **`docker`** group / default shell / GNOME tweaks.
+- No secrets or machine-local paths committed.
 
 ## Testing and CI
 
-- **Test Runner** (`.github/workflows/test-runner.yaml`): `chmod +x src/scripts/*.sh`, run `src/scripts/master.sh` on `ubuntu-latest` (errors tolerated with `|| true`), then fail if `setup_errors.log` has non-whitelisted lines after filtering known apt/docker/chsh noise.
-- **Quality checks** (PR): Prettier, ShellCheck, markdownlint, and **yamllint** (yamllint is CI-only; agents do not need to run it locally).
-
-When adding install steps, consider whether they produce benign noise in CI logs; extend the test-runner filter only for known false positives, not to hide real failures.
+- **Test Runner**: `chmod +x` **`src/scripts/*.sh`**, **`install/*.sh`**, **`config/*.sh`**, then **`bash src/scripts/master.sh`**
+  on **`ubuntu-latest`** with tolerated failures; **`setup_errors.log`** must pass the workflow filter.
 
 ## Making changes
 
-| Task                            | Where to edit                                                                                |
-| ------------------------------- | -------------------------------------------------------------------------------------------- |
-| New packages or tools           | Appropriate topical script (`dev.sh`, `security.sh`, etc.) or new script + `master.sh` entry |
-| Shared install/download logic   | `utils.sh`                                                                                   |
-| Desktop / APT / system defaults | `system-config.sh`, `pre-install.sh`, `post-install.sh`                                      |
-| Shell, terminal, dotfile deploy | `shell.sh`; dotfile content in submodule `src/dotfiles/`                                     |
-| User-facing behavior docs       | `README.md`                                                                                  |
-
-Keep diffs focused: one concern per change. Match existing style (lowercase `log_error` messages, `readonly` globals in `utils.sh`, `shellcheck disable=SC1091` for sourced files).
+| Task                          | Edit                                                                                              |
+| ----------------------------- | ------------------------------------------------------------------------------------------------- |
+| Packages/installers/clones    | Matching **`install/*.sh`**                                                                       |
+| GNOME/apt/session/user layout | **`config/system-config.sh`**, **`organizeHome.sh`**, **`install/pre-install.sh`** as appropriate |
+| Firewall                      | `config/security.sh` (policy) plus `install/security.sh` (install `ufw` first)                    |
+| Dotfile deploy                | **`config/dev.sh`** / **`config/shell.sh`**                                                       |
+| Shared logic                  | **`utils.sh`**                                                                                    |
 
 ## Commits and PRs
 
-- Do not create commits or open PRs unless the user asks.
-- Follow existing commit message tone (short, imperative summary).
-- PRs should note manual test plan on real Ubuntu desktop when touching `gsettings`, dock, or display-related code.
+Do not commit unless asked. PRs that touch **`gsettings`** or Dock: note manual Ubuntu Desktop QA.
 
 ## Verify before you finish
-
-Before wrapping up edits, run **Prettier**, **ShellCheck**, and **markdownlint** on Markdown (`*.md` via [markdownlint-cli2](https://github.com/DavidAnson/markdownlint-cli2)—not YAML). PR workflows also run **yamllint** on YAML workflow files in CI; you do **not** need to run `yamllint` locally. Install ShellCheck via your OS package manager if it is missing. From the **repository root**:
 
 ```bash
 npm install
 
 npx prettier --check .
-shellcheck src/scripts/*.sh
+shellcheck src/scripts/utils.sh \
+  src/scripts/master.sh \
+  src/scripts/run-install.sh \
+  src/scripts/run-config.sh \
+  src/scripts/install/*.sh \
+  src/scripts/config/*.sh
 npx markdownlint-cli2 "**/*.md" "#node_modules" "#src/dotfiles/node_modules"
 ```
 
-All three commands must exit 0. Use `npx prettier --write .` only to apply formatting, then re-run `--check`. If you changed files under `src/dotfiles/`, run the same tools there as well (that submodule has its own `package.json` and CI).
+If you change **`src/dotfiles/`**, run the submodule’s tooling as well.
 
 ## License
 

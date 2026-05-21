@@ -1,8 +1,9 @@
 #!/bin/bash
 
-# Global configuration
+# Global configuration — this file lives at src/scripts/utils.sh
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" || exit 1
 readonly SCRIPT_DIR
+readonly SCRIPTS_DIR="$SCRIPT_DIR"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)" || exit 1
 readonly PROJECT_ROOT
 readonly ERROR_LOG_FILE="${PROJECT_ROOT}/setup_errors.log"
@@ -45,19 +46,35 @@ remove_empty_directory() {
     rmdir "$1" 2>/dev/null || true
 }
 
-# Copy file
+# Copy file (skip if destination already exists — first-time provisioning only).
 copy_file_safe() {
     local source="$1"
     local destination="$2"
 
-    if [[ ! -f "$source" ]]; then
-        log_error "Source file does not exist: $source"
-        return
+    if [[ ! -f "$source" ]] || [[ -f "$destination" ]]; then
+        return 0
     fi
 
     mkdir -p "$(dirname "$destination")"
     cp "$source" "$destination" 2>>"$ERROR_LOG_FILE" || {
-        log_error "Failed to copy $source to $destination"
+        log_error "failed to copy $source to $destination"
+    }
+}
+
+# Copy directory tree when destination path does not already exist (idempotent provisioning).
+copy_directory_safe() {
+    local source="$1"
+    local destination="$2"
+
+    if [[ ! -d "$source" ]] || [[ -d "$destination" ]]; then
+        return 0
+    fi
+
+    local dest_dir
+    dest_dir=$(dirname "$destination")
+    mkdir -p "$dest_dir"
+    cp -r "$source" "$destination" 2>>"$ERROR_LOG_FILE" || {
+        log_error "failed to copy directory $source to $destination"
     }
 }
 
@@ -119,6 +136,6 @@ mkdir -p "$TEMP_DIR"
 
 # Export functions and variables for use in other scripts
 export -f log_error install_apt_packages update_apt_cache ensure_directory remove_empty_directory
-export -f copy_file_safe download_file_safe clone_repository_safe
+export -f copy_file_safe copy_directory_safe download_file_safe clone_repository_safe
 export -f gsettings_ok gsettings_set gsettings_schema_exists
-export PROJECT_ROOT SCRIPT_DIR ERROR_LOG_FILE TEMP_DIR
+export PROJECT_ROOT SCRIPT_DIR SCRIPTS_DIR ERROR_LOG_FILE TEMP_DIR

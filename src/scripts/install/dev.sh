@@ -1,14 +1,9 @@
 #!/bin/bash
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck disable=SC1091
-source "$SCRIPT_DIR/utils.sh"
+# shellcheck source=../utils.sh
+source "$(dirname "$0")/../utils.sh"
 
 update_apt_cache
-
-dotfiles_root="$PROJECT_ROOT/src/dotfiles"
-dotfiles_config_root="$dotfiles_root/config"
-dotfiles_home_root="$dotfiles_root/home"
 
 # Node.js + npm from NodeSource (https://github.com/nodesource/distributions)
 NODE_MAJOR=24
@@ -87,22 +82,6 @@ neovim_packages=(
 )
 install_apt_packages "${neovim_packages[@]}"
 
-# Dotfiles: XDG app configs (Neovim lazy.nvim bootstraps in config/nvim/init.lua — no Packer)
-xdg_config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
-ensure_directory "$xdg_config_home"
-if [[ -d "$dotfiles_config_root" ]]; then
-    shopt -s dotglob nullglob
-    for entry in "$dotfiles_config_root"/*; do
-        [[ -e "$entry" ]] || continue
-        name=$(basename "$entry")
-        dest="$xdg_config_home/$name"
-        if [[ ! -e "$dest" ]]; then
-            cp -r "$entry" "$dest" 2>>"$ERROR_LOG_FILE" || true
-        fi
-    done
-    shopt -u dotglob nullglob
-fi
-
 dev_tools=(
     "gh"
     "shellcheck"
@@ -121,20 +100,4 @@ download_file_safe "https://sourcegraph.com/.api/src-cli/src_linux_amd64" "$sg_b
 if [[ -f "$sg_binary" ]]; then
     chmod +x "$sg_binary" 2>>"$ERROR_LOG_FILE" || true
     sudo mv "$sg_binary" /usr/local/bin/sg 2>>"$ERROR_LOG_FILE" || true
-fi
-
-if [[ ! -f "$HOME/.gitconfig" ]]; then
-    git config --global credential.helper store 2>>"$ERROR_LOG_FILE" || true
-    git config --global http.postBuffer 157286400 2>>"$ERROR_LOG_FILE" || true
-    git config --global pack.window 1 2>>"$ERROR_LOG_FILE" || true
-    git config --global user.email "garret.patten@proton.me" 2>>"$ERROR_LOG_FILE" || true
-    git config --global user.name "Garret Patten" 2>>"$ERROR_LOG_FILE" || true
-    git config --global pull.rebase false 2>>"$ERROR_LOG_FILE" || true
-    git config --global init.defaultBranch main 2>>"$ERROR_LOG_FILE" || true
-fi
-
-vim_config_file="$HOME/.vimrc"
-vim_source_file="$dotfiles_home_root/.vimrc"
-if [[ ! -f "$vim_config_file" && -f "$vim_source_file" ]]; then
-    copy_file_safe "$vim_source_file" "$vim_config_file"
 fi
