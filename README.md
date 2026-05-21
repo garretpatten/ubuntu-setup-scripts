@@ -243,7 +243,7 @@ user Oh My Posh binary + theme stash under **`/usr/share/oh-my-posh/themes`** wh
 
 #### 🏁 **Post maintenance** (`install/post-install.sh`)
 
-`apt-get upgrade`, Docker systemd + **`docker`** group enrollment, **`ufw`** best-effort enable, completion banner.
+`apt-get upgrade`, Docker systemd + **`docker`** group enrollment, **`ufw`** best-effort enable, and a completion banner (`src/assets/ubuntu.txt`, Ubuntu ASCII derived from [fastfetch](https://github.com/fastfetch-cli/fastfetch) with color tokens removed for plain terminals).
 
 ### **`config/` bundle**
 
@@ -352,12 +352,19 @@ chsh -s $(which zsh)
 - **Safe temporary file handling** with automatic cleanup
 - **Principle of least privilege** for directory permissions
 
+## Community
+
+| Resource                                | Use                                         |
+| --------------------------------------- | ------------------------------------------- |
+| [Code of Conduct](./CODE_OF_CONDUCT.md) | Expected behavior in issues and PRs         |
+| [Contributing](./CONTRIBUTING.md)       | Branching, checks, submodule notes          |
+| [Security policy](./SECURITY.md)        | Vulnerability reporting (not public issues) |
+
 ## Maintainers
 
-[@garretpatten](https://github.com/garretpatten/)
+[@garretpatten](https://github.com/garretpatten/).
 
-_For questions, bug reports, or feature requests, please open an issue on this
-repository or contact the maintainer directly._
+Use the [issue templates](./.github/ISSUE_TEMPLATE/) for bugs and enhancements.
 
 ## License
 

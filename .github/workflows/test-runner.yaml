@@ -24,7 +24,7 @@ jobs:
             src/scripts/install/*.sh \
             src/scripts/config/*.sh
 
-      # ubuntu-latest is a server image: no GNOME schemas, so config/system-config.sh skips gsettings (expected).
+      # CI: no GNOME; config/system-config.sh skips gsettings.
       - name: Run setup scripts
         run: |
           cd src/scripts
@@ -36,7 +36,27 @@ jobs:
           ERROR_LOG="setup_errors.log"
           if [[ -f "$ERROR_LOG" ]] && [[ -s "$ERROR_LOG" ]]; then
             FILTERED_LOG=$(mktemp)
-            grep -v -E "(Running kernel seems to be up-to-date|Restarting services|Service restarts being deferred|No containers need to be restarted|No VM guests are running|User sessions running outdated binaries|runner @ user manager service|needrestart|chsh: PAM: Authentication failure|Password:|systemctl restart|WARNING: apt does not have a stable CLI|Synchronizing state of docker|Executing: /usr/lib/systemd|^Cloning into|^Updating files:|^Resolving |^Connecting to |^HTTP request sent|^Length:|^Saving to:|^--[0-9]{4}-[0-9]{2}-[0-9]{2}|^[0-9]{4}-[0-9]{2}-[0-9]{2}.*saved|^[[:space:]]*[0-9]+K|done\.$|^[[:space:]]*100%|^npm notice|% Total|% Received|% Xferd|Average Speed|Dload  Upload|Time    Time     Time  Current|--:--:--)" "$ERROR_LOG" | grep -v '^[[:space:]]*$' > "$FILTERED_LOG" || true
+            re=''
+            re+='Running kernel seems to be up-to-date|Restarting services|'
+            re+='Service restarts being deferred|'
+            re+='No containers need to be restarted|No VM guests are running|'
+            re+='User sessions running outdated binaries|'
+            re+='No user sessions are running outdated binaries|'
+            re+='runner @ user manager service|needrestart|'
+            re+='No services need to be restarted|'
+            re+='chsh: PAM: Authentication failure|Password:|systemctl restart|'
+            re+='WARNING: apt does not have a stable CLI|'
+            re+='Synchronizing state of docker|'
+            re+='Executing: /usr/lib/systemd|^Cloning into|'
+            re+='^Updating files:|^Resolving |^Connecting to |'
+            re+='^HTTP request sent|'
+            re+='^Length:|^Saving to:|'
+            re+='^--[0-9]{4}-[0-9]{2}-[0-9]{2}|^[0-9]{4}-[0-9]{2}-[0-9]{2}.*saved|'
+            re+='^[[:space:]]*[0-9]+K|done\.$|^[[:space:]]*100%|^npm notice|'
+            re+='% Total|% Received|% Xferd|Average Speed|Dload  Upload|'
+            re+='Time    Time     Time  Current|--:--:--'
+            grep -v -E "$re" "$ERROR_LOG" \
+              | grep -v '^[[:space:]]*$' >"$FILTERED_LOG" || true
 
             if [[ -s "$FILTERED_LOG" ]]; then
               echo "❌ Errors found:"
