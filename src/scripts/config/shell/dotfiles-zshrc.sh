@@ -1,6 +1,12 @@
 #!/bin/bash
 
 home="$PROJECT_ROOT/src/dotfiles/home"
-[[ -f "$HOME/.tmux.conf" ]] || cp "$home/.tmux.conf" "$HOME/.tmux.conf" 2>/dev/null || true
-[[ -f "$HOME/.zshrc" ]] || cp "$home/.zshrc" "$HOME/.zshrc" 2>/dev/null || true
-[[ -f "$HOME/.bashrc" ]] || cp "$home/.bashrc" "$HOME/.bashrc" 2>/dev/null || true
+if [[ ! -f "$HOME/.tmux.conf" ]]; then
+    cp "$home/.tmux.conf" "$HOME/.tmux.conf" 2>/dev/null || true
+fi
+if [[ ! -f "$HOME/.zshrc" ]]; then
+    cp "$home/.zshrc" "$HOME/.zshrc" 2>/dev/null || true
+fi
+if [[ ! -f "$HOME/.bashrc" ]]; then
+    cp "$home/.bashrc" "$HOME/.bashrc" 2>/dev/null || true
+fi

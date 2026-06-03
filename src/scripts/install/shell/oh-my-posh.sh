@@ -6,7 +6,11 @@ bash "$TEMP_DIR/oh-my-posh-install.sh" -s -- --user || true
 themes_dir="/usr/share/oh-my-posh/themes"
 if [[ ! -d "$themes_dir" ]] || [[ -z "$(ls -A "$themes_dir" 2>/dev/null)" ]]; then
     repo="$TEMP_DIR/oh-my-posh-repo"
-    [[ -d "$repo" ]] || git clone https://github.com/JanDeDobbeleer/oh-my-posh.git "$repo" || true
+    if [[ ! -d "$repo" ]]; then
+        git clone https://github.com/JanDeDobbeleer/oh-my-posh.git "$repo" || true
+    fi
     sudo mkdir -p "$themes_dir"
-    [[ -d "$repo/themes" ]] && sudo cp -r "$repo/themes/"* "$themes_dir/" || true
+    if [[ -d "$repo/themes" ]]; then
+        sudo cp -r "$repo/themes/"* "$themes_dir/" || true
+    fi
 fi

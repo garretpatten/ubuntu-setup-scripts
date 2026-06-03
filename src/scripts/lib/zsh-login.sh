@@ -14,7 +14,9 @@ ensure_zshrc_login_safe() {
 
 zsh_login_safe() {
     local zsh_path="$1"
-    [[ -n "$zsh_path" && -x "$zsh_path" ]] || return 1
+    if [[ -z "$zsh_path" ]] || [[ ! -x "$zsh_path" ]]; then
+        return 1
+    fi
     ensure_zshrc_login_safe
     if command -v timeout >/dev/null 2>&1; then
         timeout 5 "$zsh_path" -ic 'exit 0' >/dev/null 2>&1
