@@ -50,7 +50,6 @@ Install scripts prefer, in order:
 |-----|--------|
 | LibreOffice | apt |
 | Zoom | `.deb`, else Flatpak, else snap |
-| Standard Notes | `flatpak install flathub org.standardnotes.standardnotes` |
 | KeePassXC, Redshift, Flameshot | apt |
 | balenaEtcher | apt (`.deb` from GitHub releases) |
 
@@ -108,6 +107,7 @@ These are **not** provisioned by this repo (remove from old notes or other dotfi
 | **Postman** | Replaced by **Bruno** |
 | **Sourcegraph CLI (`sg`)** | Removed; use Bruno or other tooling |
 | **Spotify** | Not provisioned; install manually if needed |
+| **Standard Notes** | Flatpak install unreliable in CI; install manually if needed |
 | GNOME apps via random snaps | snap only when listed above as fallback |
 | Full IDE bundles (VS Code, JetBrains, etc.) | Dotfiles may reference extensions; install editors separately |
 | 1Password, Bitwarden, etc. | Use Proton Pass / KeePassXC paths above |

@@ -6,6 +6,5 @@ source "$DIR/../../lib/run.sh"
 
 run_script "$DIR/libreoffice.sh"
 run_script "$DIR/zoom.sh"
-run_script "$DIR/standardnotes.sh"
 run_script "$DIR/productivity-apt.sh"
 run_script "$DIR/etcher.sh"

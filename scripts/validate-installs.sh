@@ -138,12 +138,6 @@ else
     fail zoom 'deb, flatpak, or snap'
 fi
 
-if flatpak_installed org.standardnotes.standardnotes; then
-    pass standardnotes 'flatpak list: org.standardnotes.standardnotes'
-else
-    fail standardnotes 'flatpak install flathub org.standardnotes.standardnotes'
-fi
-
 if command -v balena-etcher >/dev/null 2>&1; then
     pass etcher "$(command -v balena-etcher)"
 elif dpkg -s balena-etcher >/dev/null 2>&1; then
