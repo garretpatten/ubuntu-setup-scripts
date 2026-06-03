@@ -31,13 +31,8 @@ gsettings set org.gnome.nautilus.preferences recursive-search local-only || true
 gsettings set org.gnome.gnome-screenshot auto-save-directory "file://${HOME}/Pictures/Screenshots" || true
 gsettings set org.gnome.desktop.screenshots include-border false || true
 
-if gsettings list-schemas 2>/dev/null | grep -qx org.gnome.shell.extensions.dash-to-dock; then
-    gsettings set org.gnome.shell.extensions.dash-to-dock dock-position BOTTOM || true
-    gsettings set org.gnome.shell.extensions.dash-to-dock extend-height false || true
-    gsettings set org.gnome.shell.extensions.dash-to-dock autohide true || true
-    gsettings set org.gnome.shell.extensions.dash-to-dock autohide-delay 0.0 || true
-    gsettings set org.gnome.shell.extensions.dash-to-dock animation-time 0.1 || true
-    gsettings set org.gnome.shell.extensions.dash-to-dock dock-fixed false || true
+if command -v gnome-extensions >/dev/null 2>&1; then
+    gnome-extensions disable ubuntu-dock@ubuntu.com || true
 fi
 
 gsettings set org.gnome.desktop.search-providers disable-external false || true
