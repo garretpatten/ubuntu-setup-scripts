@@ -16,4 +16,4 @@ if [[ -n "$ubuntu_codename" ]]; then
     fi
 fi
 
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y yazi
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y yazi lazygit

@@ -83,10 +83,18 @@ else
     echo "Failed to download Proton Pass .deb" >&2
 fi
 
-proton_pass_cli="$TEMP_DIR/proton-pass-cli"
-proton_pass_cli_url=$(curl -s https://api.github.com/repos/protonpass/cli/releases/latest  | grep "browser_download_url.*linux-amd64" | cut -d '"' -f 4)
-if [[ -n "$proton_pass_cli_url" ]]; then
-    curl -fsSL "$proton_pass_cli_url" -o "$proton_pass_cli" || exit 0
-    chmod +x "$proton_pass_cli"
-    sudo mv "$proton_pass_cli" /usr/local/bin/protonpass || true
+if ! command -v pass-cli >/dev/null 2>&1; then
+    proton_pass_cli="$TEMP_DIR/pass-cli"
+    proton_pass_cli_arch="x86_64"
+    case "$(uname -m)" in
+        aarch64 | arm64) proton_pass_cli_arch="aarch64" ;;
+    esac
+    proton_pass_cli_url=$(curl -s https://api.github.com/repos/protonpass/pass-cli/releases/latest | \
+        grep "browser_download_url.*pass-cli-linux-${proton_pass_cli_arch}\"" | head -1 | cut -d '"' -f 4)
+    if [[ -n "$proton_pass_cli_url" ]]; then
+        if curl -fsSL "$proton_pass_cli_url" -o "$proton_pass_cli"; then
+            chmod +x "$proton_pass_cli"
+            sudo install -m 755 "$proton_pass_cli" /usr/local/bin/pass-cli
+        fi
+    fi
 fi

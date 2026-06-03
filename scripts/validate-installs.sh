@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Verify tools and apps installed by src/scripts/install/* after master.sh / run-install.sh.
-set -euo pipefail
+set -uo pipefail
 
 cd "$(dirname "$0")/.."
 
@@ -37,7 +37,9 @@ version_of() {
 check_version() {
     local name="$1"
     shift
-    if "$@" >/dev/null 2>&1; then
+    local rc=0
+    "$@" >/dev/null 2>&1 || rc=$?
+    if [[ "$rc" -eq 0 ]]; then
         pass "$name" "$(version_of "$@")"
     else
         fail "$name" "expected: $*"
@@ -91,7 +93,13 @@ check_version wget wget --version
 
 # --- CLI (install/cli) ---
 section 'CLI'
-check_version bat batcat --version
+if command -v batcat >/dev/null 2>&1; then
+    check_version bat batcat --version
+elif command -v bat >/dev/null 2>&1; then
+    check_version bat bat --version
+else
+    fail bat 'batcat or bat'
+fi
 check_version eza eza --version
 check_version fd fdfind --version
 check_version git git --version
@@ -124,7 +132,7 @@ fi
 # --- Productivity (install/productivity) ---
 section 'Productivity'
 check_version libreoffice libreoffice --version
-check_version keepassxc keepassxc --version
+check_dpkg keepassxc keepassxc
 check_version flameshot flameshot --version
 check_command redshift redshift
 
@@ -144,7 +152,13 @@ else
     fail standardnotes 'flatpak: org.standardnotes.standardnotes'
 fi
 
-check_path etcher "$HOME/.local/bin/balenaEtcher.AppImage"
+if command -v balena-etcher >/dev/null 2>&1; then
+    pass etcher "$(command -v balena-etcher)"
+elif dpkg -s balena-etcher >/dev/null 2>&1; then
+    pass etcher "$(dpkg -s balena-etcher 2>/dev/null | awk -F': ' '/^Version:/{print $2; exit}')"
+else
+    fail etcher 'balena-etcher package or command'
+fi
 
 # --- Dev (install/dev) ---
 section 'Dev'
@@ -161,7 +175,7 @@ fi
 check_version neovim nvim --version
 check_version gh gh --version
 check_version shellcheck shellcheck --version
-check_version sourcegraph-cli sg --version
+check_version sourcegraph-cli sg version
 
 if command -v semgrep >/dev/null 2>&1; then
     pass semgrep "$(version_of semgrep --version)"
@@ -207,11 +221,7 @@ else
     fail proton-pass 'desktop .deb (proton-pass)'
 fi
 
-if command -v protonpass >/dev/null 2>&1; then
-    pass protonpass-cli "$(command -v protonpass)"
-else
-    fail protonpass-cli '/usr/local/bin/protonpass'
-fi
+check_version pass-cli pass-cli --version
 
 check_dpkg proton-vpn proton-vpn-gnome-desktop
 
@@ -232,7 +242,13 @@ check_path hacking-seclists "$HOME/Hacking/SecLists"
 section 'Shell'
 check_version zsh zsh --version
 check_version tmux tmux -V
-check_version oh-my-posh oh-my-posh --version
+if command -v oh-my-posh >/dev/null 2>&1; then
+    check_version oh-my-posh oh-my-posh --version
+elif [[ -x "${HOME}/.local/bin/oh-my-posh" ]]; then
+    pass oh-my-posh "$("${HOME}/.local/bin/oh-my-posh" --version 2>/dev/null | head -n1)"
+else
+    fail oh-my-posh 'oh-my-posh (~/.local/bin/oh-my-posh)'
+fi
 check_dpkg zsh-autosuggestions zsh-autosuggestions
 check_dpkg zsh-syntax-highlighting zsh-syntax-highlighting
 check_dpkg fonts-font-awesome fonts-font-awesome
