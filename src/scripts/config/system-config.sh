@@ -71,7 +71,12 @@ if [[ ! -f "$auto_upgrades" ]]; then
     } | sudo tee "$auto_upgrades" >/dev/null 2>>"$ERROR_LOG_FILE" || true
 fi
 
-sudo env ERROR_LOG_FILE="$ERROR_LOG_FILE" bash -c '
+restart_logind=1
+if desktop_session_active; then
+    restart_logind=0
+fi
+
+sudo env ERROR_LOG_FILE="$ERROR_LOG_FILE" RESTART_LOGIND="$restart_logind" bash -c '
 gdm_conf="/etc/gdm3/custom.conf"
 if [[ -f "$gdm_conf" ]] && ! grep -qE "^AllowGuest=false" "$gdm_conf" 2>/dev/null && grep -q "^\[daemon\]" "$gdm_conf" 2>/dev/null; then
     sed -i "/^\[daemon\]/a AllowGuest=false" "$gdm_conf" 2>>"$ERROR_LOG_FILE" || true
@@ -89,7 +94,10 @@ mkdir -p "$(dirname "$logind_dropin")" 2>>"$ERROR_LOG_FILE" || true
 if [[ ! -f "$logind_dropin" ]]; then
     printf "%s\n" "[Login]" "HandleLidSwitch=suspend" "HandleLidSwitchExternalPower=suspend" "HandleLidSwitchDocked=ignore" >"$logind_dropin"
 fi
-systemctl try-restart systemd-logind.service 2>>"$ERROR_LOG_FILE" || true
+# Restarting logind drops every graphical session; apply lid settings after reboot instead.
+if [[ "$RESTART_LOGIND" == 1 ]]; then
+    systemctl try-restart systemd-logind.service 2>>"$ERROR_LOG_FILE" || true
+fi
 
 sysctl_conf="/etc/sysctl.d/99-tcp-keepalive.conf"
 if [[ ! -f "$sysctl_conf" ]]; then

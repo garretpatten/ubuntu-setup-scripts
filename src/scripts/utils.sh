@@ -131,6 +131,23 @@ gsettings_schema_exists() {
     gsettings list-schemas 2>/dev/null | grep -qx "$1"
 }
 
+# True when this user has an active graphical session (local terminal or SSH while logged in).
+desktop_session_active() {
+    [[ -n "${WAYLAND_DISPLAY:-}" || -n "${DISPLAY:-}" ]] && return 0
+    command -v loginctl >/dev/null 2>&1 || return 1
+
+    local sid session_type user
+    while read -r sid _ _ user _; do
+        [[ "$user" == "$USER" ]] || continue
+        session_type=$(loginctl show-session "$sid" -p Type --value 2>/dev/null || true)
+        if [[ "$session_type" == wayland || "$session_type" == x11 ]]; then
+            return 0
+        fi
+    done < <(loginctl list-sessions --no-legend 2>/dev/null)
+
+    return 1
+}
+
 # Comment out pass-cli GITHUB_TOKEN lines that block graphical login before Proton Pass is ready.
 ensure_zshrc_login_safe() {
     local zshrc="$HOME/.zshrc"
@@ -161,6 +178,6 @@ mkdir -p "$TEMP_DIR"
 # Export functions and variables for use in other scripts
 export -f log_error install_apt_packages update_apt_cache ensure_directory remove_empty_directory
 export -f copy_file_safe copy_directory_safe download_file_safe clone_repository_safe
-export -f gsettings_ok gsettings_set gsettings_schema_exists
+export -f gsettings_ok gsettings_set gsettings_schema_exists desktop_session_active
 export -f ensure_zshrc_login_safe zsh_login_safe
 export PROJECT_ROOT SCRIPT_DIR SCRIPTS_DIR ERROR_LOG_FILE TEMP_DIR

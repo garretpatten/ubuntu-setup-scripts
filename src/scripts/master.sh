@@ -16,6 +16,9 @@ run() {
     bash "$1" 2>>"$ERROR_LOG_FILE" || log_error "Failed to execute $1"
 }
 
+# Existing ~/.zshrc may block login if pass-cli is not ready yet.
+ensure_zshrc_login_safe
+
 run "$IDIR/pre-install.sh"
 
 run "$CDIR/system-config.sh"

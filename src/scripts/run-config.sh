@@ -11,6 +11,8 @@ run_config() {
     bash "$1" 2>>"$ERROR_LOG_FILE" || log_error "Failed to execute $1"
 }
 
+ensure_zshrc_login_safe
+
 run_config "$CDIR/system-config.sh"
 run_config "$CDIR/organizeHome.sh"
 run_config "$CDIR/dev.sh"
