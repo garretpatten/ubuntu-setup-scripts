@@ -78,7 +78,9 @@ check_path() {
 
 flatpak_installed() {
     local app_id="$1"
-    flatpak info "$app_id" >/dev/null 2>&1 || flatpak --user info "$app_id" >/dev/null 2>&1
+    flatpak list --columns=application --app 2>/dev/null | grep -Fxq "$app_id" && return 0
+    flatpak list --user --columns=application --app 2>/dev/null | grep -Fxq "$app_id" && return 0
+    return 1
 }
 
 snap_installed() {
@@ -119,16 +121,6 @@ check_version brave brave-browser --version
 check_version vlc vlc --version
 check_version ffmpeg ffmpeg -version
 
-if command -v spotify >/dev/null 2>&1; then
-    pass spotify "$(version_of spotify --version)"
-elif flatpak_installed com.spotify.Client; then
-    pass spotify 'flatpak: com.spotify.Client'
-elif snap_installed spotify; then
-    pass spotify 'snap: spotify'
-else
-    fail spotify 'apt, flatpak, or snap'
-fi
-
 # --- Productivity (install/productivity) ---
 section 'Productivity'
 check_version libreoffice libreoffice --version
@@ -146,10 +138,8 @@ else
     fail zoom 'deb, flatpak, or snap'
 fi
 
-if flatpak info org.standardnotes.standardnotes >/dev/null 2>&1; then
-    pass standardnotes 'flatpak: org.standardnotes.standardnotes'
-elif flatpak --user info org.standardnotes.standardnotes >/dev/null 2>&1; then
-    pass standardnotes 'flatpak (user): org.standardnotes.standardnotes'
+if flatpak_installed org.standardnotes.standardnotes; then
+    pass standardnotes 'flatpak list: org.standardnotes.standardnotes'
 else
     fail standardnotes 'flatpak install flathub org.standardnotes.standardnotes'
 fi

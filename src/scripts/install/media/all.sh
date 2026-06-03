@@ -6,5 +6,4 @@ source "$DIR/../../lib/run.sh"
 
 run_script "$DIR/brave-browser.sh"
 run_script "$DIR/vlc.sh"
-run_script "$DIR/spotify.sh"
 run_script "$DIR/multimedia.sh"
