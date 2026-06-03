@@ -175,8 +175,6 @@ fi
 check_version neovim nvim --version
 check_version gh gh --version
 check_version shellcheck shellcheck --version
-check_version sourcegraph-cli sg version
-
 if command -v semgrep >/dev/null 2>&1; then
     pass semgrep "$(version_of semgrep --version)"
 else
@@ -197,10 +195,16 @@ else
     fail cursor-agent "agent CLI (cursor.com/install -> ${HOME}/.local/bin/agent)"
 fi
 
-if flatpak_installed com.getpostman.Postman; then
-    pass postman 'flatpak: com.getpostman.Postman'
+if command -v bruno >/dev/null 2>&1; then
+    if dpkg -s bruno >/dev/null 2>&1; then
+        pass bruno "$(dpkg -s bruno 2>/dev/null | awk -F': ' '/^Version:/{print $2; exit}')"
+    else
+        pass bruno "$(command -v bruno)"
+    fi
+elif flatpak_installed com.usebruno.Bruno; then
+    pass bruno 'flatpak: com.usebruno.Bruno'
 else
-    fail postman 'flatpak: com.getpostman.Postman'
+    fail bruno 'apt or flatpak (com.usebruno.Bruno)'
 fi
 
 check_path nvm "$HOME/.nvm/nvm.sh"
