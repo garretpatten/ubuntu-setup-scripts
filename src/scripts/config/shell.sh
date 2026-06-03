@@ -21,6 +21,8 @@ if [[ -d "$dotfiles_home_root" ]]; then
     copy_file_safe "$dotfiles_home_root/.bashrc" "$HOME/.bashrc"
 fi
 
+ensure_zshrc_login_safe
+
 # ~./dotfiles_path: cache checkout so home/.zshrc can source home/zsh/ubuntu.zsh.
 if [[ -d "$dotfiles_home_root/zsh" ]]; then
     if [[ ! -f "$HOME/.dotfiles_path" ]]; then
@@ -34,7 +36,7 @@ if [[ -d "$dotfiles_home_root/zsh" ]]; then
     fi
 fi
 
-zsh_path="$(which zsh 2>/dev/null || echo "")"
-if [[ -n "$zsh_path" && "$SHELL" != "$zsh_path" ]]; then
+zsh_path="$(command -v zsh 2>/dev/null || true)"
+if [[ -n "$zsh_path" && "$SHELL" != "$zsh_path" ]] && zsh_login_safe "$zsh_path"; then
     chsh -s "$zsh_path" 2>/dev/null || true
 fi
