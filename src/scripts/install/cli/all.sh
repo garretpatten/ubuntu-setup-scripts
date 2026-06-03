@@ -6,5 +6,6 @@ source "$DIR/../../lib/run.sh"
 
 run_script "$DIR/flatpak.sh"
 run_script "$DIR/cli-tools.sh"
+run_script "$DIR/yazi.sh"
 run_script "$DIR/btop.sh"
 run_script "$DIR/fastfetch.sh"
