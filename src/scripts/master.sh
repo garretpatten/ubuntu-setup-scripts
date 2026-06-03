@@ -7,35 +7,32 @@
 
 # shellcheck source=utils.sh
 source "$(dirname "$0")/utils.sh"
+# shellcheck source=lib/run.sh
+source "$(dirname "$0")/lib/run.sh"
 
 ROOT="$(dirname "$0")"
 IDIR="$ROOT/install"
 CDIR="$ROOT/config"
 
-run() {
-    bash "$1" 2>>"$ERROR_LOG_FILE" || log_error "Failed to execute $1"
-}
-
-# Existing ~/.zshrc may block login if pass-cli is not ready yet.
 ensure_zshrc_login_safe
 
-run "$IDIR/pre-install.sh"
+run_script "$IDIR/preflight/all.sh"
 
-run "$CDIR/system-config.sh"
-run "$CDIR/organizeHome.sh"
+run_script "$CDIR/system/all.sh"
+run_script "$CDIR/home/all.sh"
 
-run "$IDIR/cli.sh"
-run "$IDIR/media.sh"
-run "$IDIR/productivity.sh"
+run_script "$IDIR/cli/all.sh"
+run_script "$IDIR/media/all.sh"
+run_script "$IDIR/productivity/all.sh"
 
-run "$IDIR/dev.sh"
-run "$CDIR/dev.sh"
+run_script "$IDIR/dev/all.sh"
+run_script "$CDIR/dev/all.sh"
 
-run "$IDIR/security.sh"
-run "$CDIR/security.sh"
+run_script "$IDIR/security/all.sh"
+run_script "$CDIR/security/all.sh"
 
-run "$IDIR/shell.sh"
+run_script "$IDIR/shell/all.sh"
 
-run "$IDIR/post-install.sh"
+run_script "$IDIR/post-install/all.sh"
 
-run "$CDIR/shell.sh"
+run_script "$CDIR/shell/all.sh"

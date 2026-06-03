@@ -20,11 +20,9 @@ jobs:
 
       - name: Make scripts executable
         run: |
-          chmod +x src/scripts/*.sh \
-            src/scripts/install/*.sh \
-            src/scripts/config/*.sh
+          find src/scripts -name '*.sh' -exec chmod +x {} +
 
-      # CI: no GNOME; config/system-config.sh skips gsettings.
+      # CI: no GNOME; config/system/gnome-gsettings.sh skips gsettings.
       - name: Run setup scripts
         run: |
           cd src/scripts

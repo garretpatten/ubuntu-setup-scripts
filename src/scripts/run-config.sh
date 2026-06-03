@@ -4,17 +4,9 @@
 
 # shellcheck source=utils.sh
 source "$(dirname "$0")/utils.sh"
-
-CDIR="$SCRIPTS_DIR/config"
-
-run_config() {
-    bash "$1" 2>>"$ERROR_LOG_FILE" || log_error "Failed to execute $1"
-}
+# shellcheck source=lib/run.sh
+source "$(dirname "$0")/lib/run.sh"
 
 ensure_zshrc_login_safe
 
-run_config "$CDIR/system-config.sh"
-run_config "$CDIR/organizeHome.sh"
-run_config "$CDIR/dev.sh"
-run_config "$CDIR/security.sh"
-run_config "$CDIR/shell.sh"
+run_script "$(dirname "$0")/config/all.sh"

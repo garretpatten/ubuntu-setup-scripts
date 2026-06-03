@@ -175,7 +175,7 @@ zsh_login_safe() {
 # Create temporary directory
 mkdir -p "$TEMP_DIR"
 
-# Export functions and variables for use in other scripts
+# Export for subshells invoked by lib/run.sh
 export -f log_error install_apt_packages update_apt_cache ensure_directory remove_empty_directory
 export -f copy_file_safe copy_directory_safe download_file_safe clone_repository_safe
 export -f gsettings_ok gsettings_set gsettings_schema_exists desktop_session_active
