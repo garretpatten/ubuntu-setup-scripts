@@ -1,0 +1,255 @@
+#!/usr/bin/env bash
+# Verify tools and apps installed by src/scripts/install/* after master.sh / run-install.sh.
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+export PATH="${HOME}/.local/bin:/usr/local/bin:${PATH}"
+
+FAILURES=0
+
+section() {
+    printf '\n== %s ==\n' "$1"
+}
+
+pass() {
+    local name="$1"
+    local detail="${2:-}"
+    if [[ -n "$detail" ]]; then
+        printf '  ok  %-28s %s\n' "$name" "$detail"
+    else
+        printf '  ok  %s\n' "$name"
+    fi
+}
+
+fail() {
+    local name="$1"
+    local detail="${2:-not found}"
+    printf '  FAIL %-28s %s\n' "$name" "$detail" >&2
+    FAILURES=$((FAILURES + 1))
+}
+
+version_of() {
+    local cmd=("$@")
+    "${cmd[@]}" 2>/dev/null | head -n1 | tr -d '\r' || true
+}
+
+check_version() {
+    local name="$1"
+    shift
+    if "$@" >/dev/null 2>&1; then
+        pass "$name" "$(version_of "$@")"
+    else
+        fail "$name" "expected: $*"
+    fi
+}
+
+check_command() {
+    local name="$1"
+    local bin="$2"
+    if command -v "$bin" >/dev/null 2>&1; then
+        pass "$name" "$(command -v "$bin")"
+    else
+        fail "$name" "command not in PATH: $bin"
+    fi
+}
+
+check_dpkg() {
+    local name="$1"
+    local pkg="$2"
+    if dpkg -s "$pkg" >/dev/null 2>&1; then
+        pass "$name" "$(dpkg -s "$pkg" 2>/dev/null | awk -F': ' '/^Version:/{print $2; exit}')"
+    else
+        fail "$name" "dpkg package missing: $pkg"
+    fi
+}
+
+check_path() {
+    local name="$1"
+    local path="$2"
+    if [[ -e "$path" ]]; then
+        pass "$name" "$path"
+    else
+        fail "$name" "missing path: $path"
+    fi
+}
+
+flatpak_installed() {
+    local app_id="$1"
+    flatpak info "$app_id" >/dev/null 2>&1 || flatpak --user info "$app_id" >/dev/null 2>&1
+}
+
+snap_installed() {
+    local snap_name="$1"
+    snap list "$snap_name" 2>/dev/null | grep -q "^${snap_name} "
+}
+
+# --- Preflight (install/preflight) ---
+section 'Preflight'
+check_version curl curl --version
+check_version wget wget --version
+
+# --- CLI (install/cli) ---
+section 'CLI'
+check_version bat batcat --version
+check_version eza eza --version
+check_version fd fdfind --version
+check_version git git --version
+check_version htop htop --version
+check_version jq jq --version
+check_version lazygit lazygit --version
+check_version ripgrep rg --version
+check_version vim vim --version
+check_version yazi yazi --version
+check_version btop btop --version
+check_version fastfetch fastfetch --version
+check_version flatpak flatpak --version
+
+# --- Media (install/media) ---
+section 'Media'
+check_version brave brave-browser --version
+check_version vlc vlc --version
+check_version ffmpeg ffmpeg -version
+
+if command -v spotify >/dev/null 2>&1; then
+    pass spotify "$(version_of spotify --version)"
+elif flatpak_installed com.spotify.Client; then
+    pass spotify 'flatpak: com.spotify.Client'
+elif snap_installed spotify; then
+    pass spotify 'snap: spotify'
+else
+    fail spotify 'apt, flatpak, or snap'
+fi
+
+# --- Productivity (install/productivity) ---
+section 'Productivity'
+check_version libreoffice libreoffice --version
+check_version keepassxc keepassxc --version
+check_version flameshot flameshot --version
+check_command redshift redshift
+
+if command -v zoom >/dev/null 2>&1; then
+    pass zoom "$(version_of zoom --version)"
+elif flatpak_installed us.zoom.Zoom; then
+    pass zoom 'flatpak: us.zoom.Zoom'
+elif snap_installed zoom-client; then
+    pass zoom 'snap: zoom-client'
+else
+    fail zoom 'deb, flatpak, or snap'
+fi
+
+if flatpak_installed org.standardnotes.standardnotes; then
+    pass standardnotes 'flatpak: org.standardnotes.standardnotes'
+else
+    fail standardnotes 'flatpak: org.standardnotes.standardnotes'
+fi
+
+check_path etcher "$HOME/.local/bin/balenaEtcher.AppImage"
+
+# --- Dev (install/dev) ---
+section 'Dev'
+check_version node node --version
+check_version npm npm --version
+check_version python3 python3 --version
+check_version docker docker --version
+check_version docker-compose docker compose version
+if docker info >/dev/null 2>&1; then
+    pass docker-daemon 'docker info'
+else
+    fail docker-daemon 'docker info'
+fi
+check_version neovim nvim --version
+check_version gh gh --version
+check_version shellcheck shellcheck --version
+check_version sourcegraph-cli sg --version
+
+if command -v semgrep >/dev/null 2>&1; then
+    pass semgrep "$(version_of semgrep --version)"
+else
+    fail semgrep 'pip user install (~/.local/bin/semgrep)'
+fi
+
+if command -v vue >/dev/null 2>&1; then
+    pass vue-cli "$(version_of vue --version)"
+else
+    fail vue-cli 'npm global @vue/cli'
+fi
+
+if command -v agent >/dev/null 2>&1; then
+    pass cursor-agent "$(version_of agent --version)"
+elif command -v cursor-agent >/dev/null 2>&1; then
+    pass cursor-agent "$(version_of cursor-agent --version)"
+else
+    fail cursor-agent "agent CLI (cursor.com/install -> ${HOME}/.local/bin/agent)"
+fi
+
+if flatpak_installed com.getpostman.Postman; then
+    pass postman 'flatpak: com.getpostman.Postman'
+else
+    fail postman 'flatpak: com.getpostman.Postman'
+fi
+
+check_path nvm "$HOME/.nvm/nvm.sh"
+
+# --- Security (install/security) ---
+section 'Security'
+check_version nmap nmap --version
+check_version exiftool exiftool -ver
+check_version openvpn openvpn --version
+check_dpkg ufw ufw
+check_dpkg signal-desktop signal-desktop
+
+if command -v proton-pass >/dev/null 2>&1; then
+    pass proton-pass "$(command -v proton-pass)"
+elif dpkg -s proton-pass >/dev/null 2>&1; then
+    pass proton-pass "$(dpkg -s proton-pass 2>/dev/null | awk -F': ' '/^Version:/{print $2; exit}')"
+else
+    fail proton-pass 'desktop .deb (proton-pass)'
+fi
+
+if command -v protonpass >/dev/null 2>&1; then
+    pass protonpass-cli "$(command -v protonpass)"
+else
+    fail protonpass-cli '/usr/local/bin/protonpass'
+fi
+
+check_dpkg proton-vpn proton-vpn-gnome-desktop
+
+if command -v zaproxy >/dev/null 2>&1; then
+    pass zaproxy "$(command -v zaproxy)"
+elif flatpak_installed org.zaproxy.ZAP; then
+    pass zaproxy 'flatpak: org.zaproxy.ZAP'
+elif snap_installed zaproxy; then
+    pass zaproxy 'snap: zaproxy'
+else
+    fail zaproxy 'flatpak or snap'
+fi
+
+check_path hacking-payloads "$HOME/Hacking/PayloadsAllTheThings"
+check_path hacking-seclists "$HOME/Hacking/SecLists"
+
+# --- Shell (install/shell) ---
+section 'Shell'
+check_version zsh zsh --version
+check_version tmux tmux -V
+check_version oh-my-posh oh-my-posh --version
+check_dpkg zsh-autosuggestions zsh-autosuggestions
+check_dpkg zsh-syntax-highlighting zsh-syntax-highlighting
+check_dpkg fonts-font-awesome fonts-font-awesome
+check_dpkg fonts-firacode fonts-firacode
+check_path meslo-nerd-font /usr/share/fonts/meslo-nerd-font
+
+if command -v ghostty >/dev/null 2>&1; then
+    pass ghostty "$(version_of ghostty --version)"
+else
+    fail ghostty 'ghostty terminal'
+fi
+
+# --- Summary ---
+printf '\n'
+if [[ "$FAILURES" -gt 0 ]]; then
+    printf 'Install validation failed: %d check(s) missing or wrong version.\n' "$FAILURES" >&2
+    exit 1
+fi
+
+printf 'All install validations passed.\n'

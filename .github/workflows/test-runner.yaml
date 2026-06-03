@@ -28,6 +28,12 @@ jobs:
           cd src/scripts
           bash master.sh || true
 
+      - name: Validate installed tools and apps
+        run: |
+          export PATH="${HOME}/.local/bin:/usr/local/bin:${PATH}"
+          chmod +x scripts/validate-installs.sh
+          ./scripts/validate-installs.sh
+
       - name: Check error log
         working-directory: ${{ github.workspace }}
         run: |

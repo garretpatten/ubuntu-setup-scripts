@@ -45,7 +45,8 @@ pull requests. Run `npm ci` and the relevant tools when you touch those file typ
 
 ### Test workflow
 
-`.github/workflows/test-runner.yaml` runs `src/scripts/master.sh` on `ubuntu-latest`.
+`.github/workflows/test-runner.yaml` runs `src/scripts/master.sh` on `ubuntu-latest`, then
+`scripts/validate-installs.sh` (version and presence checks for each installed tool/app).
 GNOME gsettings scripts no-op without an active GNOME session.
 
 ## Layout
