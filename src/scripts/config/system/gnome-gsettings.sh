@@ -1,6 +1,11 @@
 #!/bin/bash
 
 [[ "$OSTYPE" == linux-gnu* ]] || exit 0
+
+# shellcheck source=../../lib/gnome-session.sh
+source "$(dirname "$0")/../../lib/gnome-session.sh"
+gnome_session_active || exit 0
+
 command -v gsettings >/dev/null 2>&1 || exit 0
 [[ -S "/run/user/$(id -u)/bus" ]] || exit 0
 gsettings list-schemas 2>/dev/null | grep -qx org.gnome.desktop.interface || exit 0

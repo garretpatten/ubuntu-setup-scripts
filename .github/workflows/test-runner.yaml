@@ -22,7 +22,7 @@ jobs:
         run: |
           find src/scripts -name '*.sh' -exec chmod +x {} +
 
-      # CI: no GNOME; config/system/gnome-gsettings.sh skips gsettings.
+      # CI: no GNOME session; config/system/gnome-gsettings.sh exits early.
       - name: Run setup scripts
         run: |
           cd src/scripts
