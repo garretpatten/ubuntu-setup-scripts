@@ -1,5 +1,5 @@
 #!/bin/bash
-# shellcheck source=../../utils.sh
-source "$(dirname "$0")/../../utils.sh"
-dotfiles_root="$PROJECT_ROOT/src/dotfiles"
-copy_directory_safe "$dotfiles_root/config/ghostty" "$HOME/.config/ghostty"
+
+src="$PROJECT_ROOT/src/dotfiles/config/ghostty"
+dest="$HOME/.config/ghostty"
+[[ -d "$dest" ]] || { mkdir -p "$(dirname "$dest")"; cp -r "$src" "$dest"; }

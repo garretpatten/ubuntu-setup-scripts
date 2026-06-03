@@ -1,6 +1,4 @@
 #!/bin/bash
-# shellcheck source=../../utils.sh
-source "$(dirname "$0")/../../utils.sh"
 # Proton Pass desktop .deb — canonical URLs live in version.json (linked from
 # https://www.proton.me/support/set-up-proton-pass-linux). Legacy ProtonPass.deb
 # URLs often redirect or no longer serve the package bytes reliably.
@@ -28,7 +26,7 @@ proton_pass_resolve_latest_stable_deb_url() {
         rm -f "$json_path" 2>/dev/null || true
         if ! curl -fsSL --connect-timeout 30 --max-time 120 --retry 3 --retry-delay 2 \
             -A "Mozilla/5.0 (X11; Linux x86_64)" \
-            "$base_url" -o "$json_path" 2>>"$ERROR_LOG_FILE"; then
+            "$base_url" -o "$json_path" ; then
             continue
         fi
         [[ -s "$json_path" ]] || continue
@@ -50,7 +48,7 @@ for rel in data.get("Releases", []):
             print(url)
             sys.exit(0)
 sys.exit(1)
-' "$json_path" 2>>"$ERROR_LOG_FILE") || deb_url=""
+' "$json_path" ) || deb_url=""
             [[ -n "$deb_url" ]] && printf '%s' "$deb_url" && return 0
         fi
     done
@@ -72,25 +70,23 @@ for proton_pass_url in "${proton_pass_urls[@]}"; do
     rm -f "$proton_pass_deb" 2>/dev/null || true
     if curl -fsSL --connect-timeout 30 --max-time 600 --retry 3 --retry-delay 2 --retry-all-errors \
         -A "Mozilla/5.0 (X11; Linux x86_64)" \
-        "$proton_pass_url" -o "$proton_pass_deb" 2>>"$ERROR_LOG_FILE" && proton_pass_is_valid_deb "$proton_pass_deb"; then
+        "$proton_pass_url" -o "$proton_pass_deb"  && proton_pass_is_valid_deb "$proton_pass_deb"; then
         proton_pass_downloaded=1
         break
     fi
 done
 
 if [[ "$proton_pass_downloaded" -eq 1 ]]; then
-    sudo dpkg -i "$proton_pass_deb" 2>>"$ERROR_LOG_FILE" || true
-    sudo apt-get install -f -y 2>>"$ERROR_LOG_FILE" || true
+    sudo dpkg -i "$proton_pass_deb"  || true
+    sudo apt-get install -f -y  || true
 else
-    log_error "Failed to download a valid Proton Pass Debian package"
+    echo "Failed to download Proton Pass .deb" >&2
 fi
 
 proton_pass_cli="$TEMP_DIR/proton-pass-cli"
-proton_pass_cli_url=$(curl -s https://api.github.com/repos/protonpass/cli/releases/latest 2>>"$ERROR_LOG_FILE" | grep "browser_download_url.*linux-amd64" | cut -d '"' -f 4)
+proton_pass_cli_url=$(curl -s https://api.github.com/repos/protonpass/cli/releases/latest  | grep "browser_download_url.*linux-amd64" | cut -d '"' -f 4)
 if [[ -n "$proton_pass_cli_url" ]]; then
-    download_file_safe "$proton_pass_cli_url" "$proton_pass_cli"
-    if [[ -f "$proton_pass_cli" ]] && [[ -s "$proton_pass_cli" ]]; then
-        chmod +x "$proton_pass_cli" 2>>"$ERROR_LOG_FILE" || true
-        sudo mv "$proton_pass_cli" /usr/local/bin/protonpass 2>>"$ERROR_LOG_FILE" || true
-    fi
+    curl -fsSL "$proton_pass_cli_url" -o "$proton_pass_cli" || exit 0
+    chmod +x "$proton_pass_cli"
+    sudo mv "$proton_pass_cli" /usr/local/bin/protonpass || true
 fi

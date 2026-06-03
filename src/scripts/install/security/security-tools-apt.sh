@@ -1,4 +1,2 @@
 #!/bin/bash
-# shellcheck source=../../utils.sh
-source "$(dirname "$0")/../../utils.sh"
-install_apt_packages "nmap" "exiftool"
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y nmap exiftool

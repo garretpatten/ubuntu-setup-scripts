@@ -1,10 +1,8 @@
 #!/bin/bash
 
-# GNOME defaults, home layout, dotfiles, shell — sources each category in order.
-
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=../utils.sh
-source "$DIR/../utils.sh"
+# shellcheck source=../lib/env.sh
+source "$DIR/../lib/env.sh"
 # shellcheck source=../lib/run.sh
 source "$DIR/../lib/run.sh"
 

@@ -1,9 +1,7 @@
 #!/bin/bash
 
-# Run a setup script; errors append to ERROR_LOG_FILE (requires utils.sh).
-
 run_script() {
-    bash "$1" 2>>"$ERROR_LOG_FILE" || log_error "Failed to execute $1"
+    bash "$1" 2>>"$ERROR_LOG_FILE" || {
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')] Failed: $1" >>"$ERROR_LOG_FILE"
+    }
 }
-
-export -f run_script

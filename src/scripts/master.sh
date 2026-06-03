@@ -1,38 +1,25 @@
 #!/bin/bash
 
-# Full provisioning: interleaved installs and configuration — same chronological
-# idea as sibling macOS-setup-scripts (`master.sh`): defaults and home layout
-# early; dev dotfiles immediately after development packages; shell dotfiles
-# after apt maintenance/post-install hooks.
-
-# shellcheck source=utils.sh
-source "$(dirname "$0")/utils.sh"
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/env.sh
+source "$DIR/lib/env.sh"
 # shellcheck source=lib/run.sh
-source "$(dirname "$0")/lib/run.sh"
-
-ROOT="$(dirname "$0")"
-IDIR="$ROOT/install"
-CDIR="$ROOT/config"
+source "$DIR/lib/run.sh"
+# shellcheck source=lib/zsh-login.sh
+source "$DIR/lib/zsh-login.sh"
 
 ensure_zshrc_login_safe
 
-run_script "$IDIR/preflight/all.sh"
-
-run_script "$CDIR/system/all.sh"
-run_script "$CDIR/home/all.sh"
-
-run_script "$IDIR/cli/all.sh"
-run_script "$IDIR/media/all.sh"
-run_script "$IDIR/productivity/all.sh"
-
-run_script "$IDIR/dev/all.sh"
-run_script "$CDIR/dev/all.sh"
-
-run_script "$IDIR/security/all.sh"
-run_script "$CDIR/security/all.sh"
-
-run_script "$IDIR/shell/all.sh"
-
-run_script "$IDIR/post-install/all.sh"
-
-run_script "$CDIR/shell/all.sh"
+run_script "$DIR/install/preflight/all.sh"
+run_script "$DIR/config/system/all.sh"
+run_script "$DIR/config/home/all.sh"
+run_script "$DIR/install/cli/all.sh"
+run_script "$DIR/install/media/all.sh"
+run_script "$DIR/install/productivity/all.sh"
+run_script "$DIR/install/dev/all.sh"
+run_script "$DIR/config/dev/all.sh"
+run_script "$DIR/install/security/all.sh"
+run_script "$DIR/config/security/all.sh"
+run_script "$DIR/install/shell/all.sh"
+run_script "$DIR/install/post-install/all.sh"
+run_script "$DIR/config/shell/all.sh"

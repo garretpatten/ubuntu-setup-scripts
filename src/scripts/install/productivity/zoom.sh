@@ -1,6 +1,2 @@
 #!/bin/bash
-# shellcheck source=../../utils.sh
-source "$(dirname "$0")/../../utils.sh"
-if command -v snap >/dev/null 2>&1; then
-    sudo snap install zoom-client 2>>"$ERROR_LOG_FILE" || true
-fi
+command -v snap >/dev/null 2>&1 && sudo snap install zoom-client || true

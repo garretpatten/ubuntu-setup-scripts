@@ -1,22 +1,8 @@
 #!/bin/bash
 
-# shellcheck source=../../utils.sh
-source "$(dirname "$0")/../../utils.sh"
-
-remove_empty_directory "$HOME/Music"
-remove_empty_directory "$HOME/Public"
-remove_empty_directory "$HOME/Templates"
-
-ensure_directory "$HOME/AppImages"
-ensure_directory "$HOME/Hacking"
-ensure_directory "$HOME/Projects"
-
-ensure_directory "$HOME/Projects/opensource"
-ensure_directory "$HOME/Projects/personal"
-
-if [[ -d "$HOME/Scripts" ]]; then
-    chmod 755 "$HOME/Scripts" 2>>"$ERROR_LOG_FILE" || true
-fi
-if [[ -d "$HOME/Hacking" ]]; then
-    chmod 700 "$HOME/Hacking" 2>>"$ERROR_LOG_FILE" || true
-fi
+rmdir "$HOME/Music" 2>/dev/null || true
+rmdir "$HOME/Public" 2>/dev/null || true
+rmdir "$HOME/Templates" 2>/dev/null || true
+mkdir -p "$HOME/AppImages" "$HOME/Hacking" "$HOME/Projects/opensource" "$HOME/Projects/personal"
+[[ -d "$HOME/Scripts" ]] && chmod 755 "$HOME/Scripts" || true
+[[ -d "$HOME/Hacking" ]] && chmod 700 "$HOME/Hacking" || true

@@ -1,10 +1,8 @@
 #!/bin/bash
 
-# Package installs only — sources each category in order (Omarchy-style).
-
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=../utils.sh
-source "$DIR/../utils.sh"
+# shellcheck source=../lib/env.sh
+source "$DIR/../lib/env.sh"
 # shellcheck source=../lib/run.sh
 source "$DIR/../lib/run.sh"
 

@@ -1,12 +1,13 @@
 #!/bin/bash
 
-# GNOME/session defaults, home layout, UFW defaults, submodule dotfiles, shell.
-
-# shellcheck source=utils.sh
-source "$(dirname "$0")/utils.sh"
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/env.sh
+source "$DIR/lib/env.sh"
 # shellcheck source=lib/run.sh
-source "$(dirname "$0")/lib/run.sh"
+source "$DIR/lib/run.sh"
+# shellcheck source=lib/zsh-login.sh
+source "$DIR/lib/zsh-login.sh"
 
 ensure_zshrc_login_safe
 
-run_script "$(dirname "$0")/config/all.sh"
+run_script "$DIR/config/all.sh"

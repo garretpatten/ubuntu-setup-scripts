@@ -1,6 +1,6 @@
 #!/bin/bash
-# shellcheck source=../../utils.sh
-source "$(dirname "$0")/../../utils.sh"
+
+source "$(dirname "$0")/../../lib/zsh-login.sh"
 ensure_zshrc_login_safe
 zsh_path="$(command -v zsh 2>/dev/null || true)"
 if [[ -n "$zsh_path" && "$SHELL" != "$zsh_path" ]] && zsh_login_safe "$zsh_path"; then

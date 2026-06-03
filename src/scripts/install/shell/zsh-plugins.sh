@@ -1,4 +1,3 @@
 #!/bin/bash
-# shellcheck source=../../utils.sh
-source "$(dirname "$0")/../../utils.sh"
-install_apt_packages "zsh-autosuggestions" "zsh-syntax-highlighting"
+
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y zsh-autosuggestions zsh-syntax-highlighting

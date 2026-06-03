@@ -1,5 +1,3 @@
 #!/bin/bash
-# shellcheck source=../../utils.sh
-source "$(dirname "$0")/../../utils.sh"
-update_apt_cache
-install_apt_packages "ufw" "openvpn"
+sudo apt-get update -y || true
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y ufw openvpn

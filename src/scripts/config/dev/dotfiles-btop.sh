@@ -1,5 +1,7 @@
 #!/bin/bash
-# shellcheck source=../../utils.sh
-source "$(dirname "$0")/../../utils.sh"
-DOTFILES_ROOT="$PROJECT_ROOT/src/dotfiles"
-copy_directory_safe "$DOTFILES_ROOT/config/btop" "$dest"
+
+src="$PROJECT_ROOT/src/dotfiles/config/btop"
+dest="$HOME/.config/btop"
+[[ -d "$dest" ]] && exit 0
+mkdir -p "$(dirname "$dest")"
+cp -r "$src" "$dest"
