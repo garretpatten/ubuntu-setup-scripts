@@ -36,7 +36,8 @@ jobs:
             FILTERED_LOG=$(mktemp)
             re=''
             re+='Running kernel seems to be up-to-date|Restarting services|'
-            re+='Service restarts being deferred|'
+            re+='Services to be restarted|Service restarts being deferred|'
+            re+='Flatpak system operation|ConfigureRemote not allowed|'
             re+='No containers need to be restarted|No VM guests are running|'
             re+='User sessions running outdated binaries|'
             re+='No user sessions are running outdated binaries|'
