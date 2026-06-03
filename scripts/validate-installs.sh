@@ -2,7 +2,7 @@
 # Verify tools and apps installed by src/scripts/install/* after master.sh / run-install.sh.
 set -uo pipefail
 
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/.." || exit 1
 
 export PATH="${HOME}/.local/bin:/usr/local/bin:${PATH}"
 

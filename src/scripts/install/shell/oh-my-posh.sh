@@ -1,7 +1,10 @@
 #!/bin/bash
 
-curl -fsSL https://ohmyposh.dev/install.sh -o "$TEMP_DIR/oh-my-posh-install.sh" || exit 0
-bash "$TEMP_DIR/oh-my-posh-install.sh" -s -- --user || true
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y unzip curl
+
+install_script="$TEMP_DIR/oh-my-posh-install.sh"
+curl -fsSL https://ohmyposh.dev/install.sh -o "$install_script" || exit 0
+bash "$install_script" -d "${HOME}/.local/bin" || true
 
 themes_dir="/usr/share/oh-my-posh/themes"
 if [[ ! -d "$themes_dir" ]] || [[ -z "$(ls -A "$themes_dir" 2>/dev/null)" ]]; then
