@@ -1,0 +1,16 @@
+# Apt packages for CLI tools (universe / main). One package per line.
+# Installed by cli-tools.sh. Add tools here; use a separate *.packages file when
+# a tool needs a PPA or third-party repo (see yazi.packages, fastfetch.packages).
+
+bat
+curl
+dbus-x11
+eza
+fd-find
+flatpak
+git
+htop
+jq
+ripgrep
+vim
+wget

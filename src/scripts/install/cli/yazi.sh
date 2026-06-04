@@ -1,5 +1,7 @@
 #!/bin/bash
 
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 yazi_key="/etc/apt/trusted.gpg.d/debian.griffo.io.gpg"
 if [[ ! -f "$yazi_key" ]]; then
     curl -fsSL https://debian.griffo.io/EA0F721D231FDD3A0A17B9AC7808B4DD62C41256.asc | \
@@ -16,4 +18,7 @@ if [[ -n "$ubuntu_codename" ]]; then
     fi
 fi
 
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y yazi lazygit
+mapfile -t packages < <(grep -v '^#' "$DIR/yazi.packages" | grep -v '^[[:space:]]*$')
+if [[ ${#packages[@]} -gt 0 ]]; then
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "${packages[@]}"
+fi

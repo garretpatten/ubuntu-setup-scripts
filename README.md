@@ -28,13 +28,16 @@ Install scripts prefer, in order:
 
 ### CLI (`install/cli/`)
 
-| Tool | Method |
-|------|--------|
-| bat, curl, eza, fd-find, git, htop, jq, ripgrep, vim, wget | apt (universe) |
-| yazi, lazygit | apt ([debian.griffo.io](https://debian.griffo.io/apt)) |
-| btop | apt (Ubuntu ≥ 22.04), else GitHub musl binary, else snap |
-| fastfetch | apt (PPA) |
-| flatpak + Flathub | apt + flatpak remotes |
+Apt tools are listed one per line in `*.packages` files (Omarchy-style) and
+installed by the matching script (`grep` skips `#` comments and blank lines).
+
+| File | Tool(s) | Method |
+|------|---------|--------|
+| `cli.packages` | bat, curl, eza, fd-find, flatpak, git, htop, jq, ripgrep, vim, wget, … | apt (universe) |
+| `yazi.packages` | yazi, lazygit | apt ([debian.griffo.io](https://debian.griffo.io/apt)) |
+| `btop.packages` | btop | apt (Ubuntu ≥ 22.04), else GitHub musl binary, else snap |
+| `fastfetch.packages` | fastfetch | apt (PPA) |
+| — | Flathub remotes | `flatpak.sh` (after `flatpak` from `cli.packages`) |
 
 ### Media (`install/media/`)
 
