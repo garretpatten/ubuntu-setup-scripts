@@ -11,6 +11,7 @@ gcc
 gh
 htop
 jq
+make
 libimage-exiftool-perl
 libsecret-1-0
 libsecret-1-dev

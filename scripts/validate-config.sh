@@ -33,6 +33,13 @@ check_path projects-personal "$HOME/Projects/personal"
 check_path hacking-dir "$HOME/Hacking"
 
 section 'Git'
+credential_helper="/usr/share/doc/git/contrib/credential/libsecret/git-credential-libsecret"
+check_path git-credential-libsecret "$credential_helper"
+if git config --global --get credential.helper 2>/dev/null | grep -Fq "$credential_helper"; then
+    pass git-credential-helper "$credential_helper"
+else
+    fail git-credential-helper "git config --global credential.helper $credential_helper"
+fi
 if git config --global user.name >/dev/null 2>&1; then
     pass git-user-name "$(git config --global user.name)"
 else

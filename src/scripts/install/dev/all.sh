@@ -11,6 +11,7 @@ run_script "$DIR/nodesource-nodejs.sh"
 run_script "$DIR/nvm.sh"
 install_apt_packages_from_file "$DIR/../packages/lsp.packages"
 install_apt_packages_from_file "$DIR/../packages/lsp-optional.packages" optional
+run_script "$DIR/git-credential-libsecret.sh"
 install_apt_packages_from_file "$DIR/../packages/dev.packages"
 run_script "$DIR/rustup.sh"
 run_script "$DIR/ruby-gems.sh"
