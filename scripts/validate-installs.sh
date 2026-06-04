@@ -107,8 +107,18 @@ check_version fd fdfind --version
 check_version git git --version
 check_version htop htop --version
 check_version jq jq --version
+check_version fzf fzf --version
+check_version zoxide zoxide --version
+check_version whois whois --version
+check_version tldr tldr --version
+check_version tree-sitter tree-sitter --version
+check_version pkg-config pkg-config --version
+check_dpkg libsecret-1-0 libsecret-1-0
+check_dpkg libsecret-1-dev libsecret-1-dev
 check_version lazygit lazygit --version
+check_version lazydocker lazydocker --version
 check_version ripgrep rg --version
+check_dpkg unzip unzip
 check_version vim vim --version
 check_version yazi yazi --version
 check_version btop btop --version
@@ -214,9 +224,16 @@ check_path nvm "$HOME/.nvm/nvm.sh"
 # --- Security (install/security) ---
 section 'Security'
 check_version nmap nmap --version
-check_version exiftool exiftool -ver
+if command -v exiftool >/dev/null 2>&1; then
+    check_version exiftool exiftool -ver
+elif dpkg -s libimage-exiftool-perl >/dev/null 2>&1; then
+    pass exiftool "$(dpkg -s libimage-exiftool-perl 2>/dev/null | awk -F': ' '/^Version:/{print $2; exit}')"
+else
+    fail exiftool 'libimage-exiftool-perl (exiftool)'
+fi
 check_version openvpn openvpn --version
 check_dpkg ufw ufw
+check_path ufw-docker /usr/local/bin/ufw-docker
 check_dpkg signal-desktop signal-desktop
 
 if command -v proton-pass >/dev/null 2>&1; then
@@ -243,6 +260,18 @@ fi
 
 check_path hacking-payloads "$HOME/Hacking/PayloadsAllTheThings"
 check_path hacking-seclists "$HOME/Hacking/SecLists"
+
+# --- Desktop (install/desktop) ---
+section 'Desktop'
+check_dpkg gnome-tweaks gnome-tweaks
+check_dpkg gnome-shell-extensions gnome-shell-extensions
+if command -v gnome-extensions >/dev/null 2>&1; then
+    pass gnome-extensions "$(command -v gnome-extensions)"
+elif dpkg -s gnome-shell-extensions >/dev/null 2>&1; then
+    pass gnome-extensions 'packages installed (CLI needs gnome-shell on desktop)'
+else
+    fail gnome-extensions 'gnome.packages (gnome-shell-extensions)'
+fi
 
 # --- Shell (install/shell) ---
 section 'Shell'

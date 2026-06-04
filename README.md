@@ -33,8 +33,8 @@ installed by the matching script (`grep` skips `#` comments and blank lines).
 
 | File | Tool(s) | Method |
 |------|---------|--------|
-| `cli.packages` | bat, curl, eza, fd-find, flatpak, git, htop, jq, ripgrep, vim, wget, … | apt (universe) |
-| `yazi.packages` | yazi, lazygit | apt ([debian.griffo.io](https://debian.griffo.io/apt)) |
+| `cli.packages` | bat, curl, eza, fzf, jq, ripgrep, tree-sitter-cli, tealdeer (`tldr`), zoxide, whois, unzip, libsecret, gcc, pkg-config, … | apt (universe) |
+| `yazi.packages` | yazi, lazygit, lazydocker | apt ([debian.griffo.io](https://debian.griffo.io/apt)) |
 | `btop.packages` | btop | apt (Ubuntu ≥ 22.04), else GitHub musl binary, else snap |
 | `fastfetch.packages` | fastfetch | apt (PPA) |
 | — | Flathub remotes | `flatpak.sh` (after `flatpak` from `cli.packages`) |
@@ -46,6 +46,12 @@ installed by the matching script (`grep` skips `#` comments and blank lines).
 | Brave Browser | apt (vendor repo) |
 | VLC | apt |
 | ffmpeg, ubuntu-restricted-extras | apt |
+
+### Desktop (`install/desktop/`)
+
+| Tool | Method |
+|------|--------|
+| GNOME Tweaks, shell extensions | apt (`gnome.packages`) |
 
 ### Productivity (`install/productivity/`)
 
@@ -69,7 +75,7 @@ installed by the matching script (`grep` skips `#` comments and blank lines).
 | Vue CLI | npm global |
 | Docker CE + Compose | apt (Docker vendor repo) |
 | Neovim | apt (PPA) + Python extras |
-| gh, shellcheck, git | apt |
+| gh, shellcheck | apt (`dev-tools.packages`) |
 | **Bruno** (API client) | apt ([debian.usebruno.com](http://debian.usebruno.com/)), else Flatpak |
 | Semgrep | pip (`--user`) |
 | Cursor Agent CLI | [cursor.com/install](https://cursor.com/install) |
@@ -78,13 +84,12 @@ installed by the matching script (`grep` skips `#` comments and blank lines).
 
 | Tool | Method |
 |------|--------|
-| UFW, OpenVPN | apt |
+| UFW, OpenVPN, nmap, exiftool | apt (`security.packages`) |
 | ufw-docker | [chaifeng/ufw-docker](https://github.com/chaifeng/ufw-docker) → `/usr/local/bin` |
 | Proton VPN | apt (vendor `.deb` + packages) |
 | Proton Pass (desktop) | vendor `.deb` |
 | pass-cli | GitHub release binary |
 | Signal Desktop | apt (vendor repo) |
-| nmap, exiftool | apt |
 | OWASP ZAP | Flatpak, else snap (`--classic`) |
 | PayloadsAllTheThings, SecLists | git clone into `~/Hacking` |
 

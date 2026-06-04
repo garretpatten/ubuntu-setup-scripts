@@ -1,7 +1,6 @@
 #!/bin/bash
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
   build-essential \
-  unzip \
   gzip \
   tar \
   curl \

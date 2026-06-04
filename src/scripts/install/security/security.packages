@@ -1,0 +1,7 @@
+# Security and network tooling. One package per line.
+# libimage-exiftool-perl provides the exiftool command on Ubuntu.
+
+libimage-exiftool-perl
+nmap
+openvpn
+ufw
