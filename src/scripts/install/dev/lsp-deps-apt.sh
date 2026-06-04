@@ -16,5 +16,7 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
   composer \
   lua5.4 \
   liblua5.4-dev \
-  luarocks \
-  julia
+  luarocks
+
+# Julia is not in all Ubuntu releases (e.g. ubuntu-latest); do not fail the batch above.
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y julia || true

@@ -159,7 +159,7 @@ check_version php php --version
 check_version composer composer --version
 check_version java java --version
 check_version julia julia --version
-check_version lua lua5.4 -v
+check_version lua lua5.4 -e 'print(_VERSION)'
 check_version luarocks luarocks --version
 check_version gcc gcc --version
 if command -v gem >/dev/null 2>&1 && gem list solargraph -i >/dev/null 2>&1; then
