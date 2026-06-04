@@ -1,0 +1,7 @@
+#!/bin/bash
+protonvpn_deb="$TEMP_DIR/protonvpn-stable-release.deb"
+curl -fsSL https://repo.protonvpn.com/debian/dists/stable/main/binary-all/protonvpn-stable-release_1.0.8_all.deb -o "$protonvpn_deb" || exit 0
+file "$protonvpn_deb" 2>/dev/null | grep -q "Debian binary" || exit 0
+sudo dpkg -i "$protonvpn_deb" || true
+sudo apt-get update -y || true
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y proton-vpn-gnome-desktop libayatana-appindicator3-1 gir1.2-ayatanaappindicator3-0.1 gnome-shell-extension-appindicator
