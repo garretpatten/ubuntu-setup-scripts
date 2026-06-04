@@ -4,97 +4,18 @@ set -uo pipefail
 
 cd "$(dirname "$0")/.." || exit 1
 
-export PATH="${HOME}/.local/bin:/usr/local/bin:${PATH}"
+export PATH="${HOME}/.cargo/bin:${HOME}/.local/bin:/usr/local/bin:${PATH}"
 
-FAILURES=0
-
-section() {
-    printf '\n== %s ==\n' "$1"
-}
-
-pass() {
-    local name="$1"
-    local detail="${2:-}"
-    if [[ -n "$detail" ]]; then
-        printf '  ok  %-28s %s\n' "$name" "$detail"
-    else
-        printf '  ok  %s\n' "$name"
-    fi
-}
-
-fail() {
-    local name="$1"
-    local detail="${2:-not found}"
-    printf '  FAIL %-28s %s\n' "$name" "$detail" >&2
-    FAILURES=$((FAILURES + 1))
-}
-
-version_of() {
-    local cmd=("$@")
-    "${cmd[@]}" 2>/dev/null | head -n1 | tr -d '\r' || true
-}
-
-check_version() {
-    local name="$1"
-    shift
-    local rc=0
-    "$@" >/dev/null 2>&1 || rc=$?
-    if [[ "$rc" -eq 0 ]]; then
-        pass "$name" "$(version_of "$@")"
-    else
-        fail "$name" "expected: $*"
-    fi
-}
-
-check_command() {
-    local name="$1"
-    local bin="$2"
-    if command -v "$bin" >/dev/null 2>&1; then
-        pass "$name" "$(command -v "$bin")"
-    else
-        fail "$name" "command not in PATH: $bin"
-    fi
-}
-
-check_dpkg() {
-    local name="$1"
-    local pkg="$2"
-    if dpkg -s "$pkg" >/dev/null 2>&1; then
-        pass "$name" "$(dpkg -s "$pkg" 2>/dev/null | awk -F': ' '/^Version:/{print $2; exit}')"
-    else
-        fail "$name" "dpkg package missing: $pkg"
-    fi
-}
-
-check_path() {
-    local name="$1"
-    local path="$2"
-    if [[ -e "$path" ]]; then
-        pass "$name" "$path"
-    else
-        fail "$name" "missing path: $path"
-    fi
-}
-
-flatpak_installed() {
-    local app_id="$1"
-    flatpak list --columns=application --app 2>/dev/null | grep -Fxq "$app_id" && return 0
-    flatpak list --user --columns=application --app 2>/dev/null | grep -Fxq "$app_id" && return 0
-    return 1
-}
-
-snap_installed() {
-    local snap_name="$1"
-    snap list "$snap_name" 2>/dev/null | grep -q "^${snap_name} "
-}
+# shellcheck source=lib/validate-common.sh
+source "$(dirname "$0")/lib/validate-common.sh"
 
 # --- Preflight (install/preflight) ---
 section 'Preflight'
 check_version curl curl --version
 check_version wget wget --version
 
-# --- CLI (install/cli) ---
-section 'CLI'
+# --- Packages (install/packages) ---
+section 'Packages'
 if command -v batcat >/dev/null 2>&1; then
     check_version bat batcat --version
 elif command -v bat >/dev/null 2>&1; then
@@ -107,22 +28,30 @@ check_version fd fdfind --version
 check_version git git --version
 check_version htop htop --version
 check_version jq jq --version
+check_version fzf fzf --version
+check_version zoxide zoxide --version
+check_version whois whois --version
+check_version tldr tldr --version
+check_version tree-sitter tree-sitter --version
+check_version pkg-config pkg-config --version
+check_dpkg libsecret-1-0 libsecret-1-0
+check_dpkg libsecret-1-dev libsecret-1-dev
 check_version lazygit lazygit --version
+check_version lazydocker lazydocker --version
 check_version ripgrep rg --version
+check_dpkg unzip unzip
 check_version vim vim --version
 check_version yazi yazi --version
 check_version btop btop --version
 check_version fastfetch fastfetch --version
 check_version flatpak flatpak --version
 
-# --- Media (install/media) ---
-section 'Media'
+# --- Apps (install/apps) ---
+section 'Apps'
 check_version brave brave-browser --version
 check_version vlc vlc --version
 check_version ffmpeg ffmpeg -version
 
-# --- Productivity (install/productivity) ---
-section 'Productivity'
 check_version libreoffice libreoffice --version
 check_dpkg keepassxc keepassxc
 check_version flameshot flameshot --version
@@ -151,6 +80,26 @@ section 'Dev'
 check_version node node --version
 check_version npm npm --version
 check_version python3 python3 --version
+check_version go go version
+check_version ruby ruby --version
+check_version rustc rustc --version
+check_version cargo cargo --version
+check_version php php --version
+check_version composer composer --version
+check_version java java --version
+if command -v julia >/dev/null 2>&1; then
+    check_version julia julia --version
+else
+    pass julia 'optional (not in apt on all Ubuntu releases)'
+fi
+check_version lua lua5.4 -e 'print(_VERSION)'
+check_version luarocks luarocks --version
+check_version gcc gcc --version
+if command -v gem >/dev/null 2>&1 && gem list solargraph -i >/dev/null 2>&1; then
+  pass solargraph-gem 'gem: solargraph'
+else
+  fail solargraph-gem 'gem install --user-install solargraph'
+fi
 check_version docker docker --version
 check_version docker-compose docker compose version
 if docker info >/dev/null 2>&1; then
@@ -195,12 +144,13 @@ fi
 
 check_path nvm "$HOME/.nvm/nvm.sh"
 
-# --- Security (install/security) ---
+# --- Security (install/apps + config/security) ---
 section 'Security'
 check_version nmap nmap --version
 check_version exiftool exiftool -ver
 check_version openvpn openvpn --version
 check_dpkg ufw ufw
+check_path ufw-docker /usr/local/bin/ufw-docker
 check_dpkg signal-desktop signal-desktop
 
 if command -v proton-pass >/dev/null 2>&1; then
@@ -228,6 +178,9 @@ fi
 check_path hacking-payloads "$HOME/Hacking/PayloadsAllTheThings"
 check_path hacking-seclists "$HOME/Hacking/SecLists"
 
+check_dpkg gnome-tweaks gnome-tweaks
+check_dpkg gnome-shell-extensions gnome-shell-extensions
+
 # --- Shell (install/shell) ---
 section 'Shell'
 check_version zsh zsh --version
@@ -251,11 +204,4 @@ else
     fail ghostty 'ghostty terminal'
 fi
 
-# --- Summary ---
-printf '\n'
-if [[ "$FAILURES" -gt 0 ]]; then
-    printf 'Install validation failed: %d check(s) missing or wrong version.\n' "$FAILURES" >&2
-    exit 1
-fi
-
-printf 'All install validations passed.\n'
+finish_validation 'Install validation'

@@ -1,0 +1,15 @@
+build-essential
+composer
+default-jdk-headless
+golang-go
+gzip
+liblua5.4-dev
+luarocks
+lua5.4
+php-cli
+php-mbstring
+php-xml
+php-zip
+ruby-dev
+ruby-full
+tar

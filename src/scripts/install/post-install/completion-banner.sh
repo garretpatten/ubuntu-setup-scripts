@@ -8,4 +8,4 @@ if [[ -f "$art" ]]; then
     echo "============================================================================"
     echo
 fi
-echo "Setup completed. Check $ERROR_LOG_FILE for any errors."
+echo "Setup completed."

@@ -6,5 +6,4 @@ source "$DIR/../../lib/run.sh"
 
 run_script "$DIR/apt-maintain.sh"
 run_script "$DIR/docker-service.sh"
-run_script "$DIR/ufw-enable.sh"
 run_script "$DIR/completion-banner.sh"

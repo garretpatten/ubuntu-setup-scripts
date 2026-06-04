@@ -1,7 +1,5 @@
 #!/bin/bash
 
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y unzip curl
-
 install_script="$TEMP_DIR/oh-my-posh-install.sh"
 curl -fsSL https://ohmyposh.dev/install.sh -o "$install_script" || exit 0
 bash "$install_script" -d "${HOME}/.local/bin" 2>/dev/null || true
