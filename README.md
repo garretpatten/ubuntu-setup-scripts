@@ -76,6 +76,7 @@ Install scripts prefer, in order:
 | Tool | Method |
 |------|--------|
 | UFW, OpenVPN | apt |
+| ufw-docker | [chaifeng/ufw-docker](https://github.com/chaifeng/ufw-docker) → `/usr/local/bin` |
 | Proton VPN | apt (vendor `.deb` + packages) |
 | Proton Pass (desktop) | vendor `.deb` |
 | pass-cli | GitHub release binary |
@@ -99,7 +100,7 @@ Install scripts prefer, in order:
 
 - apt update/upgrade, essentials (git, curl, universe enabled)
 - timezone (Los Angeles)
-- Docker service enabled; UFW enabled after rules config
+- Docker service enabled; UFW rules applied in config (LocalSend, Docker DNS, ufw-docker)
 
 ## Explicitly not installed
 
@@ -119,7 +120,8 @@ These are **not** provisioned by this repo (remove from old notes or other dotfi
 
 Symlinks and settings from `src/dotfiles` (submodule): Zsh, tmux, Neovim, btop,
 fastfetch, Kitty/Alacritty/Ghostty, Git, VS Code `settings.json`, GNOME
-gsettings (skipped in CI without a GNOME session), UFW rules, home directory
+gsettings (skipped in CI without a GNOME session), UFW defaults and rules (LocalSend,
+Docker DNS, ufw-docker), home directory
 layout.
 
 See [AGENTS.md](AGENTS.md) for contributor conventions, ShellCheck, and CI details.

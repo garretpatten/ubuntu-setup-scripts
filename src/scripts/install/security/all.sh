@@ -5,6 +5,7 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$DIR/../../lib/run.sh"
 
 run_script "$DIR/defense-apt.sh"
+run_script "$DIR/ufw-docker.sh"
 run_script "$DIR/protonvpn.sh"
 run_script "$DIR/proton-pass.sh"
 run_script "$DIR/signal-desktop.sh"
