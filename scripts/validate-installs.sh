@@ -4,7 +4,7 @@ set -uo pipefail
 
 cd "$(dirname "$0")/.." || exit 1
 
-export PATH="${HOME}/.local/bin:/usr/local/bin:${PATH}"
+export PATH="${HOME}/.cargo/bin:${HOME}/.local/bin:/usr/local/bin:${PATH}"
 
 FAILURES=0
 
@@ -151,6 +151,22 @@ section 'Dev'
 check_version node node --version
 check_version npm npm --version
 check_version python3 python3 --version
+check_version go go version
+check_version ruby ruby --version
+check_version rustc rustc --version
+check_version cargo cargo --version
+check_version php php --version
+check_version composer composer --version
+check_version java java --version
+check_version julia julia --version
+check_version lua lua5.4 -v
+check_version luarocks luarocks --version
+check_version gcc gcc --version
+if command -v gem >/dev/null 2>&1 && gem list solargraph -i >/dev/null 2>&1; then
+  pass solargraph-gem 'gem: solargraph'
+else
+  fail solargraph-gem 'gem install --user-install solargraph'
+fi
 check_version docker docker --version
 check_version docker-compose docker compose version
 if docker info >/dev/null 2>&1; then

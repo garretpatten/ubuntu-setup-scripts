@@ -60,6 +60,9 @@ Install scripts prefer, in order:
 | Node.js | apt (NodeSource) |
 | nvm | upstream install script |
 | Python 3, pip, venv, dev headers | apt |
+| Mason LSP runtimes (Go, Ruby, PHP, Java, Lua, Julia, C toolchain) | apt |
+| Rust / cargo | rustup |
+| Solargraph (Ruby gem for `solargraph` LSP) | gem (`--user-install`) |
 | Vue CLI | npm global |
 | Docker CE + Compose | apt (Docker vendor repo) |
 | Neovim | apt (PPA) + Python extras |
