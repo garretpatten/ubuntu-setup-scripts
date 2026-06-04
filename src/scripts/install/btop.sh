@@ -1,17 +1,12 @@
 #!/bin/bash
 
-DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
 if command -v btop >/dev/null 2>&1; then
     exit 0
 fi
 
 ubuntu_release="$(lsb_release -rs 2>/dev/null || echo "")"
 if [[ -n "$ubuntu_release" ]] && dpkg --compare-versions "$ubuntu_release" ge 22.04 2>/dev/null; then
-    mapfile -t packages < <(grep -v '^#' "$DIR/btop.packages" | grep -v '^[[:space:]]*$')
-    if [[ ${#packages[@]} -gt 0 ]]; then
-        sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "${packages[@]}" || true
-    fi
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y btop || true
 fi
 if command -v btop >/dev/null 2>&1; then
     exit 0

@@ -46,18 +46,20 @@ pull requests. Run `npm ci` and the relevant tools when you touch those file typ
 ### Test workflow
 
 `.github/workflows/test-runner.yaml` runs `src/scripts/master.sh` on `ubuntu-latest`, then
-`scripts/validate-installs.sh` (version and presence checks for each installed tool/app).
+`scripts/validate.sh` (install binaries/packages and config paths/settings).
 GNOME gsettings scripts no-op without an active GNOME session.
 
 ## Layout
 
 | Path | Role |
 |------|------|
-| `src/scripts/lib/env.sh` | `PROJECT_ROOT`, `ERROR_LOG_FILE`, `TEMP_DIR` |
+| `src/scripts/lib/env.sh` | `PROJECT_ROOT`, `TEMP_DIR` |
 | `src/scripts/lib/run.sh` | `run_script` helper |
 | `src/scripts/lib/gnome-session.sh` | Skip GNOME config when not on GNOME |
 | `src/scripts/lib/zsh-login.sh` | `.zshrc` pass-cli guard for provisioning |
-| `src/scripts/install/<category>/` | Per-package install scripts + `all.sh` |
+| `src/scripts/install/packages/*.packages` | Apt package lists (one per line) |
+| `src/scripts/lib/apt-packages.sh` | `install_apt_packages_from_file` helper |
+| `src/scripts/install/` | `packages/`, `apps/`, `dev/`, `shell/`, `post-install/` |
 | `src/scripts/config/<category>/` | Dotfiles/GNOME/system config + `all.sh` |
 
 ## Commits

@@ -1,0 +1,81 @@
+The provided value is outside of the valid range
+No such schema “org.gnome.gnome-screenshot”
+No such schema “org.gnome.desktop.screenshots”
+No such key “autohide-delay”
+Cloning into '/home/garret/.nvm'...
+E: The repository 'https://ppa.launchpadcontent.net/neovim-ppa/stable/ubuntu resolute Release' does not have a Release file.
+N: Updating from such a repository can't be done securely, and is therefore disabled by default.
+N: See apt-secure(8) manpage for repository creation and user configuration details.
+E: The repository 'https://ppa.launchpadcontent.net/neovim-ppa/stable/ubuntu resolute Release' does not have a Release file.
+N: Updating from such a repository can't be done securely, and is therefore disabled by default.
+N: See apt-secure(8) manpage for repository creation and user configuration details.
+[0;31m[ERROR][0m Failed to update apt cache
+[2026-06-02 21:07:44] ERROR: Failed to update apt cache
+error: externally-managed-environment
+
+× This environment is externally managed
+╰─> To install Python packages system-wide, try apt install
+    python3-xyz, where xyz is the package you are trying to
+    install.
+    
+    If you wish to install a non-Debian-packaged Python package,
+    create a virtual environment using python3 -m venv path/to/venv.
+    Then use path/to/venv/bin/python and path/to/venv/bin/pip. Make
+    sure you have python3-full installed.
+    
+    If you wish to install a non-Debian packaged Python application,
+    it may be easiest to use pipx install xyz, which will manage a
+    virtual environment for you. Make sure you have pipx installed.
+    
+    See /usr/share/doc/python3.14/README.venv for more information.
+
+note: If you believe this is a mistake, please contact your Python installation or OS distribution provider. You can override this, at the risk of breaking your Python installation or OS, by passing --break-system-packages.
+hint: See PEP 668 for the detailed specification.
+E: The repository 'https://ppa.launchpadcontent.net/neovim-ppa/stable/ubuntu resolute Release' does not have a Release file.
+N: Updating from such a repository can't be done securely, and is therefore disabled by default.
+N: See apt-secure(8) manpage for repository creation and user configuration details.
+[0;31m[ERROR][0m Failed to update apt cache
+[2026-06-02 21:08:01] ERROR: Failed to update apt cache
+E: The repository 'https://ppa.launchpadcontent.net/neovim-ppa/stable/ubuntu resolute Release' does not have a Release file.
+N: Updating from such a repository can't be done securely, and is therefore disabled by default.
+N: See apt-secure(8) manpage for repository creation and user configuration details.
+[0;31m[ERROR][0m Failed to update apt cache
+[2026-06-02 21:08:04] ERROR: Failed to update apt cache
+--2026-06-02 21:08:33--  https://updates.signal.org/desktop/apt/keys.asc
+Resolving updates.signal.org (updates.signal.org)... 2606:4700::6812:3a6, 2606:4700::6812:2a6, 104.18.3.166, ...
+Connecting to updates.signal.org (updates.signal.org)|2606:4700::6812:3a6|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 3090 (3.0K) [application/pgp-signature]
+Saving to: ‘/tmp/ubuntu-setup-19960/signal-key.asc’
+
+     0K ...                                                   100% 59.3M=0s
+
+2026-06-02 21:08:33 (59.3 MB/s) - ‘/tmp/ubuntu-setup-19960/signal-key.asc’ saved [3090/3090]
+
+E: The repository 'https://ppa.launchpadcontent.net/neovim-ppa/stable/ubuntu resolute Release' does not have a Release file.
+N: Updating from such a repository can't be done securely, and is therefore disabled by default.
+N: See apt-secure(8) manpage for repository creation and user configuration details.
+[0;31m[ERROR][0m Failed to update apt cache
+[2026-06-02 21:08:36] ERROR: Failed to update apt cache
+Cloning into '/home/garret/Hacking/PayloadsAllTheThings'...
+Cloning into '/home/garret/Hacking/SecLists'...
+Updating files:   3% (231/6272)Updating files:   4% (251/6272)Updating files:   5% (314/6272)Updating files:   6% (377/6272)Updating files:   7% (440/6272)Updating files:   8% (502/6272)Updating files:   9% (565/6272)Updating files:  10% (628/6272)Updating files:  11% (690/6272)Updating files:  12% (753/6272)Updating files:  13% (816/6272)Updating files:  14% (879/6272)Updating files:  15% (941/6272)Updating files:  16% (1004/6272)Updating files:  17% (1067/6272)Updating files:  18% (1129/6272)Updating files:  19% (1192/6272)Updating files:  20% (1255/6272)Updating files:  21% (1318/6272)Updating files:  22% (1380/6272)Updating files:  23% (1443/6272)Updating files:  24% (1506/6272)Updating files:  25% (1568/6272)Updating files:  26% (1631/6272)Updating files:  27% (1694/6272)Updating files:  28% (1757/6272)Updating files:  29% (1819/6272)Updating files:  30% (1882/6272)Updating files:  31% (1945/6272)Updating files:  32% (2008/6272)Updating files:  33% (2070/6272)Updating files:  34% (2133/6272)Updating files:  35% (2196/6272)Updating files:  36% (2258/6272)Updating files:  37% (2321/6272)Updating files:  38% (2384/6272)Updating files:  39% (2447/6272)Updating files:  40% (2509/6272)Updating files:  41% (2572/6272)Updating files:  42% (2635/6272)Updating files:  43% (2697/6272)Updating files:  44% (2760/6272)Updating files:  45% (2823/6272)Updating files:  46% (2886/6272)Updating files:  47% (2948/6272)Updating files:  48% (3011/6272)Updating files:  49% (3074/6272)Updating files:  50% (3136/6272)Updating files:  51% (3199/6272)Updating files:  52% (3262/6272)Updating files:  53% (3325/6272)Updating files:  54% (3387/6272)Updating files:  55% (3450/6272)Updating files:  56% (3513/6272)Updating files:  57% (3576/6272)Updating files:  58% (3638/6272)Updating files:  59% (3701/6272)Updating files:  60% (3764/6272)Updating files:  61% (3826/6272)Updating files:  62% (3889/6272)Updating files:  63% (3952/6272)Updating files:  64% (4015/6272)Updating files:  65% (4077/6272)Updating files:  66% (4140/6272)Updating files:  67% (4203/6272)Updating files:  68% (4265/6272)Updating files:  69% (4328/6272)Updating files:  70% (4391/6272)Updating files:  71% (4454/6272)Updating files:  72% (4516/6272)Updating files:  73% (4579/6272)Updating files:  74% (4642/6272)Updating files:  75% (4704/6272)Updating files:  76% (4767/6272)Updating files:  77% (4830/6272)Updating files:  78% (4893/6272)Updating files:  79% (4955/6272)Updating files:  80% (5018/6272)Updating files:  81% (5081/6272)Updating files:  82% (5144/6272)Updating files:  82% (5158/6272)Updating files:  83% (5206/6272)Updating files:  84% (5269/6272)Updating files:  85% (5332/6272)Updating files:  86% (5394/6272)Updating files:  86% (5456/6272)Updating files:  87% (5457/6272)Updating files:  88% (5520/6272)Updating files:  89% (5583/6272)Updating files:  90% (5645/6272)Updating files:  91% (5708/6272)Updating files:  92% (5771/6272)Updating files:  93% (5833/6272)Updating files:  94% (5896/6272)Updating files:  95% (5959/6272)Updating files:  96% (6022/6272)Updating files:  96% (6039/6272)Updating files:  97% (6084/6272)Updating files:  98% (6147/6272)Updating files:  99% (6210/6272)Updating files: 100% (6272/6272)Updating files: 100% (6272/6272), done.
+E: The repository 'https://ppa.launchpadcontent.net/neovim-ppa/stable/ubuntu resolute Release' does not have a Release file.
+N: Updating from such a repository can't be done securely, and is therefore disabled by default.
+N: See apt-secure(8) manpage for repository creation and user configuration details.
+[0;31m[ERROR][0m Failed to update apt cache
+[2026-06-02 21:10:43] ERROR: Failed to update apt cache
+  % Total    % Received % Xferd  Average Speed  Time    Time    Time   Current
+                                 Dload  Upload  Total   Spent   Left   Speed
+  0      0   0      0   0      0      0      0                              0  0      0   0      0   0      0      0      0                              0  0      0   0      0   0      0      0      0                              0
+  0      0   0      0   0      0      0      0                              0100 16.97M 100 16.97M   0      0 25.44M      0                              0100 16.97M 100 16.97M   0      0 25.44M      0                              0100 16.97M 100 16.97M   0      0 25.44M      0                              0
+N: Download is performed unsandboxed as root as file '/home/garret/ubuntu-setup-scripts/ghostty_1.3.1-0.ppa2_amd64_26.04.deb' couldn't be accessed by user '_apt'. - pkgAcquire::Run (13: Permission denied)
+/usr/share/fonts/truetype: failed to write cache
+Cloning into '/tmp/ubuntu-setup-23266/oh-my-posh-repo'...
+E: The repository 'https://ppa.launchpadcontent.net/neovim-ppa/stable/ubuntu resolute Release' does not have a Release file.
+N: Updating from such a repository can't be done securely, and is therefore disabled by default.
+N: See apt-secure(8) manpage for repository creation and user configuration details.
+[0;31m[ERROR][0m Failed to update apt cache
+[2026-06-02 21:11:13] ERROR: Failed to update apt cache
+Synchronizing state of docker.service with SysV service script with /usr/lib/systemd/systemd-sysv-install.
+Executing: /usr/lib/systemd/systemd-sysv-install enable docker
