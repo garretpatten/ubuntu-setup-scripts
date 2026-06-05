@@ -130,6 +130,8 @@ else
     fail cursor-agent "agent CLI (cursor.com/install -> ${HOME}/.local/bin/agent)"
 fi
 
+check_version ollama ollama --version
+
 if command -v bruno >/dev/null 2>&1; then
     if dpkg -s bruno >/dev/null 2>&1; then
         pass bruno "$(dpkg -s bruno 2>/dev/null | awk -F': ' '/^Version:/{print $2; exit}')"
