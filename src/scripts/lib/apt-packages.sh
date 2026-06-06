@@ -45,3 +45,18 @@ install_collected_packages() {
         sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${PACKAGES[@]}"
     fi
 }
+
+# Install each package separately so one unavailable third-party package does not block the rest.
+install_collected_packages_individually() {
+    local optional="${1:-}"
+    local pkg
+
+    # shellcheck disable=SC2153,SC2154
+    for pkg in "${PACKAGES[@]}"; do
+        if [[ "$optional" == optional ]]; then
+            sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "$pkg" || true
+        else
+            sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "$pkg"
+        fi
+    done
+}

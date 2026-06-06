@@ -28,21 +28,33 @@ REPO_PIDS+=("$(parallel_run_script "$DIR/dev/docker.sh")")
 REPO_PIDS+=("$(parallel_run_script "$DIR/griffo.sh")")
 parallel_wait_pids "repository setup" "${REPO_PIDS[@]}"
 
-add_ppas_parallel universe "ppa:neovim-ppa/stable" "ppa:zhangsongcui3371/fastfetch"
+add_ppas_parallel "ppa:neovim-ppa/stable" "ppa:zhangsongcui3371/fastfetch"
 sudo apt-get update -y || true
 
-for list in base shell media desktop productivity dev lsp griffo fastfetch; do
+echo "==> Installing native packages (consolidated)..."
+for list in base shell media desktop productivity dev lsp; do
     append_packages_from_file "$DIR/packages/${list}.packages" PACKAGES
 done
-append_packages_from_file "$DIR/packages/third-party.packages" PACKAGES
+install_collected_packages
 
+echo "==> Installing PPA and third-party apt packages..."
+PACKAGES=()
+for list in griffo fastfetch; do
+    append_packages_from_file "$DIR/packages/${list}.packages" PACKAGES
+done
 echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections || true
 PACKAGES+=(ubuntu-restricted-extras)
+install_collected_packages optional
 
-install_collected_packages
+PACKAGES=()
+append_packages_from_file "$DIR/packages/third-party.packages" PACKAGES
+install_collected_packages_individually optional
+
 PACKAGES=()
 append_packages_from_file "$DIR/packages/lsp-optional.packages" PACKAGES
 install_collected_packages optional
+
+run_script "$DIR/dev/vue-cli.sh"
 
 echo "==> Initializing asynchronous downloads..."
 ASYNC_PIDS+=("$(parallel_run_best_effort "$DIR/dev/nvm.sh")")
