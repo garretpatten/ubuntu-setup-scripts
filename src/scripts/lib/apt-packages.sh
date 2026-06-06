@@ -2,6 +2,18 @@
 
 # Read package names from a file (one per line; # comments and blanks ignored) and apt install.
 
+append_packages_from_file() {
+    local packages_file="$1"
+    local array_name="${2:-PACKAGES}"
+    local -n _packages_ref="$array_name"
+
+    mapfile -t file_packages < <(grep -v '^#' "$packages_file" | grep -v '^[[:space:]]*$')
+    if [[ ${#file_packages[@]} -eq 0 ]]; then
+        return 0
+    fi
+    _packages_ref+=("${file_packages[@]}")
+}
+
 install_apt_packages_from_file() {
     local packages_file="$1"
     local optional="${2:-}"
@@ -12,8 +24,24 @@ install_apt_packages_from_file() {
     fi
 
     if [[ "$optional" == optional ]]; then
-        sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "${packages[@]}" || true
+        sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${packages[@]}" || true
     else
-        sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "${packages[@]}"
+        sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${packages[@]}"
+    fi
+}
+
+install_collected_packages() {
+    local optional="${1:-}"
+
+    # PACKAGES is populated by the install orchestrator before calling this helper.
+    # shellcheck disable=SC2153,SC2154
+    if [[ ${#PACKAGES[@]} -eq 0 ]]; then
+        return 0
+    fi
+
+    if [[ "$optional" == optional ]]; then
+        sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${PACKAGES[@]}" || true
+    else
+        sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${PACKAGES[@]}"
     fi
 }

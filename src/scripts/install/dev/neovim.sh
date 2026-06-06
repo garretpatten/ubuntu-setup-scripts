@@ -1,4 +1,2 @@
 #!/bin/bash
-
-sudo add-apt-repository -y ppa:neovim-ppa/stable || true
-sudo apt-get update -y || true
+# Neovim PPA is added in install/all.sh via add_ppas_parallel.

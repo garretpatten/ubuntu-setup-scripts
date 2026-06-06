@@ -1,9 +1,5 @@
 #!/bin/bash
 
-DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=../lib/apt-packages.sh
-source "$DIR/../lib/apt-packages.sh"
-
 griffo_key="/etc/apt/trusted.gpg.d/debian.griffo.io.gpg"
 if [[ ! -f "$griffo_key" ]]; then
     curl -fsSL https://debian.griffo.io/EA0F721D231FDD3A0A17B9AC7808B4DD62C41256.asc | \
@@ -16,8 +12,5 @@ if [[ -n "$ubuntu_codename" ]]; then
     if [[ ! -f "$griffo_list" ]] || ! grep -q debian.griffo.io "$griffo_list" 2>/dev/null; then
         echo "deb https://debian.griffo.io/apt $ubuntu_codename main" | \
             sudo tee "$griffo_list" >/dev/null || true
-        sudo apt-get update -y || true
     fi
 fi
-
-install_apt_packages_from_file "$DIR/packages/griffo.packages"

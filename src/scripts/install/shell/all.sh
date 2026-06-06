@@ -1,9 +1,8 @@
 #!/bin/bash
+# Shell setup is orchestrated by install/all.sh.
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=../../lib/run.sh
 source "$DIR/../../lib/run.sh"
 
-run_script "$DIR/ghostty.sh"
-run_script "$DIR/meslo-nerd-font.sh"
-run_script "$DIR/oh-my-posh.sh"
+run_script "$DIR/../all.sh"

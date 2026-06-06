@@ -8,6 +8,4 @@ if [[ ! -f "$nodesource_key" ]]; then
 fi
 if [[ ! -f "$nodesource_list" ]] || ! grep -Fq "deb.nodesource.com/node_${NODE_MAJOR}.x" "$nodesource_list" 2>/dev/null; then
     echo "deb [signed-by=${nodesource_key}] https://deb.nodesource.com/node_${NODE_MAJOR}.x nodistro main" | sudo tee "$nodesource_list" >/dev/null
-    sudo apt-get update -y || true
 fi
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y nodejs
