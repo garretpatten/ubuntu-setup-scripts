@@ -20,9 +20,11 @@ expected binaries/packages and config outcomes (dotfiles paths, UFW, system poli
 Install scripts prefer, in order:
 
 1. **apt** (official `.deb` / apt repositories)
-2. **Flatpak** (Flathub)
-3. **AppImage** or upstream static/binary releases
-4. **snap** (only when no practical alternative)
+2. **snap**
+3. **Flatpak** (Flathub)
+4. **AppImage** or upstream static/binary releases
+
+Fallback scripts try each format in that order and stop once the app is available.
 
 ## Install layout
 
@@ -31,7 +33,7 @@ Install scripts prefer, in order:
 | `install/preflight/` | apt update, essentials (git, curl, universe), timezone |
 | `install/packages/*.packages` | One apt package per line; installed by `packages/all.sh` |
 | `install/griffo.sh`, `fastfetch.sh`, `btop.sh`, `flatpak.sh` | Repos, PPAs, or fallbacks only where apt lists are not enough |
-| `install/apps/` | Vendor apt repos, `.deb`, Flatpak/snap fallbacks |
+| `install/apps/` | Vendor apt repos, `.deb`, then snap, Flatpak, or AppImage fallbacks |
 | `install/dev/` | NodeSource, nvm, LSP language stacks, Docker, Neovim PPA, rustup, gems, pip/npm tools |
 | `install/shell/` | Ghostty, Meslo font, Oh My Posh |
 | `install/post-install/` | apt maintain, Docker service, completion banner |

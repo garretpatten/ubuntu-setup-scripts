@@ -64,7 +64,7 @@ elif flatpak_installed us.zoom.Zoom; then
 elif snap_installed zoom-client; then
     pass zoom 'snap: zoom-client'
 else
-    fail zoom 'deb, flatpak, or snap'
+    fail zoom 'deb, snap, or flatpak'
 fi
 
 if command -v balena-etcher >/dev/null 2>&1; then
@@ -141,7 +141,7 @@ if command -v bruno >/dev/null 2>&1; then
 elif flatpak_installed com.usebruno.Bruno; then
     pass bruno 'flatpak: com.usebruno.Bruno'
 else
-    fail bruno 'apt or flatpak (com.usebruno.Bruno)'
+    fail bruno 'apt, snap, or flatpak (com.usebruno.Bruno)'
 fi
 
 check_path nvm "$HOME/.nvm/nvm.sh"
@@ -174,7 +174,7 @@ elif flatpak_installed org.zaproxy.ZAP; then
 elif snap_installed zaproxy; then
     pass zaproxy 'snap: zaproxy'
 else
-    fail zaproxy 'flatpak or snap'
+    fail zaproxy 'snap or flatpak'
 fi
 
 check_path hacking-payloads "$HOME/Hacking/PayloadsAllTheThings"

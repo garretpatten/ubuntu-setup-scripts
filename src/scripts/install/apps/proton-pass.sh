@@ -4,8 +4,9 @@
 # URLs often redirect or no longer serve the package bytes reliably.
 proton_pass_deb="$TEMP_DIR/proton-pass.deb"
 proton_pass_version_json_urls=(
-    "https://www.proton.me/download/PassDesktop/linux/x64/version.json"
+    "https://proton.me/download/pass/linux/version.json"
     "https://proton.me/download/PassDesktop/linux/x64/version.json"
+    "https://www.proton.me/download/PassDesktop/linux/x64/version.json"
 )
 
 proton_pass_is_valid_deb() {
@@ -44,7 +45,7 @@ for rel in data.get("Releases", []):
         if not url.endswith(".deb"):
             continue
         ident = item.get("Identifier") or ""
-        if "Debian" in ident or ident.startswith(".deb"):
+        if ".deb" in ident.lower():
             print(url)
             sys.exit(0)
 sys.exit(1)
@@ -89,12 +90,9 @@ if ! command -v pass-cli >/dev/null 2>&1; then
     case "$(uname -m)" in
         aarch64 | arm64) proton_pass_cli_arch="aarch64" ;;
     esac
-    proton_pass_cli_url=$(curl -s https://api.github.com/repos/protonpass/pass-cli/releases/latest | \
-        grep "browser_download_url.*pass-cli-linux-${proton_pass_cli_arch}\"" | head -1 | cut -d '"' -f 4)
-    if [[ -n "$proton_pass_cli_url" ]]; then
-        if curl -fsSL "$proton_pass_cli_url" -o "$proton_pass_cli"; then
-            chmod +x "$proton_pass_cli"
-            sudo install -m 755 "$proton_pass_cli" /usr/local/bin/pass-cli
-        fi
+    proton_pass_cli_url="https://github.com/protonpass/pass-cli/releases/latest/download/pass-cli-linux-${proton_pass_cli_arch}"
+    if curl -fsSL --retry 3 --retry-delay 2 "$proton_pass_cli_url" -o "$proton_pass_cli"; then
+        chmod +x "$proton_pass_cli"
+        sudo install -m 755 "$proton_pass_cli" /usr/local/bin/pass-cli
     fi
 fi

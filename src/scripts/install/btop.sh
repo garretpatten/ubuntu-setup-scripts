@@ -4,6 +4,13 @@ if command -v btop >/dev/null 2>&1; then
     exit 0
 fi
 
+if command -v snap >/dev/null 2>&1; then
+    sudo snap install btop || true
+fi
+if command -v btop >/dev/null 2>&1; then
+    exit 0
+fi
+
 btop_asset=""
 case "$(uname -m)" in
     x86_64 | amd64) btop_asset="btop-x86_64-unknown-linux-musl.tar.gz" ;;
@@ -23,11 +30,4 @@ if [[ -n "$btop_asset" ]]; then
             fi
         fi
     fi
-fi
-if command -v btop >/dev/null 2>&1; then
-    exit 0
-fi
-
-if command -v snap >/dev/null 2>&1; then
-    sudo snap install btop || true
 fi
