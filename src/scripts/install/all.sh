@@ -18,41 +18,41 @@ ASYNC_PIDS=()
 
 run_script "$DIR/flatpak.sh"
 
-echo "==> Setting up apt repositories..."
-REPO_PIDS+=("$(parallel_run_script "$DIR/apps/brave-browser.sh")")
-REPO_PIDS+=("$(parallel_run_script "$DIR/apps/signal-desktop.sh")")
-REPO_PIDS+=("$(parallel_run_script "$DIR/apps/bruno.sh")")
-REPO_PIDS+=("$(parallel_run_script "$DIR/apps/protonvpn.sh")")
-REPO_PIDS+=("$(parallel_run_script "$DIR/dev/nodesource-nodejs.sh")")
-REPO_PIDS+=("$(parallel_run_script "$DIR/dev/docker.sh")")
-REPO_PIDS+=("$(parallel_run_script "$DIR/griffo.sh")")
-parallel_wait_pids "repository setup" "${REPO_PIDS[@]}"
+echo "==> Installing main apt packages..."
+for list in base shell media desktop productivity; do
+    install_apt_packages_from_file "$DIR/packages/${list}.packages"
+done
 
+echo "==> Setting up apt repositories..."
+REPO_PIDS+=("$(parallel_run_best_effort "$DIR/apps/brave-browser.sh")")
+REPO_PIDS+=("$(parallel_run_best_effort "$DIR/apps/signal-desktop.sh")")
+REPO_PIDS+=("$(parallel_run_best_effort "$DIR/apps/bruno.sh")")
+REPO_PIDS+=("$(parallel_run_best_effort "$DIR/apps/protonvpn.sh")")
+REPO_PIDS+=("$(parallel_run_best_effort "$DIR/dev/nodesource-nodejs.sh")")
+REPO_PIDS+=("$(parallel_run_best_effort "$DIR/dev/docker.sh")")
+REPO_PIDS+=("$(parallel_run_best_effort "$DIR/griffo.sh")")
+parallel_wait_pids_best_effort "repository setup" "${REPO_PIDS[@]}"
+
+run_script "$DIR/apps/protonvpn-install.sh"
 add_ppas_parallel "ppa:neovim-ppa/stable" "ppa:zhangsongcui3371/fastfetch"
 sudo apt-get update -y || true
 
-echo "==> Installing native packages (consolidated)..."
-for list in base shell media desktop productivity dev lsp; do
-    append_packages_from_file "$DIR/packages/${list}.packages" PACKAGES
+echo "==> Installing dev and language packages..."
+for list in dev lsp; do
+    install_apt_packages_from_file "$DIR/packages/${list}.packages"
 done
-install_collected_packages
 
-echo "==> Installing PPA and third-party apt packages..."
-PACKAGES=()
-for list in griffo fastfetch; do
-    append_packages_from_file "$DIR/packages/${list}.packages" PACKAGES
-done
+echo "==> Installing PPA and extra apt packages..."
+install_apt_packages_from_file "$DIR/packages/griffo.packages" optional
+install_apt_packages_from_file "$DIR/packages/fastfetch.packages" optional
 echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections || true
-PACKAGES+=(ubuntu-restricted-extras)
-install_collected_packages optional
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ubuntu-restricted-extras || true
 
 PACKAGES=()
 append_packages_from_file "$DIR/packages/third-party.packages" PACKAGES
 install_collected_packages_individually optional
 
-PACKAGES=()
-append_packages_from_file "$DIR/packages/lsp-optional.packages" PACKAGES
-install_collected_packages optional
+install_apt_packages_from_file "$DIR/packages/lsp-optional.packages" optional
 
 run_script "$DIR/dev/vue-cli.sh"
 

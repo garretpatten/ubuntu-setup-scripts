@@ -27,3 +27,16 @@ parallel_wait_pids() {
         fi
     done
 }
+
+parallel_wait_pids_best_effort() {
+    local label="$1"
+    shift
+    local pids=("$@")
+    local pid
+
+    for pid in "${pids[@]}"; do
+        if ! wait "$pid"; then
+            echo "WARNING: ${label} (pid ${pid}) failed (continuing)" >&2
+        fi
+    done
+}
