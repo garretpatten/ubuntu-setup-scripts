@@ -33,3 +33,12 @@ if flatpak remote-info flathub >/dev/null 2>&1; then
 elif flatpak --user remote-info flathub >/dev/null 2>&1; then
     dbus-run-session -- flatpak install --user -y --noninteractive flathub us.zoom.Zoom || true
 fi
+if command -v zoom >/dev/null 2>&1; then
+    exit 0
+fi
+if flatpak info us.zoom.Zoom >/dev/null 2>&1; then
+    exit 0
+fi
+if flatpak --user info us.zoom.Zoom >/dev/null 2>&1; then
+    exit 0
+fi

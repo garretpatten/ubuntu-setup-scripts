@@ -4,6 +4,8 @@
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/run.sh"
 
 # Background job helpers with explicit exit-status tracking.
+# Capture PIDs in the caller shell (parallel_run_*; PIDS+=($!)), not via $(...),
+# or wait(1) will fail because the background job was started in a subshell.
 
 parallel_run_script() {
     local script="$1"

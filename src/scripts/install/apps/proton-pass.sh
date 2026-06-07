@@ -97,7 +97,7 @@ if ! command -v pass-cli >/dev/null 2>&1; then
     esac
     proton_pass_cli_url="https://github.com/protonpass/pass-cli/releases/latest/download/pass-cli-linux-${proton_pass_cli_arch}"
     if curl -fsSL --retry 3 --retry-delay 2 "$proton_pass_cli_url" -o "$proton_pass_cli"; then
-        if file "$proton_pass_cli" 2>/dev/null | grep -q 'ELF'; then
+        if [[ -s "$proton_pass_cli" ]] && [[ "$(head -c 4 "$proton_pass_cli" 2>/dev/null)" == $'\x7fELF' ]]; then
             chmod +x "$proton_pass_cli"
             sudo install -m 755 "$proton_pass_cli" /usr/local/bin/pass-cli
         fi
