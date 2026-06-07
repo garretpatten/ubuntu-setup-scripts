@@ -1,15 +1,20 @@
 #!/bin/bash
 
+# shellcheck source=run.sh
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/run.sh"
+
 # Background job helpers with explicit exit-status tracking.
 
 parallel_run_script() {
     local script="$1"
+    ensure_temp_dir
     bash "$script" &
     echo $!
 }
 
 parallel_run_best_effort() {
     local script="$1"
+    ensure_temp_dir
     bash "$script" || true &
     echo $!
 }

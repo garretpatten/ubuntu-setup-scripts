@@ -59,10 +59,10 @@ check_command redshift redshift
 
 if command -v zoom >/dev/null 2>&1; then
     pass zoom "$(version_of zoom --version)"
-elif flatpak_installed us.zoom.Zoom; then
-    pass zoom 'flatpak: us.zoom.Zoom'
 elif snap_installed zoom-client; then
     pass zoom 'snap: zoom-client'
+elif flatpak_installed us.zoom.Zoom; then
+    pass zoom 'flatpak: us.zoom.Zoom'
 else
     fail zoom 'deb, snap, or flatpak'
 fi
@@ -169,12 +169,12 @@ check_dpkg proton-vpn proton-vpn-gnome-desktop
 
 if command -v zaproxy >/dev/null 2>&1; then
     pass zaproxy "$(command -v zaproxy)"
-elif flatpak_installed org.zaproxy.ZAP; then
-    pass zaproxy 'flatpak: org.zaproxy.ZAP'
 elif snap_installed zaproxy; then
     pass zaproxy 'snap: zaproxy'
+elif flatpak_installed org.zaproxy.ZAP; then
+    pass zaproxy 'flatpak: org.zaproxy.ZAP'
 else
-    fail zaproxy 'snap or flatpak'
+    fail zaproxy 'snap, flatpak, or portable tarball'
 fi
 
 check_path hacking-payloads "$HOME/Hacking/PayloadsAllTheThings"

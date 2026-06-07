@@ -31,6 +31,11 @@ proton_pass_resolve_latest_stable_deb_url() {
             continue
         fi
         [[ -s "$json_path" ]] || continue
+        deb_url=$(grep -oE 'https://[^"]+proton-pass_[^"]*_amd64\.deb' "$json_path" | head -1)
+        if [[ -n "$deb_url" ]]; then
+            printf '%s' "$deb_url"
+            return 0
+        fi
         if command -v python3 >/dev/null 2>&1; then
             deb_url=$(python3 -c '
 import json, sys
@@ -78,8 +83,8 @@ for proton_pass_url in "${proton_pass_urls[@]}"; do
 done
 
 if [[ "$proton_pass_downloaded" -eq 1 ]]; then
-    sudo dpkg -i "$proton_pass_deb"  || true
-    sudo apt-get install -f -y  || true
+    sudo dpkg -i "$proton_pass_deb" || true
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -f -y --no-install-recommends || true
 else
     echo "Failed to download Proton Pass .deb" >&2
 fi
@@ -92,7 +97,9 @@ if ! command -v pass-cli >/dev/null 2>&1; then
     esac
     proton_pass_cli_url="https://github.com/protonpass/pass-cli/releases/latest/download/pass-cli-linux-${proton_pass_cli_arch}"
     if curl -fsSL --retry 3 --retry-delay 2 "$proton_pass_cli_url" -o "$proton_pass_cli"; then
-        chmod +x "$proton_pass_cli"
-        sudo install -m 755 "$proton_pass_cli" /usr/local/bin/pass-cli
+        if file "$proton_pass_cli" 2>/dev/null | grep -q 'ELF'; then
+            chmod +x "$proton_pass_cli"
+            sudo install -m 755 "$proton_pass_cli" /usr/local/bin/pass-cli
+        fi
     fi
 fi
