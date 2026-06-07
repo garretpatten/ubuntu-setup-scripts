@@ -42,9 +42,11 @@ DEB_SCRIPTS=(
     apps/proton-pass.sh
 )
 
-echo "==> Installing main apt packages..."
+echo "==> Installing base apt packages..."
+install_apt_packages_from_file "$DIR/packages/base.packages"
+
+echo "==> Installing remaining apt packages..."
 install_apt_packages_from_files \
-    "$DIR/packages/base.packages" \
     "$DIR/packages/shell.packages" \
     "$DIR/packages/media.packages" \
     "$DIR/packages/desktop.packages" \

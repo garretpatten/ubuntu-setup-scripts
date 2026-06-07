@@ -14,6 +14,21 @@ append_packages_from_file() {
     _packages_ref+=("${file_packages[@]}")
 }
 
+install_apt_packages_individually() {
+    local optional="${1:-}"
+    shift
+    local -a packages=("$@")
+    local pkg
+
+    for pkg in "${packages[@]}"; do
+        if [[ "$optional" == optional ]]; then
+            sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "$pkg" || true
+        else
+            sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "$pkg" || true
+        fi
+    done
+}
+
 install_apt_packages_from_file() {
     local packages_file="$1"
     local optional="${2:-}"
@@ -24,10 +39,17 @@ install_apt_packages_from_file() {
     fi
 
     if [[ "$optional" == optional ]]; then
-        sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${packages[@]}" || true
-    else
-        sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${packages[@]}"
+        if ! sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${packages[@]}"; then
+            install_apt_packages_individually optional "${packages[@]}"
+        fi
+        return 0
     fi
+
+    if sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${packages[@]}"; then
+        return 0
+    fi
+
+    install_apt_packages_individually "" "${packages[@]}"
 }
 
 install_apt_packages_from_files() {
@@ -49,7 +71,9 @@ install_apt_packages_from_files() {
     fi
 
     if [[ "$optional" == optional ]]; then
-        sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${packages[@]}" || true
+        if ! sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${packages[@]}"; then
+            install_apt_packages_individually optional "${packages[@]}"
+        fi
         return 0
     fi
 
@@ -88,7 +112,7 @@ install_collected_packages_individually() {
         if [[ "$optional" == optional ]]; then
             sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "$pkg" || true
         else
-            sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "$pkg"
+            sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "$pkg" || true
         fi
     done
 }
