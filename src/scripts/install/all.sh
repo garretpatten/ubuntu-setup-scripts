@@ -48,9 +48,11 @@ install_apt_packages_from_file "$DIR/packages/base.packages"
 echo "==> Installing shell apt packages..."
 install_apt_packages_from_file "$DIR/packages/shell.packages"
 
-echo "==> Installing media/desktop/productivity apt packages..."
+echo "==> Installing media apt packages..."
+install_apt_packages_from_file "$DIR/packages/media.packages"
+
+echo "==> Installing desktop/productivity apt packages..."
 install_apt_packages_from_files \
-    "$DIR/packages/media.packages" \
     "$DIR/packages/desktop.packages" \
     "$DIR/packages/productivity.packages"
 
@@ -66,6 +68,9 @@ sudo apt-get update -y || true
 
 echo "==> Reconciling shell apt packages..."
 install_apt_packages_from_file "$DIR/packages/shell.packages"
+
+echo "==> Reconciling media apt packages..."
+install_apt_packages_from_file "$DIR/packages/media.packages"
 
 echo "==> Installing dev and language packages..."
 install_apt_packages_from_file "$DIR/packages/lsp.packages"
