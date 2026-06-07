@@ -45,9 +45,11 @@ DEB_SCRIPTS=(
 echo "==> Installing base apt packages..."
 install_apt_packages_from_file "$DIR/packages/base.packages"
 
-echo "==> Installing remaining apt packages..."
+echo "==> Installing shell apt packages..."
+install_apt_packages_from_file "$DIR/packages/shell.packages"
+
+echo "==> Installing media/desktop/productivity apt packages..."
 install_apt_packages_from_files \
-    "$DIR/packages/shell.packages" \
     "$DIR/packages/media.packages" \
     "$DIR/packages/desktop.packages" \
     "$DIR/packages/productivity.packages"
@@ -61,6 +63,9 @@ parallel_wait_pids_best_effort "repository setup" "${REPO_PIDS[@]}"
 run_script "$DIR/apps/protonvpn-install.sh"
 add_ppas_parallel "ppa:neovim-ppa/stable" "ppa:zhangsongcui3371/fastfetch"
 sudo apt-get update -y || true
+
+echo "==> Reconciling shell apt packages..."
+install_apt_packages_from_file "$DIR/packages/shell.packages"
 
 echo "==> Installing dev and language packages..."
 install_apt_packages_from_file "$DIR/packages/lsp.packages"
