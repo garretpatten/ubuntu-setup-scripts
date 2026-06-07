@@ -12,7 +12,9 @@ add_repo_keyring_from_curl() {
 add_repo_keyring_from_wget() {
     local key_url="$1"
     local keyring_path="$2"
-    local key_file="$TEMP_DIR/repo-key.asc"
+    local key_file
+
+    key_file="$TEMP_DIR/repo-key-$(basename "$keyring_path").asc"
 
     if [[ ! -f "$keyring_path" ]]; then
         wget -qO "$key_file" "$key_url" || true

@@ -1,11 +1,13 @@
 #!/bin/bash
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=../../lib/env.sh
+source "$DIR/../../lib/env.sh"
 # shellcheck source=../../lib/apt-repo-add.sh
 source "$DIR/../../lib/apt-repo-add.sh"
 
 manifest="$DIR/manifest"
-line kind pids=() pid
+pids=()
 
 while IFS= read -r line || [[ -n "$line" ]]; do
     [[ "$line" =~ ^[[:space:]]*# ]] && continue
