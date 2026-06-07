@@ -15,6 +15,7 @@ source "$DIR/../lib/parallel.sh"
 PACKAGES=()
 REPO_PIDS=()
 ASYNC_PIDS=()
+DEB_PIDS=()
 
 REPO_SCRIPTS=(
     repos/setup.sh
@@ -29,6 +30,7 @@ ASYNC_SCRIPTS=(
     dev/semgrep.sh
     dev/ruby-gems.sh
     dev/git-credential-libsecret.sh
+    dev/vue-cli.sh
     shell/ghostty.sh
     shell/meslo-nerd-font.sh
     shell/oh-my-posh.sh
@@ -36,10 +38,18 @@ ASYNC_SCRIPTS=(
     apps/ufw-docker.sh
 )
 
+DEB_SCRIPTS=(
+    apps/etcher.sh
+    apps/proton-pass.sh
+)
+
 echo "==> Installing main apt packages..."
-for list in base shell media desktop productivity; do
-    install_apt_packages_from_file "$DIR/packages/${list}.packages"
-done
+install_apt_packages_from_files \
+    "$DIR/packages/base.packages" \
+    "$DIR/packages/shell.packages" \
+    "$DIR/packages/media.packages" \
+    "$DIR/packages/desktop.packages" \
+    "$DIR/packages/productivity.packages"
 
 echo "==> Setting up apt repositories..."
 for script in "${REPO_SCRIPTS[@]}"; do
@@ -52,15 +62,16 @@ add_ppas_parallel "ppa:neovim-ppa/stable" "ppa:zhangsongcui3371/fastfetch"
 sudo apt-get update -y || true
 
 echo "==> Installing dev and language packages..."
-for list in dev lsp; do
-    install_apt_packages_from_file "$DIR/packages/${list}.packages"
-done
+install_apt_packages_from_files \
+    "$DIR/packages/dev.packages" \
+    "$DIR/packages/lsp.packages"
 
 echo "==> Installing PPA and extra apt packages..."
-install_apt_packages_from_file "$DIR/packages/griffo.packages" optional
-install_apt_packages_from_file "$DIR/packages/fastfetch.packages" optional
+install_apt_packages_from_files optional \
+    "$DIR/packages/griffo.packages" \
+    "$DIR/packages/fastfetch.packages"
 echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections || true
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ubuntu-restricted-extras || true
+install_apt_packages_from_file "$DIR/packages/optional-desktop.packages" optional
 
 PACKAGES=()
 append_packages_from_file "$DIR/packages/third-party.packages" PACKAGES
@@ -70,8 +81,6 @@ fi
 
 install_apt_packages_from_file "$DIR/packages/lsp-optional.packages" optional
 
-run_script "$DIR/dev/vue-cli.sh"
-
 echo "==> Initializing asynchronous downloads..."
 for script in "${ASYNC_SCRIPTS[@]}"; do
     ASYNC_PIDS+=("$(parallel_run_best_effort "$DIR/$script")")
@@ -80,7 +89,9 @@ parallel_wait_pids_best_effort "asynchronous tasks" "${ASYNC_PIDS[@]}"
 echo "==> Asynchronous tasks completed."
 
 echo "==> Installing .deb packages..."
-run_script "$DIR/apps/etcher.sh"
-run_script "$DIR/apps/proton-pass.sh"
+for script in "${DEB_SCRIPTS[@]}"; do
+    DEB_PIDS+=("$(parallel_run_best_effort "$DIR/$script")")
+done
+parallel_wait_pids_best_effort ".deb package install" "${DEB_PIDS[@]}"
 
 run_script "$DIR/post-install/all.sh"

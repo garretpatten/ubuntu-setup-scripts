@@ -20,7 +20,7 @@ while IFS= read -r line || [[ -n "$line" ]]; do
                 IFS='|' read -r _ key_url keyring_path list_path grep_pattern deb_line <<< "$line"
                 setup_repo_from_manifest_line "$kind" "$key_url" "$keyring_path" "$list_path" "$grep_pattern" "$deb_line"
                 ;;
-            bruno|griffo|protonvpn|nodesource)
+            bruno|griffo|nodesource)
                 setup_repo_from_manifest_line "$kind"
                 ;;
         esac

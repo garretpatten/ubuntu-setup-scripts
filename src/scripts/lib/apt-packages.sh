@@ -30,6 +30,31 @@ install_apt_packages_from_file() {
     fi
 }
 
+install_apt_packages_from_files() {
+    local optional="${1:-}"
+    shift
+    local packages_file
+    local -a packages=()
+    local -a file_packages=()
+
+    for packages_file in "$@"; do
+        mapfile -t file_packages < <(grep -v '^#' "$packages_file" | grep -v '^[[:space:]]*$')
+        if [[ ${#file_packages[@]} -gt 0 ]]; then
+            packages+=("${file_packages[@]}")
+        fi
+    done
+
+    if [[ ${#packages[@]} -eq 0 ]]; then
+        return 0
+    fi
+
+    if [[ "$optional" == optional ]]; then
+        sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${packages[@]}" || true
+    else
+        sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${packages[@]}"
+    fi
+}
+
 install_collected_packages() {
     local optional="${1:-}"
 

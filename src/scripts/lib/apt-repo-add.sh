@@ -76,12 +76,6 @@ setup_griffo_repo() {
     fi
 }
 
-setup_protonvpn_deb() {
-    local protonvpn_deb="$TEMP_DIR/protonvpn-stable-release.deb"
-    curl -fsSL https://repo.protonvpn.com/debian/dists/stable/main/binary-all/protonvpn-stable-release_1.0.8_all.deb \
-        -o "$protonvpn_deb" || true
-}
-
 setup_nodesource_repo() {
     local nodesource_key="/etc/apt/keyrings/nodesource.gpg"
     local nodesource_list="/etc/apt/sources.list.d/nodesource.list"
@@ -125,9 +119,6 @@ setup_repo_from_manifest_line() {
             ;;
         griffo)
             setup_griffo_repo
-            ;;
-        protonvpn)
-            setup_protonvpn_deb
             ;;
         nodesource)
             setup_nodesource_repo

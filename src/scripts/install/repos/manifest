@@ -1,7 +1,7 @@
 # Apt repository setup manifest (pipe-delimited).
 # repo|key_url|keyring_path|list_path|grep_pattern|deb_line
 # wget|key_url|keyring_path|list_path|grep_pattern|deb_line
-# bruno|griffo|protonvpn|nodesource
+# bruno|griffo|nodesource
 
 repo|https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg|/usr/share/keyrings/brave-browser-archive-keyring.gpg|/etc/apt/sources.list.d/brave-browser-release.list|brave-browser-apt-release|deb [signed-by=/usr/share/keyrings/brave-browser-archive-keyring.gpg arch=amd64] https://brave-browser-apt-release.s3.brave.com/ stable main
 wget|https://updates.signal.org/desktop/apt/keys.asc|/usr/share/keyrings/signal-desktop-keyring.gpg|/etc/apt/sources.list.d/signal-xenial.list|updates.signal.org|deb [arch=amd64 signed-by=/usr/share/keyrings/signal-desktop-keyring.gpg] https://updates.signal.org/desktop/apt xenial main
@@ -9,4 +9,3 @@ bruno
 repo|https://download.docker.com/linux/ubuntu/gpg|/usr/share/keyrings/docker-archive-keyring.gpg|/etc/apt/sources.list.d/docker.list|download.docker.com|deb [arch=ARCH signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu CODENAME stable
 nodesource
 griffo
-protonvpn

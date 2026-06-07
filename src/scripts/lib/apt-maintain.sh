@@ -4,9 +4,7 @@ apt_maintain_update() {
     sudo apt-get update -y || true
 }
 
-apt_maintain_full() {
-    sudo apt-get update -y || true
-    sudo NEEDRESTART_MODE=l apt-get upgrade -y || true
+apt_maintain_cleanup() {
     sudo apt-get autoremove -y || true
     sudo apt-get autoclean || true
 }
