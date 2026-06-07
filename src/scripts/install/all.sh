@@ -51,10 +51,11 @@ install_apt_packages_from_file "$DIR/packages/shell.packages"
 echo "==> Installing media apt packages..."
 install_apt_packages_from_file "$DIR/packages/media.packages"
 
-echo "==> Installing desktop/productivity apt packages..."
-install_apt_packages_from_files \
-    "$DIR/packages/desktop.packages" \
-    "$DIR/packages/productivity.packages"
+echo "==> Installing desktop apt packages..."
+install_apt_packages_from_file "$DIR/packages/desktop.packages"
+
+echo "==> Installing productivity apt packages..."
+install_apt_packages_from_file "$DIR/packages/productivity.packages"
 
 echo "==> Setting up apt repositories..."
 for script in "${REPO_SCRIPTS[@]}"; do
@@ -71,6 +72,9 @@ install_apt_packages_from_file "$DIR/packages/shell.packages"
 
 echo "==> Reconciling media apt packages..."
 install_apt_packages_from_file "$DIR/packages/media.packages"
+
+echo "==> Reconciling desktop apt packages..."
+install_apt_packages_from_file "$DIR/packages/desktop.packages"
 
 echo "==> Installing dev and language packages..."
 install_apt_packages_from_file "$DIR/packages/lsp.packages"
