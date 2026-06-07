@@ -17,23 +17,20 @@ expected binaries/packages and config outcomes (dotfiles paths, UFW, system poli
 
 ## Package manager preference
 
-Install scripts prefer, in order:
+Each app uses one install path:
 
-1. **apt** (official `.deb` / apt repositories)
-2. **snap**
-3. **Flatpak** (Flathub)
-4. **AppImage** or upstream static/binary releases
-
-Fallback scripts try each format in that order and stop once the app is available.
+1. **apt** when the package or vendor repo is available
+2. **snap** when apt does not provide it (Zoom, OWASP ZAP)
+3. **Upstream `.deb` or binary** only when neither apt nor snap applies (Etcher, Proton Pass, pass-cli)
 
 ## Install layout
 
 | Path | Role |
 |------|------|
 | `install/preflight/` | apt update, essentials (git, curl, universe), timezone |
-| `install/packages/*.packages` | One apt package per line; installed by `packages/all.sh` |
-| `install/griffo.sh`, `fastfetch.sh`, `btop.sh`, `flatpak.sh` | Repos, PPAs, or fallbacks only where apt lists are not enough |
-| `install/apps/` | Vendor apt repos, `.deb`, then snap, Flatpak, or AppImage fallbacks |
+| `install/packages/*.packages` | One apt package per line; installed by `install/all.sh` |
+| `install/griffo.sh`, `fastfetch.sh` | Repos and PPAs only where apt lists are not enough |
+| `install/apps/` | Vendor apt repos, `.deb`, or snap installs |
 | `install/dev/` | NodeSource, nvm, LSP language stacks, Docker, Neovim PPA, rustup, gems, pip/npm tools |
 | `install/shell/` | Ghostty, Meslo font, Oh My Posh |
 | `install/post-install/` | apt maintain, Docker service, completion banner |
@@ -78,8 +75,8 @@ These are **not** provisioned by this repo (remove from old notes or other dotfi
 | **Postman** | Replaced by **Bruno** |
 | **Sourcegraph CLI (`sg`)** | Removed; use Bruno or other tooling |
 | **Spotify** | Not provisioned; install manually if needed |
-| **Standard Notes** | Flatpak install unreliable in CI; install manually if needed |
-| GNOME apps via random snaps | snap only when listed above as fallback |
+| **Standard Notes** | Install manually if needed |
+| GNOME apps via random snaps | Not provisioned |
 | Full IDE bundles (VS Code, JetBrains, etc.) | Dotfiles may reference extensions; install editors separately |
 | 1Password, Bitwarden, etc. | Use Proton Pass / KeePassXC paths above |
 

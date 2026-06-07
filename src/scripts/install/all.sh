@@ -16,8 +16,6 @@ PACKAGES=()
 REPO_PIDS=()
 ASYNC_PIDS=()
 
-run_script "$DIR/flatpak.sh"
-
 echo "==> Installing main apt packages..."
 for list in base shell media desktop productivity; do
     install_apt_packages_from_file "$DIR/packages/${list}.packages"
@@ -64,6 +62,14 @@ install_apt_packages_from_file "$DIR/packages/lsp-optional.packages" optional
 run_script "$DIR/dev/vue-cli.sh"
 
 echo "==> Initializing asynchronous downloads..."
+parallel_run_best_effort "$DIR/apps/zoom.sh"
+ASYNC_PIDS+=($!)
+parallel_run_best_effort "$DIR/apps/zaproxy.sh"
+ASYNC_PIDS+=($!)
+parallel_run_best_effort "$DIR/apps/etcher.sh"
+ASYNC_PIDS+=($!)
+parallel_run_best_effort "$DIR/apps/proton-pass.sh"
+ASYNC_PIDS+=($!)
 parallel_run_best_effort "$DIR/dev/nvm.sh"
 ASYNC_PIDS+=($!)
 parallel_run_best_effort "$DIR/dev/rustup.sh"
@@ -92,10 +98,4 @@ ASYNC_PIDS+=($!)
 parallel_wait_pids "asynchronous tasks" "${ASYNC_PIDS[@]}"
 echo "==> Asynchronous tasks completed."
 
-run_script "$DIR/apps/zoom.sh"
-run_script "$DIR/apps/etcher.sh"
-run_script "$DIR/apps/proton-pass.sh"
-run_script "$DIR/apps/bruno-fallback.sh"
-run_script "$DIR/apps/zaproxy.sh"
-run_script "$DIR/btop.sh"
 run_script "$DIR/post-install/all.sh"

@@ -2,7 +2,6 @@
 
 bat
 btop
-dbus-x11
 eza
 fd-find
 flatpak
@@ -20,6 +19,7 @@ openvpn
 pkg-config
 ripgrep
 shellcheck
+snapd
 tealdeer
 tree-sitter-cli
 ufw
