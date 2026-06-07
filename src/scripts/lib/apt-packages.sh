@@ -50,9 +50,16 @@ install_apt_packages_from_files() {
 
     if [[ "$optional" == optional ]]; then
         sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${packages[@]}" || true
-    else
-        sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${packages[@]}"
+        return 0
     fi
+
+    if sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${packages[@]}"; then
+        return 0
+    fi
+
+    for packages_file in "$@"; do
+        install_apt_packages_from_file "$packages_file"
+    done
 }
 
 install_collected_packages() {

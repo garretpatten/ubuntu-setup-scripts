@@ -29,7 +29,6 @@ ASYNC_SCRIPTS=(
     dev/ollama.sh
     dev/semgrep.sh
     dev/ruby-gems.sh
-    dev/git-credential-libsecret.sh
     dev/vue-cli.sh
     shell/ghostty.sh
     shell/meslo-nerd-font.sh
@@ -62,9 +61,8 @@ add_ppas_parallel "ppa:neovim-ppa/stable" "ppa:zhangsongcui3371/fastfetch"
 sudo apt-get update -y || true
 
 echo "==> Installing dev and language packages..."
-install_apt_packages_from_files \
-    "$DIR/packages/dev.packages" \
-    "$DIR/packages/lsp.packages"
+install_apt_packages_from_file "$DIR/packages/lsp.packages"
+install_apt_packages_from_file "$DIR/packages/dev.packages"
 
 echo "==> Installing PPA and extra apt packages..."
 install_apt_packages_from_files optional \
@@ -80,6 +78,8 @@ if ! install_collected_packages optional; then
 fi
 
 install_apt_packages_from_file "$DIR/packages/lsp-optional.packages" optional
+
+run_script "$DIR/dev/git-credential-libsecret.sh"
 
 echo "==> Initializing asynchronous downloads..."
 for script in "${ASYNC_SCRIPTS[@]}"; do
