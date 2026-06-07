@@ -29,8 +29,9 @@ Each app uses one install path:
 |------|------|
 | `install/preflight/` | apt update, essentials (git, curl, universe), timezone |
 | `install/packages/*.packages` | One apt package per line; installed by `install/all.sh` |
-| `install/griffo.sh`, `fastfetch.sh` | Repos and PPAs only where apt lists are not enough |
-| `install/apps/` | Vendor apt repos, `.deb`, or snap installs |
+| `install/repos/manifest` | Third-party apt repo definitions consumed by `install/repos/setup.sh` |
+| `install/snaps.txt` | Snap packages installed by `install/apps/snaps.sh` |
+| `install/apps/` | `.deb` downloads and app-specific installers |
 | `install/dev/` | NodeSource, nvm, LSP language stacks, Docker, Neovim PPA, rustup, gems, pip/npm tools |
 | `install/shell/` | Ghostty, Meslo font, Oh My Posh |
 | `install/post-install/` | apt maintain, Docker service, completion banner |

@@ -1,0 +1,14 @@
+# Dotfiles copy manifest: kind rel_src dest
+# kind is dir or file; rel_src is under src/dotfiles/
+
+dir config/nvim ~/.config/nvim
+dir config/fastfetch ~/.config/fastfetch
+dir config/btop ~/.config/btop
+dir config/alacritty ~/.config/alacritty
+dir config/kitty ~/.config/kitty
+dir config/zellij ~/.config/zellij
+dir config/tmux ~/.config/tmux
+dir config/ghostty ~/.config/ghostty
+dir config/oh-my-posh ~/.config/oh-my-posh
+file home/.vimrc ~/.vimrc
+file vs-code/settings.json ~/.config/Code/User/settings.json

@@ -1,8 +1,4 @@
 #!/bin/bash
-# Shell setup is orchestrated by install/all.sh.
 
-DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=../../lib/run.sh
-source "$DIR/../../lib/run.sh"
-
-run_script "$DIR/../all.sh"
+echo "ERROR: Partial install is not supported. Run install/all.sh instead." >&2
+exit 1

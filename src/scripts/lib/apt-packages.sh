@@ -40,7 +40,7 @@ install_collected_packages() {
     fi
 
     if [[ "$optional" == optional ]]; then
-        sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${PACKAGES[@]}" || true
+        sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${PACKAGES[@]}" || return 1
     else
         sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${PACKAGES[@]}"
     fi

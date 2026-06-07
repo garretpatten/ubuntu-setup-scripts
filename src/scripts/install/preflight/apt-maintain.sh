@@ -1,5 +1,6 @@
 #!/bin/bash
-sudo apt-get update -y || true
-sudo NEEDRESTART_MODE=l apt-get upgrade -y || true
-sudo apt-get autoremove -y || true
-sudo apt-get autoclean || true
+
+# shellcheck source=../../lib/apt-maintain.sh
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../../lib/apt-maintain.sh"
+
+apt_maintain_update

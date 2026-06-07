@@ -16,26 +16,35 @@ PACKAGES=()
 REPO_PIDS=()
 ASYNC_PIDS=()
 
+REPO_SCRIPTS=(
+    repos/setup.sh
+)
+
+ASYNC_SCRIPTS=(
+    apps/snaps.sh
+    dev/nvm.sh
+    dev/rustup.sh
+    dev/cursor-cli.sh
+    dev/ollama.sh
+    dev/semgrep.sh
+    dev/ruby-gems.sh
+    dev/git-credential-libsecret.sh
+    shell/ghostty.sh
+    shell/meslo-nerd-font.sh
+    shell/oh-my-posh.sh
+    apps/hacking-repos.sh
+    apps/ufw-docker.sh
+)
+
 echo "==> Installing main apt packages..."
 for list in base shell media desktop productivity; do
     install_apt_packages_from_file "$DIR/packages/${list}.packages"
 done
 
 echo "==> Setting up apt repositories..."
-parallel_run_best_effort "$DIR/apps/brave-browser.sh"
-REPO_PIDS+=($!)
-parallel_run_best_effort "$DIR/apps/signal-desktop.sh"
-REPO_PIDS+=($!)
-parallel_run_best_effort "$DIR/apps/bruno.sh"
-REPO_PIDS+=($!)
-parallel_run_best_effort "$DIR/apps/protonvpn.sh"
-REPO_PIDS+=($!)
-parallel_run_best_effort "$DIR/dev/nodesource-nodejs.sh"
-REPO_PIDS+=($!)
-parallel_run_best_effort "$DIR/dev/docker.sh"
-REPO_PIDS+=($!)
-parallel_run_best_effort "$DIR/griffo.sh"
-REPO_PIDS+=($!)
+for script in "${REPO_SCRIPTS[@]}"; do
+    REPO_PIDS+=("$(parallel_run_best_effort "$DIR/$script")")
+done
 parallel_wait_pids_best_effort "repository setup" "${REPO_PIDS[@]}"
 
 run_script "$DIR/apps/protonvpn-install.sh"
@@ -55,43 +64,19 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends u
 
 PACKAGES=()
 append_packages_from_file "$DIR/packages/third-party.packages" PACKAGES
-install_collected_packages_individually optional
+if ! install_collected_packages optional; then
+    install_collected_packages_individually optional
+fi
 
 install_apt_packages_from_file "$DIR/packages/lsp-optional.packages" optional
 
 run_script "$DIR/dev/vue-cli.sh"
 
 echo "==> Initializing asynchronous downloads..."
-parallel_run_best_effort "$DIR/apps/zoom.sh"
-ASYNC_PIDS+=($!)
-parallel_run_best_effort "$DIR/apps/zaproxy.sh"
-ASYNC_PIDS+=($!)
-parallel_run_best_effort "$DIR/dev/nvm.sh"
-ASYNC_PIDS+=($!)
-parallel_run_best_effort "$DIR/dev/rustup.sh"
-ASYNC_PIDS+=($!)
-parallel_run_best_effort "$DIR/dev/cursor-cli.sh"
-ASYNC_PIDS+=($!)
-parallel_run_best_effort "$DIR/dev/ollama.sh"
-ASYNC_PIDS+=($!)
-parallel_run_best_effort "$DIR/dev/semgrep.sh"
-ASYNC_PIDS+=($!)
-parallel_run_best_effort "$DIR/dev/ruby-gems.sh"
-ASYNC_PIDS+=($!)
-parallel_run_best_effort "$DIR/dev/git-credential-libsecret.sh"
-ASYNC_PIDS+=($!)
-parallel_run_best_effort "$DIR/shell/ghostty.sh"
-ASYNC_PIDS+=($!)
-parallel_run_best_effort "$DIR/shell/meslo-nerd-font.sh"
-ASYNC_PIDS+=($!)
-parallel_run_best_effort "$DIR/shell/oh-my-posh.sh"
-ASYNC_PIDS+=($!)
-parallel_run_best_effort "$DIR/apps/hacking-repos.sh"
-ASYNC_PIDS+=($!)
-parallel_run_best_effort "$DIR/apps/ufw-docker.sh"
-ASYNC_PIDS+=($!)
-
-parallel_wait_pids "asynchronous tasks" "${ASYNC_PIDS[@]}"
+for script in "${ASYNC_SCRIPTS[@]}"; do
+    ASYNC_PIDS+=("$(parallel_run_best_effort "$DIR/$script")")
+done
+parallel_wait_pids_best_effort "asynchronous tasks" "${ASYNC_PIDS[@]}"
 echo "==> Asynchronous tasks completed."
 
 echo "==> Installing .deb packages..."
