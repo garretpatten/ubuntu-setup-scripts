@@ -70,13 +70,6 @@ check_path() {
     fi
 }
 
-flatpak_installed() {
-    local app_id="$1"
-    flatpak list --columns=application --app 2>/dev/null | grep -Fxq "$app_id" && return 0
-    flatpak list --user --columns=application --app 2>/dev/null | grep -Fxq "$app_id" && return 0
-    return 1
-}
-
 snap_installed() {
     local snap_name="$1"
     snap list "$snap_name" 2>/dev/null | grep -q "^${snap_name} "

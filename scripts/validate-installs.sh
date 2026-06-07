@@ -59,21 +59,13 @@ check_command redshift redshift
 
 if command -v zoom >/dev/null 2>&1; then
     pass zoom "$(version_of zoom --version)"
-elif flatpak_installed us.zoom.Zoom; then
-    pass zoom 'flatpak: us.zoom.Zoom'
 elif snap_installed zoom-client; then
     pass zoom 'snap: zoom-client'
 else
-    fail zoom 'deb, flatpak, or snap'
+    fail zoom 'snap: zoom-client'
 fi
 
-if command -v balena-etcher >/dev/null 2>&1; then
-    pass etcher "$(command -v balena-etcher)"
-elif dpkg -s balena-etcher >/dev/null 2>&1; then
-    pass etcher "$(dpkg -s balena-etcher 2>/dev/null | awk -F': ' '/^Version:/{print $2; exit}')"
-else
-    fail etcher 'balena-etcher package or command'
-fi
+check_dpkg etcher balena-etcher
 
 # --- Dev (install/dev) ---
 section 'Dev'
@@ -132,17 +124,7 @@ fi
 
 check_version ollama ollama --version
 
-if command -v bruno >/dev/null 2>&1; then
-    if dpkg -s bruno >/dev/null 2>&1; then
-        pass bruno "$(dpkg -s bruno 2>/dev/null | awk -F': ' '/^Version:/{print $2; exit}')"
-    else
-        pass bruno "$(command -v bruno)"
-    fi
-elif flatpak_installed com.usebruno.Bruno; then
-    pass bruno 'flatpak: com.usebruno.Bruno'
-else
-    fail bruno 'apt or flatpak (com.usebruno.Bruno)'
-fi
+check_dpkg bruno bruno
 
 check_path nvm "$HOME/.nvm/nvm.sh"
 
@@ -169,12 +151,10 @@ check_dpkg proton-vpn proton-vpn-gnome-desktop
 
 if command -v zaproxy >/dev/null 2>&1; then
     pass zaproxy "$(command -v zaproxy)"
-elif flatpak_installed org.zaproxy.ZAP; then
-    pass zaproxy 'flatpak: org.zaproxy.ZAP'
 elif snap_installed zaproxy; then
     pass zaproxy 'snap: zaproxy'
 else
-    fail zaproxy 'flatpak or snap'
+    fail zaproxy 'snap: zaproxy'
 fi
 
 check_path hacking-payloads "$HOME/Hacking/PayloadsAllTheThings"

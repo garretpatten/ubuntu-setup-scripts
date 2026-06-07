@@ -17,21 +17,21 @@ expected binaries/packages and config outcomes (dotfiles paths, UFW, system poli
 
 ## Package manager preference
 
-Install scripts prefer, in order:
+Each app uses one install path:
 
-1. **apt** (official `.deb` / apt repositories)
-2. **Flatpak** (Flathub)
-3. **AppImage** or upstream static/binary releases
-4. **snap** (only when no practical alternative)
+1. **apt** when the package or vendor repo is available
+2. **snap** when apt does not provide it (Zoom, OWASP ZAP)
+3. **Upstream `.deb` or binary** only when neither apt nor snap applies (Etcher, Proton Pass, pass-cli)
 
 ## Install layout
 
 | Path | Role |
 |------|------|
 | `install/preflight/` | apt update, essentials (git, curl, universe), timezone |
-| `install/packages/*.packages` | One apt package per line; installed by `packages/all.sh` |
-| `install/griffo.sh`, `fastfetch.sh`, `btop.sh`, `flatpak.sh` | Repos, PPAs, or fallbacks only where apt lists are not enough |
-| `install/apps/` | Vendor apt repos, `.deb`, Flatpak/snap fallbacks |
+| `install/packages/*.packages` | One apt package per line; installed by `install/all.sh` |
+| `install/repos/manifest` | Third-party apt repo definitions consumed by `install/repos/setup.sh` |
+| `install/snaps.txt` | Snap packages installed by `install/apps/snaps.sh` |
+| `install/apps/` | `.deb` downloads and app-specific installers |
 | `install/dev/` | NodeSource, nvm, LSP language stacks, Docker, Neovim PPA, rustup, gems, pip/npm tools |
 | `install/shell/` | Ghostty, Meslo font, Oh My Posh |
 | `install/post-install/` | apt maintain, Docker service, completion banner |
@@ -76,15 +76,16 @@ These are **not** provisioned by this repo (remove from old notes or other dotfi
 | **Postman** | Replaced by **Bruno** |
 | **Sourcegraph CLI (`sg`)** | Removed; use Bruno or other tooling |
 | **Spotify** | Not provisioned; install manually if needed |
-| **Standard Notes** | Flatpak install unreliable in CI; install manually if needed |
-| GNOME apps via random snaps | snap only when listed above as fallback |
+| **Standard Notes** | Install manually if needed |
+| GNOME apps via random snaps | Not provisioned |
 | Full IDE bundles (VS Code, JetBrains, etc.) | Dotfiles may reference extensions; install editors separately |
 | 1Password, Bitwarden, etc. | Use Proton Pass / KeePassXC paths above |
 
 ## Configuration (`src/scripts/config/`)
 
-Symlinks and settings from `src/dotfiles` (submodule): Zsh, tmux, Neovim, btop,
-fastfetch, Kitty/Alacritty/Ghostty, Git, VS Code `settings.json`, GNOME
+Symlinks and settings from `src/dotfiles` (submodule, read-only): `setup.sh
+--link-xdg-config` for XDG configs; copies for shell home files and VS Code
+settings. Covers Neovim, btop, fastfetch, Kitty/Alacritty/Ghostty, Git, GNOME
 gsettings (skipped in CI without a GNOME session), UFW defaults and rules (LocalSend,
 Docker DNS, ufw-docker), home directory layout.
 
