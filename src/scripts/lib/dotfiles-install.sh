@@ -16,17 +16,6 @@ expand_home_path() {
     fi
 }
 
-copy_dotfile_dir() {
-    local rel_src="$1"
-    local dest
-    dest="$(expand_home_path "$2")"
-    local src="$PROJECT_ROOT/src/dotfiles/$rel_src"
-
-    [[ -d "$dest" ]] && return 0
-    mkdir -p "$(dirname "$dest")"
-    cp -r "$src" "$dest"
-}
-
 copy_dotfile_file() {
     local rel_src="$1"
     local dest
@@ -47,13 +36,8 @@ install_dotfiles_from_manifest() {
         [[ -z "${line// /}" ]] && continue
 
         read -r kind rel_src dest <<< "$line"
-        case "$kind" in
-            dir)
-                copy_dotfile_dir "$rel_src" "$dest"
-                ;;
-            file)
-                copy_dotfile_file "$rel_src" "$dest"
-                ;;
-        esac
+        if [[ "$kind" == file ]]; then
+            copy_dotfile_file "$rel_src" "$dest"
+        fi
     done < "$manifest"
 }

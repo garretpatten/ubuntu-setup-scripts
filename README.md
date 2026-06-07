@@ -83,8 +83,9 @@ These are **not** provisioned by this repo (remove from old notes or other dotfi
 
 ## Configuration (`src/scripts/config/`)
 
-Symlinks and settings from `src/dotfiles` (submodule): Zsh, tmux, Neovim, btop,
-fastfetch, Kitty/Alacritty/Ghostty, Git, VS Code `settings.json`, GNOME
+Symlinks and settings from `src/dotfiles` (submodule, read-only): `setup.sh
+--link-xdg-config` for XDG configs; copies for shell home files and VS Code
+settings. Covers Neovim, btop, fastfetch, Kitty/Alacritty/Ghostty, Git, GNOME
 gsettings (skipped in CI without a GNOME session), UFW defaults and rules (LocalSend,
 Docker DNS, ufw-docker), home directory layout.
 
