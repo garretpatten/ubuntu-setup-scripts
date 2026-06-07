@@ -66,10 +66,6 @@ parallel_run_best_effort "$DIR/apps/zoom.sh"
 ASYNC_PIDS+=($!)
 parallel_run_best_effort "$DIR/apps/zaproxy.sh"
 ASYNC_PIDS+=($!)
-parallel_run_best_effort "$DIR/apps/etcher.sh"
-ASYNC_PIDS+=($!)
-parallel_run_best_effort "$DIR/apps/proton-pass.sh"
-ASYNC_PIDS+=($!)
 parallel_run_best_effort "$DIR/dev/nvm.sh"
 ASYNC_PIDS+=($!)
 parallel_run_best_effort "$DIR/dev/rustup.sh"
@@ -97,5 +93,9 @@ ASYNC_PIDS+=($!)
 
 parallel_wait_pids "asynchronous tasks" "${ASYNC_PIDS[@]}"
 echo "==> Asynchronous tasks completed."
+
+echo "==> Installing .deb packages..."
+run_script "$DIR/apps/etcher.sh"
+run_script "$DIR/apps/proton-pass.sh"
 
 run_script "$DIR/post-install/all.sh"
