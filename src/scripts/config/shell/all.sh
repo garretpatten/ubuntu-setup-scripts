@@ -7,5 +7,4 @@ source "$DIR/../../lib/env.sh"
 source "$DIR/../../lib/run.sh"
 
 run_script "$DIR/dotfiles-zshrc.sh"
-run_script "$DIR/dotfiles-path.sh"
 run_script "$DIR/chsh-zsh.sh"

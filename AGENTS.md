@@ -4,7 +4,8 @@ Ubuntu provisioning scripts under `src/scripts/`: Omarchy-style per-app install/
 scripts, orchestrated by `master.sh`, `run-install.sh`, and `run-config.sh`. The
 `src/dotfiles` submodule is maintained separately. **Never edit, commit, or bump
 `src/dotfiles` from this repo** unless the user explicitly asks. Consume it read-only
-via `src/dotfiles/setup.sh --link-xdg-config` (symlinks) and targeted file copies.
+via `link_dotfiles_xdg_config_dirs` in `config/dotfiles.sh` (symlinks each
+`src/dotfiles/config/<app>/` under `~/.config/`) and targeted file copies.
 
 ## Before you finish
 

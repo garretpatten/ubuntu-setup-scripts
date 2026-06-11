@@ -7,8 +7,6 @@ cd "$(dirname "$0")/.." || exit 1
 # shellcheck source=lib/validate-common.sh
 source "$(dirname "$0")/lib/validate-common.sh"
 
-dotfiles="${PWD}/src/dotfiles"
-
 section 'Dotfiles'
 check_path dotfiles-nvim "$HOME/.config/nvim"
 check_path dotfiles-fastfetch "$HOME/.config/fastfetch"
@@ -16,15 +14,8 @@ check_path dotfiles-btop "$HOME/.config/btop"
 check_path dotfiles-zellij "$HOME/.config/zellij"
 check_path dotfiles-tmux "$HOME/.config/tmux"
 check_path dotfiles-ghostty "$HOME/.config/ghostty"
-check_path dotfiles-path "$HOME/.dotfiles_path"
-if [[ -f "$HOME/.dotfiles_path" ]]; then
-    dotfiles_link=$(head -1 "$HOME/.dotfiles_path")
-    if [[ "$dotfiles_link" == "$dotfiles" ]]; then
-        pass dotfiles-path-value "$dotfiles_link"
-    else
-        fail dotfiles-path-value "expected: $dotfiles"
-    fi
-fi
+check_path dotfiles-zsh "$HOME/.config/zsh"
+check_path dotfiles-zsh-ubuntu "$HOME/.config/zsh/ubuntu.zsh"
 check_path zshrc "$HOME/.zshrc"
 
 section 'Home layout'
