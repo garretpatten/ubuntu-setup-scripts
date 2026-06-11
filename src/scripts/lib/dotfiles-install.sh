@@ -27,6 +27,39 @@ copy_dotfile_file() {
     cp "$src" "$dest"
 }
 
+# Symlink src/dotfiles/config/<app>/ → ~/.config/<app>/ (replaces dotfiles setup.sh --link-xdg-config).
+link_dotfiles_xdg_config_dirs() {
+    local root="$PROJECT_ROOT/src/dotfiles"
+    local config_dir="$root/config"
+    [[ -d "$config_dir" ]] || return 0
+
+    shopt -s nullglob
+    local xdg="${XDG_CONFIG_HOME:-$HOME/.config}"
+    mkdir -p "$xdg"
+
+    local dir name src_abs target bak failed=0
+    for dir in "$config_dir/"*/; do
+        [[ -d "$dir" ]] || continue
+        name="$(basename "${dir%/}")"
+        src_abs="$(cd "${dir%/}" && pwd)"
+        target="${xdg}/${name}"
+
+        if [[ -e "$target" || -L "$target" ]] && [[ ! -L "$target" ]]; then
+            bak="${target}.dotfiles-bak-$(date +%Y%m%d%H%M%S)"
+            printf '%s exists; moving to %s\n' "$target" "$bak" >&2
+            mv "$target" "$bak" || failed=1
+        fi
+
+        if [[ "$(readlink "$target" 2>/dev/null)" == "$src_abs" ]]; then
+            continue
+        fi
+
+        ln -sfn "$src_abs" "$target"
+    done
+    shopt -u nullglob
+    [[ "$failed" -eq 0 ]]
+}
+
 install_dotfiles_from_manifest() {
     local manifest="$1"
     local line kind rel_src dest
