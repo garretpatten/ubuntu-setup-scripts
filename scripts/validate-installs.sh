@@ -32,14 +32,7 @@ check_version fzf fzf --version
 check_version zoxide zoxide --version
 check_version whois whois --version
 check_version tldr tldr --version
-if [[ -d "$HOME/.cache/tealdeer/tldr-pages/pages.en" ]]; then
-    pass tldr-cache-en "$HOME/.cache/tealdeer/tldr-pages/pages.en"
-elif [[ -d "$HOME/.cache/tealdeer/tldr-pages/pages/linux" ]] \
-    || [[ -d "$HOME/.cache/tealdeer/tldr-pages/pages/common" ]]; then
-    pass tldr-cache-en "$HOME/.cache/tealdeer/tldr-pages/pages"
-else
-    fail tldr-cache-en 'missing tldr English cache under ~/.cache/tealdeer/tldr-pages/'
-fi
+check_path tldr-cache-en "$HOME/.cache/tealdeer/tldr-pages/pages.en"
 check_version tree-sitter tree-sitter --version
 check_version pkg-config pkg-config --version
 check_dpkg libsecret-1-0 libsecret-1-0

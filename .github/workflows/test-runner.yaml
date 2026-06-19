@@ -21,6 +21,14 @@ jobs:
       - name: Make scripts executable
         run: find src/scripts -name '*.sh' -exec chmod +x {} +
 
+      # Noble's apt tealdeer (1.6.x) still fetches from the removed tldr.sh URL; 1.8+ uses GitHub releases.
+      - name: Upgrade tealdeer for CI
+        run: |
+          curl -fsSL -o /usr/local/bin/tldr \
+            https://github.com/tealdeer-rs/tealdeer/releases/download/v1.8.1/tealdeer-linux-x86_64-musl
+          chmod +x /usr/local/bin/tldr
+          tldr --version
+
       # CI: no GNOME session; gnome-gsettings.sh exits early.
       - name: Run setup scripts
         run: |
