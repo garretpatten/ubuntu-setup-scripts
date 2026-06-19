@@ -34,13 +34,13 @@ Each app uses one install path:
 | `install/apps/` | `.deb` downloads and app-specific installers |
 | `install/dev/` | NodeSource, nvm, LSP language stacks, Docker, Neovim PPA, rustup, gems, pip/npm tools |
 | `install/shell/` | Ghostty, Meslo font, Oh My Posh |
-| `install/post-install/` | apt maintain, Docker service, completion banner |
+| `install/post-install/` | apt maintain, Docker service, tldr cache, completion banner |
 
 ### Package lists (`install/packages/`)
 
 | File | Contents |
 |------|----------|
-| `base.packages` | CLI and security tools (bat, fzf, gh, jq, ripgrep, ufw, nmap, exiftool, …) |
+| `base.packages` | CLI and security tools (bat, fzf, gh, jq, ripgrep, tldr/tealdeer, ufw, nmap, exiftool, …) |
 | `shell.packages` | zsh, tmux, fonts, plugins |
 | `media.packages` | vlc, ffmpeg, gstreamer |
 | `desktop.packages` | GNOME Tweaks, shell extensions |

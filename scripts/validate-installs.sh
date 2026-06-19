@@ -32,6 +32,7 @@ check_version fzf fzf --version
 check_version zoxide zoxide --version
 check_version whois whois --version
 check_version tldr tldr --version
+check_path tldr-cache-en "$HOME/.cache/tealdeer/tldr-pages/pages.en"
 check_version tree-sitter tree-sitter --version
 check_version pkg-config pkg-config --version
 check_dpkg libsecret-1-0 libsecret-1-0
