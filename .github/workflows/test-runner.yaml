@@ -21,7 +21,8 @@ jobs:
       - name: Make scripts executable
         run: find src/scripts -name '*.sh' -exec chmod +x {} +
 
-      # Noble's apt tealdeer (1.6.x) still fetches from the removed tldr.sh URL; 1.8+ uses GitHub releases.
+      # Noble's apt tealdeer (1.6.x) still fetches from the removed tldr.sh URL;
+      # 1.8+ uses GitHub releases.
       - name: Upgrade tealdeer for CI
         run: |
           curl -fsSL -o /usr/local/bin/tldr \
