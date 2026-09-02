@@ -76,7 +76,6 @@ These are **not** provisioned by this repo (remove from old notes or other dotfi
 | **Postman** | Replaced by **Bruno** |
 | **Sourcegraph CLI (`sg`)** | Removed; use Bruno or other tooling |
 | **Spotify** | Not provisioned; install manually if needed |
-| **Standard Notes** | Install manually if needed |
 | GNOME apps via random snaps | Not provisioned |
 | Full IDE bundles (VS Code, JetBrains, etc.) | Dotfiles may reference extensions; install editors separately |
 | 1Password, Bitwarden, etc. | Use Proton Pass / KeePassXC paths above |
