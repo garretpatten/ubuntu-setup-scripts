@@ -5,6 +5,11 @@ if [[ -x "$credential_helper" ]]; then
     git config --global credential.helper "$credential_helper"
 fi
 
+# Shared Git pre-commit hook (symlinked by config/dotfiles.sh)
+if ! git config --global core.hooksPath >/dev/null 2>&1; then
+    git config --global core.hooksPath "$HOME/.config/githooks"
+fi
+
 if [[ -f "$HOME/.gitconfig" ]]; then
     exit 0
 fi
