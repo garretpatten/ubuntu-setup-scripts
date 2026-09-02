@@ -31,6 +31,7 @@ ASYNC_SCRIPTS=(
     dev/ruby-gems.sh
     dev/vue-cli.sh
     dev/language-servers.sh
+    dev/go.sh
     shell/ghostty.sh
     shell/meslo-nerd-font.sh
     shell/oh-my-posh.sh
