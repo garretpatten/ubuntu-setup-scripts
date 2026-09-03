@@ -40,6 +40,7 @@ ASYNC_SCRIPTS=(
 )
 
 DEB_SCRIPTS=(
+    apps/chrome.sh
     apps/etcher.sh
     apps/proton-pass.sh
 )

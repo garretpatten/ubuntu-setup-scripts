@@ -50,6 +50,7 @@ check_version flatpak flatpak --version
 # --- Apps (install/apps) ---
 section 'Apps'
 check_version brave brave-browser --version
+check_version google-chrome google-chrome --version
 check_version vlc vlc --version
 check_version ffmpeg ffmpeg -version
 

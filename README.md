@@ -53,7 +53,7 @@ Each app uses one install path:
 
 ### Apps (`install/apps/`)
 
-Brave, Signal, Proton VPN/Pass, Bruno, Zoom, Etcher, OWASP ZAP, ufw-docker,
+Brave, Chrome, Signal, Proton VPN/Pass, Bruno, Zoom, Etcher, OWASP ZAP, ufw-docker,
 Hacking git clones — each script handles its own repo or `.deb` when apt lists are
 not enough.
 
