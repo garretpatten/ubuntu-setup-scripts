@@ -1,11 +1,14 @@
 # Agent instructions
 
 Ubuntu provisioning scripts under `src/scripts/`: Omarchy-style per-app install/config
-scripts, orchestrated by `master.sh`, `run-install.sh`, and `run-config.sh`. The
-`src/dotfiles` submodule is maintained separately. **Never edit, commit, or bump
-`src/dotfiles` from this repo** unless the user explicitly asks. Consume it read-only
-via `link_dotfiles_xdg_config_dirs` in `config/dotfiles.sh` (symlinks each
-`src/dotfiles/config/<app>/` under `~/.config/`) and targeted file copies.
+scripts, orchestrated by `master.sh`, `run-install.sh`, and `run-config.sh`.
+`run-install.sh` accepts `cli` (CLI-only) or `all` (CLI + desktop/native); npm
+shortcuts are `npm run install:cli`, `npm run install:all`, `npm run config`, and
+`npm run all`. The `src/dotfiles` submodule is maintained separately. **Never edit,
+commit, or bump `src/dotfiles` from this repo** unless the user explicitly asks.
+Consume it read-only via `link_dotfiles_xdg_config_dirs` in `config/dotfiles.sh`
+(symlinks each `src/dotfiles/config/<app>/` under `~/.config/`) and targeted file copies.
+`run-config.sh` and `master.sh` initialize/update submodules before running config.
 
 ## Dotfiles submodule
 
@@ -57,26 +60,51 @@ find src/scripts -name '*.sh' -print0 | xargs -0 shellcheck -x
 ### Other CI linters
 
 `.github/workflows/quality-checks.yaml` also runs Prettier, markdownlint, and yamllint on
-pull requests. Run `npm ci` and the relevant tools when you touch those file types.
+pull requests. Prettier and markdownlint are installed via `npm ci`; yamllint is a Python
+tool. Run the relevant tools when you touch those file types:
+
+```bash
+npm ci
+npx prettier --check .
+npx markdownlint --ignore node_modules '**/*.md'
+yamllint .
+```
 
 ### Test workflow
 
-`.github/workflows/test-runner.yaml` runs `src/scripts/master.sh` on `ubuntu-latest`, then
-`scripts/validate.sh` (install binaries/packages and config paths/settings).
+`.github/workflows/test-runner.yaml` runs four jobs on `ubuntu-latest`:
+
+- `test-cli`: `run-install.sh cli` → `scripts/validate-installs-cli.sh`
+- `test-config`: `run-config.sh` → `scripts/validate-config-only.sh`
+- `test-full`: `run-install.sh all` → `scripts/validate-installs.sh`
+- `test-master`: `master.sh` → `scripts/validate.sh` (full installs + config)
+
 GNOME gsettings scripts no-op without an active GNOME session.
 
 ## Layout
 
-| Path | Role |
-|------|------|
-| `src/scripts/lib/env.sh` | `PROJECT_ROOT`, `TEMP_DIR` |
-| `src/scripts/lib/run.sh` | `run_script` helper |
-| `src/scripts/lib/gnome-session.sh` | Skip GNOME config when not on GNOME |
-| `src/scripts/lib/zsh-login.sh` | `.zshrc` pass-cli guard for provisioning |
-| `src/scripts/install/packages/*.packages` | Apt package lists (one per line) |
-| `src/scripts/lib/apt-packages.sh` | `install_apt_packages_from_file` helper |
-| `src/scripts/install/` | `packages/`, `apps/`, `dev/`, `shell/`, `post-install/` |
-| `src/scripts/config/<category>/` | Dotfiles/GNOME/system config + `all.sh` |
+| Path                                                        | Role                                                    |
+| ----------------------------------------------------------- | ------------------------------------------------------- |
+| `src/scripts/lib/env.sh`                                    | `PROJECT_ROOT`, `TEMP_DIR`                              |
+| `src/scripts/lib/run.sh`                                    | `run_script` helper (forwards extra args)               |
+| `src/scripts/lib/gnome-session.sh`                          | Skip GNOME config when not on GNOME                     |
+| `src/scripts/lib/zsh-login.sh`                              | `.zshrc` pass-cli guard for provisioning                |
+| `src/scripts/lib/git-submodules.sh`                         | Initialize/update submodules before config              |
+| `src/scripts/install/all.sh`                                | Full install orchestrator (`--cli` for CLI-only)        |
+| `src/scripts/install/cli.sh`                                | Wrapper that runs `install/all.sh --cli`                |
+| `src/scripts/install/packages/*.packages`                   | Apt package lists (one per line)                        |
+| `src/scripts/install/packages/third-party-cli.packages`     | Docker/NodeSource packages for CLI install              |
+| `src/scripts/install/packages/third-party-desktop.packages` | Brave/Bruno/Signal packages for full install            |
+| `src/scripts/install/apps/pass-cli.sh`                      | Proton Pass CLI binary install                          |
+| `src/scripts/lib/apt-packages.sh`                           | `install_apt_packages_from_file` helper                 |
+| `src/scripts/install/`                                      | `packages/`, `apps/`, `dev/`, `shell/`, `post-install/` |
+| `src/scripts/config/<category>/`                            | Dotfiles/GNOME/system config + `all.sh`                 |
+| `scripts/lib/validate-installs-sections.sh`                 | Shared install validation sections                      |
+| `scripts/lib/validate-config-sections.sh`                   | Shared config validation sections                       |
+| `scripts/validate-installs-cli.sh`                          | Validate CLI-only install outcomes                      |
+| `scripts/validate-installs.sh`                              | Validate full install outcomes                          |
+| `scripts/validate-config-only.sh`                           | Validate config-only outcomes                           |
+| `scripts/validate-config.sh`                                | Validate config after full install/master               |
 
 ## Commits
 

@@ -1,10 +1,13 @@
 {
   "scripts": {
     "all": "bash src/scripts/master.sh",
-    "installs": "bash src/scripts/run-install.sh",
+    "install:cli": "bash src/scripts/run-install.sh cli",
+    "install:all": "bash src/scripts/run-install.sh all",
+    "installs": "bash src/scripts/run-install.sh all",
     "config": "bash src/scripts/run-config.sh"
   },
   "devDependencies": {
+    "markdownlint-cli": "^0.49.1",
     "prettier": "^3.6.2"
   }
 }

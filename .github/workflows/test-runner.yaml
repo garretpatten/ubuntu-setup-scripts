@@ -6,9 +6,12 @@ on:
   pull_request:
     branches: [master]
 
+permissions:
+  contents: read
+
 jobs:
-  test:
-    name: 'Test Ubuntu Setup Scripts'
+  test-cli:
+    name: 'CLI-only install'
     runs-on: ubuntu-latest
     timeout-minutes: 60
 
@@ -19,10 +22,98 @@ jobs:
           submodules: recursive
 
       - name: Make scripts executable
-        run: find src/scripts -name '*.sh' -exec chmod +x {} +
+        run: |
+          find src/scripts -name '*.sh' -exec chmod +x {} +
+          find scripts -name '*.sh' -exec chmod +x {} +
 
       # Noble's apt tealdeer (1.6.x) still fetches from the removed tldr.sh URL;
       # 1.8+ uses GitHub releases.
+      - name: Upgrade tealdeer for CI
+        run: |
+          curl -fsSL -o /usr/local/bin/tldr \
+            https://github.com/tealdeer-rs/tealdeer/releases/download/v1.8.1/tealdeer-linux-x86_64-musl
+          chmod +x /usr/local/bin/tldr
+          tldr --version
+
+      - name: Run CLI-only install
+        run: |
+          cd src/scripts
+          bash run-install.sh cli
+
+      - name: Validate CLI installs
+        run: ./scripts/validate-installs-cli.sh
+
+  test-config:
+    name: 'Configuration run'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Make scripts executable
+        run: |
+          find src/scripts -name '*.sh' -exec chmod +x {} +
+          find scripts -name '*.sh' -exec chmod +x {} +
+
+      - name: Run configuration
+        run: |
+          cd src/scripts
+          bash run-config.sh
+
+      - name: Validate config-only outcomes
+        run: ./scripts/validate-config-only.sh
+
+  test-full:
+    name: 'Full install'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Make scripts executable
+        run: |
+          find src/scripts -name '*.sh' -exec chmod +x {} +
+          find scripts -name '*.sh' -exec chmod +x {} +
+
+      - name: Upgrade tealdeer for CI
+        run: |
+          curl -fsSL -o /usr/local/bin/tldr \
+            https://github.com/tealdeer-rs/tealdeer/releases/download/v1.8.1/tealdeer-linux-x86_64-musl
+          chmod +x /usr/local/bin/tldr
+          tldr --version
+
+      - name: Run full install
+        run: |
+          cd src/scripts
+          bash run-install.sh all
+
+      - name: Validate full installs
+        run: ./scripts/validate-installs.sh
+
+  test-master:
+    name: 'Master (install + config)'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Make scripts executable
+        run: |
+          find src/scripts -name '*.sh' -exec chmod +x {} +
+          find scripts -name '*.sh' -exec chmod +x {} +
+
       - name: Upgrade tealdeer for CI
         run: |
           curl -fsSL -o /usr/local/bin/tldr \
@@ -37,4 +128,4 @@ jobs:
           bash master.sh
 
       - name: Validate installs and config
-        run: chmod +x scripts/validate.sh && ./scripts/validate.sh
+        run: ./scripts/validate.sh

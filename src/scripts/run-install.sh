@@ -6,4 +6,19 @@ source "$DIR/lib/env.sh"
 # shellcheck source=lib/run.sh
 source "$DIR/lib/run.sh"
 
-run_script "$DIR/install/all.sh"
+MODE="${1:-all}"
+MODE="${MODE#-}"
+MODE="${MODE#-}"
+
+case "$MODE" in
+    cli)
+        run_script "$DIR/install/cli.sh"
+        ;;
+    all | installs)
+        run_script "$DIR/install/all.sh"
+        ;;
+    *)
+        echo "Usage: $0 {cli|all}" >&2
+        exit 1
+        ;;
+esac

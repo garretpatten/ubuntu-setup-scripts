@@ -1,0 +1,7 @@
+# Third-party apt packages for CLI/server tools (repos configured before install).
+
+containerd.io
+docker-ce
+docker-ce-cli
+docker-compose-plugin
+nodejs

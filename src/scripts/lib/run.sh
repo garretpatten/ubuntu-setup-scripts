@@ -8,10 +8,13 @@ ensure_temp_dir() {
 }
 
 run_script() {
+    local script="$1"
+    shift
+
     if [[ -z "${PROJECT_ROOT:-}" ]]; then
         # shellcheck source=env.sh
         source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/env.sh"
     fi
     ensure_temp_dir
-    bash "$1" || true
+    bash "$script" "$@" || true
 }
