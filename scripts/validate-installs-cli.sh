@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Verify tools and apps installed by src/scripts/install/* after master.sh / run-install.sh all.
+# Verify tools and apps installed by src/scripts/install/* after run-install.sh cli.
 set -uo pipefail
 
 cd "$(dirname "$0")/.." || exit 1
@@ -13,18 +13,10 @@ source "$(dirname "$0")/lib/validate-installs-sections.sh"
 
 validate_preflight
 validate_cli_packages
-validate_media
-validate_productivity
-validate_snaps
-validate_deb_apps
-validate_browsers
 validate_nvm
 validate_dev
-validate_dev_desktop
 validate_security_cli
-validate_security_desktop
 validate_pass_cli
 validate_shell
-validate_gnome
 
-finish_validation 'Install validation'
+finish_validation 'CLI install validation'
