@@ -60,7 +60,15 @@ find src/scripts -name '*.sh' -print0 | xargs -0 shellcheck -x
 ### Other CI linters
 
 `.github/workflows/quality-checks.yaml` also runs Prettier, markdownlint, and yamllint on
-pull requests. Run `npm ci` and the relevant tools when you touch those file types.
+pull requests. Prettier and markdownlint are installed via `npm ci`; yamllint is a Python
+tool. Run the relevant tools when you touch those file types:
+
+```bash
+npm ci
+npx prettier --check .
+npx markdownlint --ignore node_modules '**/*.md'
+yamllint .
+```
 
 ### Test workflow
 
