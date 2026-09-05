@@ -43,6 +43,8 @@ Each app uses one install path:
 | Path                          | Role                                                                                  |
 | ----------------------------- | ------------------------------------------------------------------------------------- |
 | `install/preflight/`          | apt update, essentials (git, curl, universe), timezone                                |
+| `install/all.sh`              | Full install orchestrator (`--cli` for CLI-only mode)                                 |
+| `install/cli.sh`              | Thin wrapper that runs `install/all.sh --cli`                                         |
 | `install/packages/*.packages` | One apt package per line; installed by `install/all.sh`                               |
 | `install/repos/manifest`      | Third-party apt repo definitions consumed by `install/repos/setup.sh`                 |
 | `install/snaps.txt`           | Snap packages installed by `install/apps/snaps.sh`                                    |
@@ -50,6 +52,16 @@ Each app uses one install path:
 | `install/dev/`                | NodeSource, nvm, LSP language stacks, Docker, Neovim PPA, rustup, gems, pip/npm tools |
 | `install/shell/`              | Ghostty, Meslo font, Oh My Posh                                                       |
 | `install/post-install/`       | apt maintain, Docker service, tldr cache, completion banner                           |
+
+### Validation scripts (`scripts/`)
+
+| Script                     | Use with                                   |
+| -------------------------- | ------------------------------------------ |
+| `validate-installs-cli.sh` | After `run-install.sh cli`                 |
+| `validate-installs.sh`     | After `run-install.sh all` or `master.sh`  |
+| `validate-config-only.sh`  | After `run-config.sh`                      |
+| `validate-config.sh`       | After `master.sh` or full install + config |
+| `validate.sh`              | After `master.sh` (installs + config)      |
 
 ### Package lists (`install/packages/`)
 
