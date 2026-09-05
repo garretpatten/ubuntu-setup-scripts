@@ -10,7 +10,7 @@ source "$DIR/lib/git-submodules.sh"
 # shellcheck source=lib/zsh-login.sh
 source "$DIR/lib/zsh-login.sh"
 
-ensure_submodules_synced
+ensure_submodules_synced "$PROJECT_ROOT"
 ensure_zshrc_login_safe
 
 run_script "$DIR/install/preflight/all.sh"
