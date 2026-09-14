@@ -10,6 +10,7 @@ source "$(dirname "$0")/lib/validate-common.sh"
 source "$(dirname "$0")/lib/validate-config-sections.sh"
 
 validate_config_dotfiles
+validate_config_tmux
 validate_config_home
 
 section 'System'
