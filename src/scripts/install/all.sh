@@ -39,6 +39,10 @@ ASYNC_SCRIPTS=(
     dev/vue-cli.sh
     dev/language-servers.sh
     dev/go.sh
+    apps/neovim.sh
+    apps/lazygit.sh
+    apps/lazydocker.sh
+    apps/yazi.sh
     shell/ghostty.sh
     shell/meslo-nerd-font.sh
     shell/oh-my-posh.sh
@@ -82,7 +86,7 @@ parallel_wait_pids_best_effort "repository setup" "${REPO_PIDS[@]}"
 if is_desktop; then
     run_script "$DIR/apps/protonvpn-install.sh"
 fi
-add_ppas_parallel "ppa:neovim-ppa/stable" "ppa:zhangsongcui3371/fastfetch"
+add_ppas_parallel "ppa:zhangsongcui3371/fastfetch"
 sudo apt-get update -y || true
 
 echo "==> Reconciling shell apt packages..."
@@ -102,7 +106,6 @@ install_apt_packages_from_file "$DIR/packages/dev.packages"
 
 echo "==> Installing PPA and extra apt packages..."
 install_apt_packages_from_files optional \
-    "$DIR/packages/griffo.packages" \
     "$DIR/packages/fastfetch.packages"
 
 if is_desktop; then
