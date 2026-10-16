@@ -9,8 +9,8 @@ jobs:
   scans:
     name: 'Scans'
     # yamllint disable-line rule:line-length
-    uses: garretpatten/security-checks/.github/workflows/security-checks.yaml@master
+    uses: garretpatten/security-guardrails/.github/workflows/security-guardrails.yaml@04aa1648e6e4d6eb34bb146f3b872f68c06527d1 # master
     with:
-      semgrep_run: true
+      opengrep_run: true
       trufflehog_run: true
     secrets: inherit
