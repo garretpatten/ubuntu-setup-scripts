@@ -59,23 +59,6 @@ setup_bruno_repo() {
         "deb [arch=amd64 signed-by=$bruno_keyring] http://debian.usebruno.com/ bruno stable"
 }
 
-setup_griffo_repo() {
-    local griffo_key="/etc/apt/trusted.gpg.d/debian.griffo.io.gpg"
-    if [[ ! -f "$griffo_key" ]]; then
-        curl -fsSL https://debian.griffo.io/EA0F721D231FDD3A0A17B9AC7808B4DD62C41256.asc | \
-            sudo gpg --dearmor --yes -o "$griffo_key" || true
-    fi
-
-    local ubuntu_codename
-    ubuntu_codename="$(lsb_release -sc 2>/dev/null || echo "")"
-    if [[ -n "$ubuntu_codename" ]]; then
-        add_repo_list_if_missing \
-            "/etc/apt/sources.list.d/debian.griffo.io.list" \
-            debian.griffo.io \
-            "deb https://debian.griffo.io/apt $ubuntu_codename main"
-    fi
-}
-
 setup_nodesource_repo() {
     local nodesource_key="/etc/apt/keyrings/nodesource.gpg"
     local nodesource_list="/etc/apt/sources.list.d/nodesource.list"
@@ -116,9 +99,6 @@ setup_repo_from_manifest_line() {
             ;;
         bruno)
             setup_bruno_repo
-            ;;
-        griffo)
-            setup_griffo_repo
             ;;
         nodesource)
             setup_nodesource_repo

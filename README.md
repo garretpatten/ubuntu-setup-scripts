@@ -74,8 +74,7 @@ Each app uses one install path:
 | `productivity.packages`        | LibreOffice, KeePassXC, Redshift, Flameshot                                               |
 | `lsp.packages`                 | Mason LSP runtimes (Go, Ruby, PHP, Lua, …)                                                |
 | `lsp-optional.packages`        | Julia (skipped when unavailable on apt)                                                   |
-| `dev.packages`                 | Neovim, Python                                                                            |
-| `griffo.packages`              | yazi, lazygit, lazydocker ([debian.griffo.io](https://debian.griffo.io/apt))              |
+| `dev.packages`                 | Python (Neovim comes from the official GitHub release)                                    |
 | `fastfetch.packages`           | fastfetch (PPA)                                                                           |
 | `third-party-cli.packages`     | Docker CE/Compose, Node.js (NodeSource)                                                   |
 | `third-party-desktop.packages` | Brave, Bruno, Signal Desktop, appindicator libs                                           |
@@ -84,7 +83,9 @@ Each app uses one install path:
 
 Brave, Chrome, Signal, Proton VPN/Pass, Bruno, Zoom, Etcher, OWASP ZAP, ufw-docker,
 Hacking git clones — each script handles its own repo or `.deb` when apt lists are
-not enough.
+not enough. Neovim, lazygit, lazydocker, and yazi install from their official
+GitHub releases (`apps/neovim.sh`, `apps/lazygit.sh`, `apps/lazydocker.sh`,
+`apps/yazi.sh`).
 
 ### Development (`install/dev/`)
 
