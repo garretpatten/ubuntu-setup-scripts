@@ -79,7 +79,8 @@ fi
 
 echo "==> Setting up apt repositories..."
 for script in "${REPO_SCRIPTS[@]}"; do
-    REPO_PIDS+=("$(parallel_run_best_effort "$DIR/$script")")
+    parallel_run_best_effort "$DIR/$script"
+    REPO_PIDS+=($!)
 done
 parallel_wait_pids_best_effort "repository setup" "${REPO_PIDS[@]}"
 
@@ -128,7 +129,8 @@ run_script "$DIR/dev/git-credential-libsecret.sh"
 
 echo "==> Initializing asynchronous downloads..."
 for script in "${ASYNC_SCRIPTS[@]}"; do
-    ASYNC_PIDS+=("$(parallel_run_best_effort "$DIR/$script")")
+    parallel_run_best_effort "$DIR/$script"
+    ASYNC_PIDS+=($!)
 done
 parallel_wait_pids_best_effort "asynchronous tasks" "${ASYNC_PIDS[@]}"
 echo "==> Asynchronous tasks completed."
@@ -136,7 +138,8 @@ echo "==> Asynchronous tasks completed."
 if is_desktop; then
     echo "==> Installing .deb packages..."
     for script in "${DEB_SCRIPTS[@]}"; do
-        DEB_PIDS+=("$(parallel_run_best_effort "$DIR/$script")")
+        parallel_run_best_effort "$DIR/$script"
+        DEB_PIDS+=($!)
     done
     parallel_wait_pids_best_effort ".deb package install" "${DEB_PIDS[@]}"
 fi
