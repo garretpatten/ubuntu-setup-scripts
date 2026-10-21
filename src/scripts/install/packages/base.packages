@@ -5,7 +5,7 @@ btop
 eza
 fd-find
 flatpak
-fzf
+# fzf is installed from the official GitHub release (apps/fzf.sh).
 gcc
 gh
 htop

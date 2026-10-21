@@ -65,27 +65,28 @@ Each app uses one install path:
 
 ### Package lists (`install/packages/`)
 
-| File                           | Contents                                                                                  |
-| ------------------------------ | ----------------------------------------------------------------------------------------- |
-| `base.packages`                | CLI and security tools (bat, fzf, gh, jq, ripgrep, tldr/tealdeer, ufw, nmap, exiftool, …) |
-| `shell.packages`               | zsh, tmux, fonts, plugins                                                                 |
-| `media.packages`               | vlc, ffmpeg, gstreamer                                                                    |
-| `desktop.packages`             | GNOME Tweaks, shell extensions                                                            |
-| `productivity.packages`        | LibreOffice, KeePassXC, Redshift, Flameshot                                               |
-| `lsp.packages`                 | Mason LSP runtimes (Go, Ruby, PHP, Lua, …)                                                |
-| `lsp-optional.packages`        | Julia (skipped when unavailable on apt)                                                   |
-| `dev.packages`                 | Python (Neovim comes from the official GitHub release)                                    |
-| `fastfetch.packages`           | fastfetch (PPA)                                                                           |
-| `third-party-cli.packages`     | Docker CE/Compose, Node.js (NodeSource)                                                   |
-| `third-party-desktop.packages` | Brave, Bruno, Signal Desktop, appindicator libs                                           |
+| File                           | Contents                                                                             |
+| ------------------------------ | ------------------------------------------------------------------------------------ |
+| `base.packages`                | CLI and security tools (bat, gh, jq, ripgrep, tldr/tealdeer, ufw, nmap, exiftool, …) |
+| `shell.packages`               | zsh, tmux, fonts, plugins                                                            |
+| `media.packages`               | vlc, ffmpeg, gstreamer                                                               |
+| `desktop.packages`             | GNOME Tweaks, shell extensions                                                       |
+| `productivity.packages`        | LibreOffice, KeePassXC, Redshift, Flameshot                                          |
+| `lsp.packages`                 | Mason LSP runtimes (Go, Ruby, PHP, Lua, …)                                           |
+| `lsp-optional.packages`        | Julia (skipped when unavailable on apt)                                              |
+| `dev.packages`                 | Python (Neovim comes from the official GitHub release)                               |
+| `fastfetch.packages`           | fastfetch (PPA)                                                                      |
+| `third-party-cli.packages`     | Docker CE/Compose, Node.js (NodeSource)                                              |
+| `third-party-desktop.packages` | Brave, Bruno, Signal Desktop, appindicator libs                                      |
 
 ### Apps (`install/apps/`)
 
 Brave, Chrome, Signal, Proton VPN/Pass, Bruno, Zoom, Etcher, OWASP ZAP, ufw-docker,
 Hacking git clones — each script handles its own repo or `.deb` when apt lists are
-not enough. Neovim, lazygit, lazydocker, and yazi install from their official
-GitHub releases (`apps/neovim.sh`, `apps/lazygit.sh`, `apps/lazydocker.sh`,
-`apps/yazi.sh`).
+not enough. Neovim, fzf, lazygit, lazydocker, and yazi install from their official
+GitHub releases (`apps/neovim.sh`, `apps/fzf.sh`, `apps/lazygit.sh`,
+`apps/lazydocker.sh`, `apps/yazi.sh`). fastfetch comes from a PPA, with the
+official GitHub `.deb` as fallback (`apps/fastfetch.sh`) for Launchpad outages.
 
 ### Development (`install/dev/`)
 

@@ -133,9 +133,12 @@ done
 parallel_wait_pids_best_effort "asynchronous tasks" "${ASYNC_PIDS[@]}"
 echo "==> Asynchronous tasks completed."
 
-# Ghostty needs apt; keep it out of the async phase so only one apt user runs
-# at a time (concurrent apt hard-fails on the dpkg lock).
+# Ghostty and the fzf/fastfetch .debs need apt; keep them out of the async
+# phase so only one apt user runs at a time (concurrent apt hard-fails on the
+# dpkg lock).
 run_script "$DIR/shell/ghostty.sh"
+run_script "$DIR/apps/fzf.sh"
+run_script "$DIR/apps/fastfetch.sh"
 
 if is_desktop; then
     echo "==> Installing .deb packages..."
