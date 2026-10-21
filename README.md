@@ -85,7 +85,8 @@ Brave, Chrome, Signal, Proton VPN/Pass, Bruno, Zoom, Etcher, OWASP ZAP, ufw-dock
 Hacking git clones — each script handles its own repo or `.deb` when apt lists are
 not enough. Neovim, fzf, lazygit, lazydocker, and yazi install from their official
 GitHub releases (`apps/neovim.sh`, `apps/fzf.sh`, `apps/lazygit.sh`,
-`apps/lazydocker.sh`, `apps/yazi.sh`).
+`apps/lazydocker.sh`, `apps/yazi.sh`). fastfetch comes from a PPA, with the
+official GitHub `.deb` as fallback (`apps/fastfetch.sh`) for Launchpad outages.
 
 ### Development (`install/dev/`)
 
