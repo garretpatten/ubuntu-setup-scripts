@@ -22,6 +22,15 @@ gsettings set org.gnome.desktop.peripherals.mouse natural-scroll false || true
 gsettings set org.gnome.desktop.peripherals.keyboard delay 200 || true
 gsettings set org.gnome.desktop.peripherals.keyboard repeat-interval 15 || true
 
+gsettings set org.gnome.mutter dynamic-workspaces false || true
+gsettings set org.gnome.desktop.wm.preferences num-workspaces 6 || true
+gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-1 "['<Control>1']" || true
+gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-2 "['<Control>2']" || true
+gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-3 "['<Control>3']" || true
+gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-4 "['<Control>4']" || true
+gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-5 "['<Control>5']" || true
+gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-6 "['<Control>6']" || true
+
 gsettings set org.gnome.nautilus.preferences show-hidden-files true || true
 gsettings set org.gnome.nautilus.preferences show-image-thumbnails true || true
 gsettings set org.gnome.nautilus.preferences default-folder-viewer list-view || true

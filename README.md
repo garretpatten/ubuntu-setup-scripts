@@ -117,6 +117,7 @@ Symlinks and settings from `src/dotfiles` (submodule, read-only): `config/dotfil
 symlinks each `config/<app>/` tree under `~/.config/` (including `zsh/` for OS-specific
 shell snippets); copies for shell home files and VS Code settings. Covers Neovim, btop,
 fastfetch, Kitty/Alacritty/Ghostty, Git, GNOME gsettings (skipped in CI without a GNOME
-session), UFW defaults and rules (LocalSend, Docker DNS, ufw-docker), home directory layout.
+session; 6 static workspaces switched with `Ctrl+1`–`Ctrl+6`), UFW defaults and rules
+(LocalSend, Docker DNS, ufw-docker), home directory layout.
 
 See [AGENTS.md](AGENTS.md) for contributor conventions, ShellCheck, and CI details.
