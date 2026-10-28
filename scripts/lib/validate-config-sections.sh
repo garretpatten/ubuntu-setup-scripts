@@ -58,6 +58,48 @@ validate_config_system_core() {
     fi
 }
 
+validate_config_gnome_workspaces() {
+    local dir
+    dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    # shellcheck source=../../src/scripts/lib/gnome-session.sh
+    source "$dir/../../src/scripts/lib/gnome-session.sh"
+
+    if ! gnome_session_active 2>/dev/null; then
+        pass gnome-workspaces 'skipped: no GNOME session'
+        return 0
+    fi
+    if ! command -v gsettings >/dev/null 2>&1 || [[ ! -S "/run/user/$(id -u)/bus" ]]; then
+        pass gnome-workspaces 'skipped: gsettings unavailable'
+        return 0
+    fi
+
+    section 'GNOME workspaces'
+
+    if [[ "$(gsettings get org.gnome.mutter dynamic-workspaces 2>/dev/null)" == 'false' ]]; then
+        pass workspaces-static 'dynamic-workspaces false'
+    else
+        fail workspaces-static 'expected org.gnome.mutter dynamic-workspaces false'
+    fi
+
+    if [[ "$(gsettings get org.gnome.desktop.wm.preferences num-workspaces 2>/dev/null)" == '6' ]]; then
+        pass workspaces-count 'num-workspaces 6'
+    else
+        fail workspaces-count 'expected org.gnome.desktop.wm.preferences num-workspaces 6'
+    fi
+
+    local i missing=''
+    for i in 1 2 3 4 5 6; do
+        if ! gsettings get org.gnome.desktop.wm.keybindings "switch-to-workspace-$i" 2>/dev/null | grep -qF "<Control>$i"; then
+            missing="$missing $i"
+        fi
+    done
+    if [[ -z "$missing" ]]; then
+        pass workspace-keybindings 'switch-to-workspace-1..6 -> Ctrl+1..6'
+    else
+        fail workspace-keybindings "missing Ctrl bindings for workspace(s):$missing"
+    fi
+}
+
 validate_config_system() {
     section 'System'
     validate_config_ufw
