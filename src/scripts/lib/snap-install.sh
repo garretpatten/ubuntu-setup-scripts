@@ -5,11 +5,11 @@
 # whole provisioning budget; a failing install is retried once for transient
 # snap-store/download errors. Callers decide what a failure means (the snaps
 # script remains best-effort).
-
-# Seconds snapd is told to wait for its change; failures here get one retry.
-declare -r SNAP_INSTALL_TIMEOUT=240
-# Hard wall-clock cap of the whole "snap install" invocation (coreutils).
-declare -r SNAP_HARD_TIMEOUT=300
+#
+# The snapd-side "--timeout" flag was removed from snap(8) in newer releases
+# ("unknown flag 'timeout'"), so only the coreutils timeout caps the install.
+# Wall-clock cap of the whole "snap install" invocation (coreutils).
+declare -r SNAP_INSTALL_TIMEOUT=300
 
 snapd_ready() {
     sudo systemctl start snapd.socket snapd.seeded.service 2>/dev/null ||
@@ -22,30 +22,29 @@ snapd_ready() {
 install_snap() {
     local snap_name="$1"
     local classic="${2:-}"
-    local -a install_flags=()
     local -a classic_flags=()
     local rc
 
     if [[ "$classic" == classic ]]; then
         classic_flags=(--classic)
     fi
-    install_flags=("${classic_flags[@]}" "--timeout=${SNAP_INSTALL_TIMEOUT}s")
 
     echo "Installing snap: $snap_name ${classic_flags[*]:-} (timeout ${SNAP_INSTALL_TIMEOUT}s)"
-    sudo timeout "${SNAP_HARD_TIMEOUT}" \
-        snap install "${install_flags[@]}" "$snap_name"
+    sudo timeout "${SNAP_INSTALL_TIMEOUT}" \
+        snap install "${classic_flags[@]}" "$snap_name"
     rc=$?
     if [[ "$rc" == 0 ]]; then
         echo "Snap install of $snap_name succeeded"
         return 0
     fi
-    if [[ "$rc" == 124 ]]; then
-        echo "Snap install of $snap_name hit the hard timeout; not retrying" >&2
+    if [[ "$rc" == 124 || "$rc" == 64 ]]; then
+        # 124 = coreutils timeout; 64 = usage error. Retrying changes nothing.
+        echo "Snap install of $snap_name failed with rc=$rc; not retrying" >&2
         return "$rc"
     fi
     echo "Snap install of $snap_name received rc=$rc; retrying once" >&2
-    sudo timeout "${SNAP_HARD_TIMEOUT}" \
-        snap install "${install_flags[@]}" "$snap_name"
+    sudo timeout "${SNAP_INSTALL_TIMEOUT}" \
+        snap install "${classic_flags[@]}" "$snap_name"
     rc=$?
     return "$rc"
 }
