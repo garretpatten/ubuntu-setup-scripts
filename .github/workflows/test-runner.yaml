@@ -9,6 +9,11 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  # Cancel superseded pull-request runs on the same branch/ref.
+  group: test-runner-${{ github.workflow_ref }}
+  cancel-in-progress: true
+
 jobs:
   test-cli:
     name: 'CLI-only install'
@@ -44,6 +49,16 @@ jobs:
       - name: Validate CLI installs
         run: ./scripts/validate-installs-cli.sh
 
+      - name: Upload per-script install logs
+        if: always()
+        # yamllint disable-line rule:line-length
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: install-logs-cli
+          path: /tmp/ubuntu-setup-*/logs/
+          if-no-files-found: ignore
+          retention-days: 3
+
   test-config:
     name: 'Configuration run'
     runs-on: ubuntu-latest
@@ -68,6 +83,16 @@ jobs:
 
       - name: Validate config-only outcomes
         run: ./scripts/validate-config-only.sh
+
+      - name: Upload per-script install logs
+        if: always()
+        # yamllint disable-line rule:line-length
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: install-logs-config
+          path: /tmp/ubuntu-setup-*/logs/
+          if-no-files-found: ignore
+          retention-days: 3
 
   test-full:
     name: 'Full install'
@@ -101,6 +126,16 @@ jobs:
       - name: Validate full installs
         run: ./scripts/validate-installs.sh
 
+      - name: Upload per-script install logs
+        if: always()
+        # yamllint disable-line rule:line-length
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: install-logs-full
+          path: /tmp/ubuntu-setup-*/logs/
+          if-no-files-found: ignore
+          retention-days: 3
+
   test-master:
     name: 'Master (install + config)'
     runs-on: ubuntu-latest
@@ -133,3 +168,13 @@ jobs:
 
       - name: Validate installs and config
         run: ./scripts/validate.sh
+
+      - name: Upload per-script install logs
+        if: always()
+        # yamllint disable-line rule:line-length
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: install-logs-master
+          path: /tmp/ubuntu-setup-*/logs/
+          if-no-files-found: ignore
+          retention-days: 3

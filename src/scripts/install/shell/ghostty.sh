@@ -14,14 +14,15 @@ case "$ghostty_os_version" in
 esac
 ghostty_arch="$(dpkg --print-architecture)"
 
-ghostty_tag="$(curl -fsSL -o /dev/null -w '%{url_effective}' \
+ghostty_tag="$(curl -fsSL --retry 3 --retry-delay 2 --retry-all-errors \
+    -o /dev/null -w '%{url_effective}' \
     https://github.com/mkasberg/ghostty-ubuntu/releases/latest || true)"
 ghostty_tag="${ghostty_tag##*/tag/}"
 case "$ghostty_tag" in
     "" | *"https://"*) exit 1 ;;
 esac
 
-ghostty_deb_path="$(curl -fsSL \
+ghostty_deb_path="$(curl -fsSL --retry 3 --retry-delay 2 --retry-all-errors \
     "https://github.com/mkasberg/ghostty-ubuntu/releases/expanded_assets/$ghostty_tag" \
     | grep -oE "/mkasberg/ghostty-ubuntu/releases/download/[^\" ]+_${ghostty_arch}_${ghostty_os_version}\.deb" \
     | head -1)"

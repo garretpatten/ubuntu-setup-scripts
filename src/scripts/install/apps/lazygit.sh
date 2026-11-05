@@ -1,21 +1,34 @@
 #!/bin/bash
 # lazygit binary from the official GitHub releases.
+# A failed download exits non-zero so orchestrators surface the failure.
 
-if ! command -v lazygit >/dev/null 2>&1; then
-    lazygit_arch="x86_64"
-    case "$(uname -m)" in
-        aarch64 | arm64) lazygit_arch="arm64" ;;
-    esac
-    lazygit_release="$(curl -fsSL -o /dev/null -w '%{url_effective}' \
-        https://github.com/jesseduffield/lazygit/releases/latest || true)"
-    lazygit_version="${lazygit_release##*/tag/}"
-    lazygit_version="${lazygit_version#v}"
-    if [[ -n "$lazygit_version" && "$lazygit_version" != *"https://"* ]]; then
-        lazygit_tarball="$TEMP_DIR/lazygit.tar.gz"
-        if curl -fsSL --retry 3 --retry-delay 2 \
-            "https://github.com/jesseduffield/lazygit/releases/download/v$lazygit_version/lazygit_${lazygit_version}_Linux_$lazygit_arch.tar.gz" \
-            -o "$lazygit_tarball" && [[ -s "$lazygit_tarball" ]]; then
-            sudo tar -C /usr/local/bin -xzf "$lazygit_tarball" lazygit
-        fi
-    fi
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=../../lib/download.sh
+source "$DIR/../../lib/download.sh"
+
+if command -v lazygit >/dev/null 2>&1; then
+    exit 0
 fi
+
+if [[ -z "${TEMP_DIR:-}" ]]; then
+    echo 'ERROR: TEMP_DIR is not set; run via an orchestrator' >&2
+    exit 1
+fi
+
+lazygit_arch="x86_64"
+case "$(uname -m)" in
+    aarch64 | arm64) lazygit_arch="arm64" ;;
+esac
+if ! lazygit_tag="$(github_latest_release_tag jesseduffield/lazygit)"; then
+    echo 'WARNING: could not resolve lazygit latest release' >&2
+    exit 1
+fi
+
+lazygit_tarball="$TEMP_DIR/lazygit.tar.gz"
+if ! download_installer \
+    "https://github.com/jesseduffield/lazygit/releases/download/$lazygit_tag/lazygit_${lazygit_tag#v}_Linux_$lazygit_arch.tar.gz" \
+    "$lazygit_tarball"; then
+    echo 'WARNING: lazygit download failed' >&2
+    exit 1
+fi
+sudo tar -C /usr/local/bin -xzf "$lazygit_tarball" lazygit

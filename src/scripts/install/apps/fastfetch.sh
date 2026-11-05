@@ -2,20 +2,32 @@
 # fastfetch latest .deb from the official GitHub releases.
 # The zhangsongcui3371/fastfetch PPA is the primary source in all.sh; this is
 # the fallback for when Launchpad is unavailable.
+# A failed fallback download exits non-zero so orchestrators surface it.
 
-if ! command -v fastfetch >/dev/null 2>&1 && [[ "$(uname -m)" == "x86_64" ]]; then
-    fastfetch_release="$(curl -fsSL -o /dev/null -w '%{url_effective}' \
-        https://github.com/fastfetch-cli/fastfetch/releases/latest || true)"
-    fastfetch_version="${fastfetch_release##*/tag/}"
-    fastfetch_version="${fastfetch_version#v}"
-    if [[ -n "$fastfetch_version" && "$fastfetch_version" != *"https://"* ]]; then
-        fastfetch_deb="$TEMP_DIR/fastfetch.deb"
-        if curl -fsSL --retry 3 --retry-delay 2 \
-            "https://github.com/fastfetch-cli/fastfetch/releases/download/$fastfetch_version/fastfetch-linux-amd64.deb" \
-            -o "$fastfetch_deb" && [[ -s "$fastfetch_deb" ]]; then
-            # apt-get (not dpkg -i) so it waits for the dpkg lock when other
-            # .deb installers run in parallel.
-            sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "$fastfetch_deb"
-        fi
-    fi
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=../../lib/download.sh
+source "$DIR/../../lib/download.sh"
+
+if command -v fastfetch >/dev/null 2>&1; then
+    exit 0
 fi
+if [[ "$(uname -m)" != "x86_64" ]]; then
+    exit 0
+fi
+
+if ! fastfetch_tag="$(github_latest_release_tag fastfetch-cli/fastfetch)"; then
+    echo 'WARNING: could not resolve fastfetch latest release' >&2
+    exit 1
+fi
+
+fastfetch_deb="$TEMP_DIR/fastfetch.deb"
+if ! download_installer \
+    "https://github.com/fastfetch-cli/fastfetch/releases/download/$fastfetch_tag/fastfetch-linux-amd64.deb" \
+    "$fastfetch_deb"; then
+    echo 'WARNING: fastfetch deb download failed' >&2
+    exit 1
+fi
+
+# apt-get (not dpkg -i) so it waits for the dpkg lock when other
+# .deb installers run in parallel.
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "$fastfetch_deb"
