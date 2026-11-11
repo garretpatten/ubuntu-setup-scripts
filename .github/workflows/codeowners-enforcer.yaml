@@ -1,0 +1,215 @@
+---
+name: Codeowners Enforcer
+
+on: pull_request
+
+env:
+  ACTIONS_STEP_DEBUG: false
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  enforce-codeowners:
+    if: >-
+      ${{ github.actor != 'dependabot[bot]' &&
+      github.event.pull_request.head.repo.full_name == github.repository }}
+    name: 'Enforce Code Owners'
+    runs-on: ubuntu-latest
+    container:
+      image: alpine:latest
+    timeout-minutes: 5
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.number }}
+      cancel-in-progress: true
+
+    steps:
+      - name: Harden Alpine Container
+        run: |
+          # Add non-root user for operations that don't require root
+          addgroup -S appgroup && adduser -S appuser -G appgroup
+
+          # Disable unnecessary services and features
+          rm -f /etc/securetty
+
+          # Set secure umask
+          umask 027
+
+          # Make sensitive directories read-only where possible
+          mount -o remount,ro /etc 2>/dev/null || true
+          mount -o remount,ro /bin 2>/dev/null || true
+          mount -o remount,ro /sbin 2>/dev/null || true
+          mount -o remount,ro /lib 2>/dev/null || true
+
+          # Clear any unnecessary environment variables
+          unset HISTFILE HISTSIZE HISTFILESIZE
+
+          # Set PATH explicitly to avoid path-based attacks
+          export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"
+          export PATH="$PATH:/sbin:/bin"
+
+      - name: Install Minimal Dependencies
+        run: apk add --no-cache ca-certificates git
+
+      - name: Checkout Code
+        # actions/checkout v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          token: ${{ github.token }}
+
+      - name: Configure Git Safe Directory
+        run: |
+          git config --global --add safe.directory $GITHUB_WORKSPACE
+
+      - name: Compute changed and deleted paths
+        id: filelists
+        run: |
+          set -e
+          git fetch origin "$GITHUB_BASE_REF" --depth=1
+          git_diff="$(git diff --name-only \
+            "origin/$GITHUB_BASE_REF" "$GITHUB_SHA")"
+          git_diff_fixed="$(echo "$git_diff" | tr '\n' ' ')"
+          git_diff_deleted="$(git diff --name-only --diff-filter=D \
+            "origin/$GITHUB_BASE_REF" "$GITHUB_SHA")"
+          git_diff_deleted_fixed="$(echo "$git_diff_deleted" | tr '\n' ' ')"
+          clen=$(printf '%s' "$git_diff_fixed" | wc -c | tr -d ' ')
+          dlen=$(printf '%s' "$git_diff_deleted_fixed" | wc -c | tr -d ' ')
+          max=100000
+          if [ "$clen" -gt "$max" ] || [ "$dlen" -gt "$max" ]; then
+            echo "skip_verify=true" >> "$GITHUB_OUTPUT"
+            echo "git_diff=" >> "$GITHUB_OUTPUT"
+            echo "git_diff_deleted=" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip_verify=false" >> "$GITHUB_OUTPUT"
+            echo "git_diff=$git_diff_fixed" >> "$GITHUB_OUTPUT"
+            echo "git_diff_deleted=$git_diff_deleted_fixed" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Enforce CODEOWNERS
+        if: steps.filelists.outputs.skip_verify != 'true'
+        continue-on-error: true
+        id: codeowners-enforcer
+        # codeowners-enforcer @ master
+        # yamllint disable-line rule:line-length
+        uses: garretpatten/codeowners-enforcer@c54d6116f1f162d3f3abba7a69e15bbdc415e20d
+        with:
+          changedFiles: ${{ steps.filelists.outputs.git_diff }}
+          deletedFiles: ${{ steps.filelists.outputs.git_diff_deleted }}
+
+      - name: Comment on PR
+        if: steps.codeowners-enforcer.outcome == 'failure'
+        id: comment
+        # actions/github-script v9.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            const pathsRaw = ${{ toJSON(
+              steps.codeowners-enforcer.outputs.unownedFiles) }};
+            const errRaw = ${{ toJSON(
+              steps.codeowners-enforcer.outputs.errorMessage) }};
+            let detail;
+            if (pathsRaw != null && String(pathsRaw).trim() !== '') {
+              const bullets = String(pathsRaw)
+                .split(/\r?\n/)
+                .filter((line) => line.length > 0)
+                .map((p) => `- ${p}`)
+                .join('\n');
+              detail =
+                '**Files without an effective owner:**\n\n' +
+                bullets +
+                '\n\n_(Update `.github/CODEOWNERS` or ' +
+                '`.github/.codeownersignore` as needed.)_';
+            } else if (errRaw != null && String(errRaw).trim() !== '') {
+              detail = String(errRaw).trim();
+            } else {
+              detail =
+                '_(The enforcer could not expose the file list ' +
+                'from step outputs; ' +
+                'open the **Enforce CODEOWNERS** step logs — search for ' +
+                '**Files without an effective CODEOWNERS owner**.)_';
+            }
+            const footer =
+              '_Questions or bugs? [Open an issue](' +
+              `https://github.com/${context.repo.owner}/` +
+              `${context.repo.repo}/issues` +
+              ')._';
+            function blockquoteMarkdown(text) {
+              return text
+                .split(/\r?\n/)
+                .map((line) => (line.length ? '> ' + line : '>'))
+                .join('\n');
+            }
+            const body =
+              blockquoteMarkdown(
+                '[!WARNING]\n\n' +
+                  '**The Codeowners Enforcer has detected changed ' +
+                  'files without ownership in this pull request.**\n\n' +
+                  detail +
+                  '\n\n' +
+                  footer,
+              );
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body,
+            })
+
+      - name: Comment skipped (file list too large for runner)
+        if: steps.filelists.outputs.skip_verify == 'true'
+        # actions/github-script v9.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            const footer =
+              '_Questions or bugs? [Open an issue](' +
+              `https://github.com/${context.repo.owner}/` +
+              `${context.repo.repo}/issues` +
+              ')._';
+            const body =
+              '> [!NOTE]\n' +
+              '**Codeowners Enforcer was skipped:** the changed ' +
+              'and/or deleted file lists are too large ' +
+              'to pass into this job safely. GitHub Actions forwards ' +
+              '`with:` inputs as environment variables; combined with ' +
+              'the container runner, that can exceed OS limits on ' +
+              'environment size (similar to `ARG_MAX` / `execve` ' +
+              'limits) and fail with “Argument list too long.”\n' +
+              '>\n' +
+              '> Split the pull request, reduce the number of ' +
+              'changed paths, or run CODEOWNERS checks locally.\n' +
+              '>\n' +
+              '> ' +
+              footer;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body,
+            });
+
+      - name: Fail Check if Codeowners Enforcer Fails
+        if: >-
+          steps.filelists.outputs.skip_verify != 'true' &&
+          steps.codeowners-enforcer.outcome == 'failure'
+        id: failure
+        run: |
+          exit 1
+
+      - name: Container Cleanup
+        if: always()
+        run: |
+          find $GITHUB_WORKSPACE -mindepth 1 -delete \
+            || echo "Container Cleanup Complete"
+        shell: sh
+
+      - name: Final Runner Cleanup
+        if: always()
+        run: |
+          # Thoroughly clean workspace
+          find $GITHUB_WORKSPACE -mindepth 1 -delete 2>/dev/null || \
+          rm -rf $GITHUB_WORKSPACE/* $GITHUB_WORKSPACE/.[!.]* 2>/dev/null
