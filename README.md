@@ -1,5 +1,9 @@
 # Ubuntu setup scripts
 
+[![License: MIT](https://img.shields.io/github/license/garretpatten/ubuntu-setup-scripts?style=flat-square)](./LICENSE)
+[![CI](https://img.shields.io/github/actions/workflow/status/garretpatten/ubuntu-setup-scripts/test-runner.yaml?branch=master&label=Ubuntu%20CI&logo=github&style=flat-square)](https://github.com/garretpatten/ubuntu-setup-scripts/actions/workflows/test-runner.yaml)
+[![Platform: Ubuntu](https://img.shields.io/badge/platform-Ubuntu-E95420?style=flat-square&logo=ubuntu&logoColor=white)](https://ubuntu.com)
+
 Provisioning for a personal Ubuntu desktop: install scripts under
 `src/scripts/install/`, dotfiles and system config under `src/scripts/config/`,
 orchestrated by `master.sh`.
