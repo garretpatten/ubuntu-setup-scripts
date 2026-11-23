@@ -16,7 +16,7 @@ setup() {
     cp "$REPO_ROOT/.shellcheckrc" "$WORK/.shellcheckrc"
 
     # Seed origin/master with a known-clean script.
-    cp "$FIXTURES_DIR/shell/clean.sh" "$WORK/src/clean.sh"
+    cp "$FIXTURES_DIR/shell/clean.sh.fixture" "$WORK/src/clean.sh"
     git -C "$WORK" add src/clean.sh scripts/check-shellcheck.sh .shellcheckrc
     git -C "$WORK" commit -q -m "add clean script"
     git -C "$WORK" push -q origin master
@@ -53,7 +53,7 @@ checkout_work_branch() {
 
 @test "check-shellcheck.sh fails when a changed script is dirty" {
     checkout_work_branch
-    cp "$FIXTURES_DIR/shell/dirty.sh" "$WORK/src/dirty.sh"
+    cp "$FIXTURES_DIR/shell/dirty.sh.fixture" "$WORK/src/dirty.sh"
     git -C "$WORK" add src/dirty.sh
     git -C "$WORK" commit -q -m "add dirty script"
     run "$WORK/scripts/check-shellcheck.sh"
