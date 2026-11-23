@@ -70,16 +70,33 @@ npx markdownlint --ignore node_modules '**/*.md'
 yamllint .
 ```
 
+### Unit tests
+
+`tests/` holds [bats-core](https://github.com/bats-core/bats-core) unit tests for
+`src/scripts/lib/`, `scripts/check-shellcheck.sh`, and
+`src/scripts/install/dev/google-mcp-server.sh`. Install bats locally with
+`./scripts/install-bats.sh`, then run `npm run test:shell` or
+`bats --recursive tests/`. Tests sandbox `HOME` and stub apt, sudo, curl, and
+npm; they must not use the network or real credentials.
+
+`scripts/check-shellcheck.sh` ShellChecks changed `*.sh` / `*.bash` / `*.zsh` /
+`*.bats` files vs `origin/master`. The `unit-tests` job also ShellChecks every
+file under `tests/` (including extensionless stubs, excluding fixtures).
+
 ### Test workflow
 
-`.github/workflows/test-runner.yaml` runs four jobs on `ubuntu-latest`:
+`.github/workflows/test-runner.yaml` runs five jobs on `ubuntu-latest`:
 
+- `unit-tests`: ShellCheck on `tests/`, then `bats --recursive tests/`
 - `test-cli`: `run-install.sh cli` → `scripts/validate-installs-cli.sh`
 - `test-config`: `run-config.sh` → `scripts/validate-config-only.sh`
 - `test-full`: `run-install.sh all` → `scripts/validate-installs.sh`
 - `test-master`: `master.sh` → `scripts/validate.sh` (full installs + config)
 
-GNOME gsettings scripts no-op without an active GNOME session.
+GNOME gsettings scripts no-op without an active GNOME session. Leaf installers
+under `src/scripts/install/` and `src/scripts/config/` (except
+`install/dev/google-mcp-server.sh`) are covered by the container jobs, not by
+bats.
 
 ## Layout
 
@@ -105,6 +122,9 @@ GNOME gsettings scripts no-op without an active GNOME session.
 | `scripts/validate-installs.sh`                              | Validate full install outcomes                          |
 | `scripts/validate-config-only.sh`                           | Validate config-only outcomes                           |
 | `scripts/validate-config.sh`                                | Validate config after full install/master               |
+| `scripts/install-bats.sh`                                   | Install bats-core 1.14.0 and helper libs into `.tools/` |
+| `scripts/check-shellcheck.sh`                               | ShellCheck changed `*.sh`/`*.bash`/`*.zsh`/`*.bats`     |
+| `tests/`                                                    | bats unit tests (see Unit tests above)                  |
 
 ## Commits
 

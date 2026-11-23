@@ -24,15 +24,17 @@ bash run-install.sh all # full install (default)
 bash run-config.sh      # config only
 ```
 
-CI runs four jobs on `ubuntu-latest`:
+CI runs five jobs on `ubuntu-latest`:
 
+- `unit-tests`: ShellCheck on `tests/`, then `bats --recursive tests/`
 - `test-cli`: `run-install.sh cli` → `validate-installs-cli.sh`
 - `test-config`: `run-config.sh` → `validate-config-only.sh`
 - `test-full`: `run-install.sh all` → `validate-installs.sh`
 - `test-master`: `master.sh` → `validate.sh` (full installs + config)
 
 Each validation script confirms the expected binaries/packages and config outcomes
-for that run mode.
+for that run mode. See [Testing](#testing) for the unit vs. container-integration
+split.
 
 ## Package manager preference
 
@@ -140,5 +142,37 @@ shell snippets); copies for shell home files and VS Code settings. Covers Neovim
 fastfetch, Kitty/Alacritty/Ghostty, Git, GNOME gsettings (skipped in CI without a GNOME
 session; 6 static workspaces switched with `Ctrl+1`–`Ctrl+6`), UFW defaults and rules
 (LocalSend, Docker DNS, ufw-docker), home directory layout.
+
+## Testing
+
+Tests come in two layers:
+
+- **Unit tests** (`tests/`, [bats-core](https://github.com/bats-core/bats-core)): fast checks for the sourced helpers in `src/scripts/lib/`, `scripts/check-shellcheck.sh`, and `install/dev/google-mcp-server.sh`. Each test runs in a `mktemp -d` sandbox with `HOME` pointed into it and fake `apt-get`/`sudo`/`curl`/`npm` binaries from `tests/stubs/` (or a per-test `$SANDBOX/bin`). There is no network access and no real apt, snap, or sudo.
+- **Container integration** (`test-cli`, `test-config`, `test-full`, `test-master` in `.github/workflows/test-runner.yaml`): the full provisioning run plus `scripts/validate*.sh` gates. That is the coverage for leaf installers under `src/scripts/install/` and `src/scripts/config/`.
+
+Run the unit tests locally:
+
+```bash
+./scripts/install-bats.sh   # once per clone; installs bats 1.14.0 into .tools/
+npm run test:shell          # or: bats --recursive tests/
+```
+
+`install-bats.sh` writes bats-core, bats-support, bats-assert, and bats-file under `.tools/` (gitignored). If you already have bats and the libraries installed (Homebrew, a distro package, or `~/.local`), you can skip the installer and run `npm run test:shell` or `bats --recursive tests/`.
+
+`tests/helpers/setup.bash` looks for the helper libraries in `$BATS_LIB_PATH`, `.tools/`, `/usr/lib`, `/usr/local/lib`, and `~/.local/lib`.
+
+On push/PR to `master`, **Test Runner** (`.github/workflows/test-runner.yaml`) runs both layers. The `unit-tests` job ShellChecks `tests/` (including `*.bats` and extensionless stubs, which the shared quality gate does not) and then runs `bats --recursive tests/`.
+
+Layout:
+
+```text
+tests/
+├── lib/*.bats                 # src/scripts/lib/*.sh
+├── scripts/check-shellcheck.bats
+├── install/google-mcp-server.bats
+├── helpers/setup.bash         # sandbox, stubs, fixture git repos
+├── stubs/                     # fake apt-get, sudo, curl, snap, …
+└── fixtures/                  # package lists, snaps, dotfiles, shellcheck samples
+```
 
 See [AGENTS.md](AGENTS.md) for contributor conventions, ShellCheck, and CI details.

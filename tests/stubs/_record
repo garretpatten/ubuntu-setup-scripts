@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Not a stub: sourced by the stubs to append "<name> <args>" to $STUB_CALL_LOG.
+# shellcheck disable=SC2034 # STUB_NAME is used by the sourcing stub.
+STUB_NAME="$(basename "$0")"
+printf '%s %s\n' "${STUB_NAME}" "$*" >>"${STUB_CALL_LOG:-/dev/null}"

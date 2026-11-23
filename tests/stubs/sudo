@@ -1,0 +1,29 @@
+#!/bin/bash
+# Fake sudo: log the invocation, honor VAR=value assignments, then run the
+# command as the current user. Refuse paths under system directories so a
+# missed sandbox path cannot mutate the host.
+echo "sudo $*" >>"${STUB_CALL_LOG:-/dev/null}"
+
+while [[ $# -gt 0 ]]; do
+    if [[ "$1" == [A-Za-z_]*=* ]]; then
+        export "${1?}"
+        shift
+        continue
+    fi
+    break
+done
+
+for arg in "$@"; do
+    case "$arg" in
+        /etc/* | /usr/* | /var/* | /root/* | /opt/* | /bin/* | /sbin/* | /lib/* | /lib64/*)
+            echo "sudo stub: blocked system path: $arg" >&2
+            exit 1
+            ;;
+    esac
+done
+
+if [[ $# -eq 0 ]]; then
+    exit 0
+fi
+
+exec "$@"

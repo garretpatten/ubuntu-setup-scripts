@@ -1,0 +1,7 @@
+#!/bin/bash
+echo "dpkg $*" >>"${STUB_CALL_LOG:-/dev/null}"
+if [[ "$1" == "--print-architecture" ]]; then
+    printf '%s\n' "${DPKG_ARCH:-amd64}"
+    exit 0
+fi
+exit 0

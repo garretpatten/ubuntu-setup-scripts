@@ -1,0 +1,19 @@
+#!/bin/bash
+# Fake apt-get. Records arguments and optionally fails.
+echo "apt-get $*" >>"${STUB_CALL_LOG:-/dev/null}"
+
+if [[ "${APT_GET_FAIL:-}" == "1" ]]; then
+    echo "apt-get stub: failing" >&2
+    exit 1
+fi
+
+if [[ -n "${APT_GET_FAIL_PACKAGE:-}" ]]; then
+    for arg in "$@"; do
+        if [[ "$arg" == "$APT_GET_FAIL_PACKAGE" ]]; then
+            echo "apt-get stub: failing package $arg" >&2
+            exit 1
+        fi
+    done
+fi
+
+exit 0

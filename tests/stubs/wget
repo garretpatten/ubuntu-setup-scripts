@@ -1,0 +1,35 @@
+#!/bin/bash
+# Fake wget. Supports wget -qO FILE URL.
+echo "wget $*" >>"${STUB_CALL_LOG:-/dev/null}"
+
+output=""
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -qO | -O)
+            output="$2"
+            shift 2
+            ;;
+        -q)
+            shift
+            ;;
+        *)
+            shift
+            ;;
+    esac
+done
+
+case "${WGET_STUB_MODE:-success}" in
+    success)
+        if [[ -n "$output" ]]; then
+            printf '%s\n' "${WGET_STUB_BODY:-stub key}" >"$output"
+        fi
+        ;;
+    fail)
+        echo "wget stub: failing" >&2
+        exit 1
+        ;;
+    *)
+        echo "wget stub: unknown WGET_STUB_MODE '${WGET_STUB_MODE}'" >&2
+        exit 2
+        ;;
+esac

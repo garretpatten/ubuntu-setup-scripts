@@ -1,0 +1,7 @@
+# Core CLI tools
+git
+curl
+
+# blank lines and comments are ignored
+
+jq

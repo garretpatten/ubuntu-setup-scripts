@@ -1,0 +1,3 @@
+# kind rel_src dest
+file git/gitconfig ~/.gitconfig
+file shell/zshrc ~/.zshrc

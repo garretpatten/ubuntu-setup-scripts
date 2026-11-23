@@ -1,0 +1,25 @@
+#!/bin/bash
+# Fake gpg --dearmor. Writes a stand-in keyring to -o or stdout.
+echo "gpg $*" >>"${STUB_CALL_LOG:-/dev/null}"
+
+output=""
+args=("$@")
+i=0
+while [[ $i -lt ${#args[@]} ]]; do
+    if [[ "${args[$i]}" == "-o" ]]; then
+        output="${args[$((i + 1))]}"
+        i=$((i + 2))
+        continue
+    fi
+    i=$((i + 1))
+done
+
+# Consume stdin so a curl|gpg pipeline does not get SIGPIPE.
+cat >/dev/null
+
+if [[ -n "$output" ]]; then
+    mkdir -p "$(dirname "$output")"
+    printf 'stub-keyring\n' >"$output"
+else
+    printf 'stub-keyring\n'
+fi
