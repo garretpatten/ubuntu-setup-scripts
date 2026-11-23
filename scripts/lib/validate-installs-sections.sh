@@ -185,6 +185,11 @@ validate_pass_cli() {
     check_version pass-cli pass-cli --version
 }
 
+validate_google_mcp_server() {
+    section 'google-mcp-server'
+    check_path google-mcp-server "$HOME/Projects/google-mcp-server/dist/index.js"
+}
+
 validate_shell() {
     section 'Shell'
     check_version zsh zsh --version
