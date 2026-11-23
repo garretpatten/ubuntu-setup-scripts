@@ -17,6 +17,7 @@ validate_nvm
 validate_dev
 validate_security_cli
 validate_pass_cli
+validate_google_mcp_server
 validate_shell
 
 finish_validation 'CLI install validation'
