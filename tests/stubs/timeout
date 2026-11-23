@@ -1,0 +1,12 @@
+#!/bin/bash
+# Fake coreutils timeout: log, then run the command immediately unless a
+# test sets TIMEOUT_STUB_RC (for example 124) to simulate a deadline.
+echo "timeout $*" >>"${STUB_CALL_LOG:-/dev/null}"
+
+if [[ -n "${TIMEOUT_STUB_RC:-}" ]]; then
+    exit "${TIMEOUT_STUB_RC}"
+fi
+
+# Drop the duration argument and run the rest.
+shift
+exec "$@"

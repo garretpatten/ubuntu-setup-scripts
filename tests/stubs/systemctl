@@ -1,0 +1,7 @@
+#!/bin/bash
+echo "systemctl $*" >>"${STUB_CALL_LOG:-/dev/null}"
+if [[ "${SYSTEMCTL_FAIL:-}" == "1" ]]; then
+    echo "systemctl stub: failing" >&2
+    exit 1
+fi
+exit 0

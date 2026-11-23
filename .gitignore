@@ -7,3 +7,6 @@ node_modules/
 # System files
 .DS_Store
 
+
+# Local bats-core install (scripts/install-bats.sh)
+.tools/

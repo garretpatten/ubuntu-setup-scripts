@@ -1,0 +1,60 @@
+#!/bin/bash
+# Fake curl for unit tests. Records its arguments in $STUB_CALL_LOG.
+# CURL_STUB_MODE:
+#   success (default) - write $CURL_STUB_BODY (or "stub body") to the -o file
+#                       or stdout when -o is omitted (so callers can pipe)
+#   empty             - create an empty -o file (or empty stdout) and exit 0
+#   fail              - print an error and exit 22 (curl --fail HTTP error)
+# CURL_STUB_REDIRECT is printed when -w includes url_effective.
+
+echo "curl $*" >>"${STUB_CALL_LOG:-/dev/null}"
+
+output=""
+write_out=""
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -o)
+            output="$2"
+            shift 2
+            ;;
+        -w)
+            write_out="$2"
+            shift 2
+            ;;
+        *)
+            shift
+            ;;
+    esac
+done
+
+write_body() {
+    local body="${CURL_STUB_BODY:-stub body}"
+    if [[ -n "$output" && "$output" != /dev/null ]]; then
+        printf '%s\n' "$body" >"$output"
+    elif [[ -z "$output" ]]; then
+        printf '%s\n' "$body"
+    fi
+}
+
+case "${CURL_STUB_MODE:-success}" in
+    success)
+        write_body
+        ;;
+    empty)
+        if [[ -n "$output" && "$output" != /dev/null ]]; then
+            : >"$output"
+        fi
+        ;;
+    fail)
+        echo "curl: (22) The requested URL returned error: 404" >&2
+        exit 22
+        ;;
+    *)
+        echo "curl stub: unknown CURL_STUB_MODE '${CURL_STUB_MODE}'" >&2
+        exit 2
+        ;;
+esac
+
+if [[ "$write_out" == *"%{url_effective}"* ]]; then
+    printf '%s' "${CURL_STUB_REDIRECT:-https://github.com/example/repo/releases/tag/v1.2.3}"
+fi

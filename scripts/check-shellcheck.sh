@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# Replicate CI ShellCheck: changed .sh/.bash/.zsh vs base branch, with -x and .shellcheckrc.
+# Replicate CI ShellCheck: changed .sh/.bash/.zsh/.bats vs base branch, with
+# -x and .shellcheckrc. Used as a local quality gate; the unit-tests job also
+# ShellChecks every file under tests/.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -13,7 +15,7 @@ else
     BASE_REF="HEAD~1"
 fi
 
-mapfile -t CHANGED < <(git diff --name-only --diff-filter=ACMR "${BASE_REF}"...HEAD | grep -E '\.(sh|bash|zsh)$' || true)
+mapfile -t CHANGED < <(git diff --name-only --diff-filter=ACMR "${BASE_REF}"...HEAD | grep -E '\.(sh|bash|zsh|bats)$' || true)
 
 paths=()
 for file in "${CHANGED[@]}"; do
@@ -26,4 +28,5 @@ if [[ ${#paths[@]} -eq 0 ]]; then
 fi
 
 echo "ShellCheck -x (${#paths[@]} files, base: ${BASE_REF})"
+printf '  %s\n' "${paths[@]}"
 shellcheck -x "${paths[@]}"

@@ -1,0 +1,6 @@
+# snaps list
+# name [classic] [binary]
+
+code classic code
+zoom
+zap classic owasp-zap

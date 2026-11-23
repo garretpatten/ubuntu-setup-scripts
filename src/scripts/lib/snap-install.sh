@@ -9,7 +9,7 @@
 # The snapd-side "--timeout" flag was removed from snap(8) in newer releases
 # ("unknown flag 'timeout'"), so only the coreutils timeout caps the install.
 # Wall-clock cap of the whole "snap install" invocation (coreutils).
-declare -r SNAP_INSTALL_TIMEOUT=300
+declare -g -r SNAP_INSTALL_TIMEOUT=300
 
 snapd_ready() {
     sudo systemctl start snapd.socket snapd.seeded.service 2>/dev/null ||

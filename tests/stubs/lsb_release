@@ -1,0 +1,7 @@
+#!/bin/bash
+echo "lsb_release $*" >>"${STUB_CALL_LOG:-/dev/null}"
+if [[ "$1" == "-cs" ]]; then
+    printf '%s\n' "${LSB_CODENAME:-noble}"
+    exit 0
+fi
+exit 0

@@ -4,7 +4,8 @@
     "install:cli": "bash src/scripts/run-install.sh cli",
     "install:all": "bash src/scripts/run-install.sh all",
     "installs": "bash src/scripts/run-install.sh all",
-    "config": "bash src/scripts/run-config.sh"
+    "config": "bash src/scripts/run-config.sh",
+    "test:shell": "PATH=\"$PWD/.tools/bats/bin:$PATH\" BATS_LIB_PATH=\"$PWD/.tools${BATS_LIB_PATH:+:$BATS_LIB_PATH}\" bats --recursive tests"
   },
   "devDependencies": {
     "markdownlint-cli": "^0.50.0",
