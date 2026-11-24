@@ -91,9 +91,9 @@ jobs:
         if: steps.filelists.outputs.skip_verify != 'true'
         continue-on-error: true
         id: codeowners-enforcer
-        # codeowners-enforcer @ master
+        # codeowners-enforcer v2.1.0
         # yamllint disable-line rule:line-length
-        uses: garretpatten/codeowners-enforcer@c54d6116f1f162d3f3abba7a69e15bbdc415e20d
+        uses: garretpatten/codeowners-enforcer@5bb1f64c86dca6b0d1cef1338c68f936c32996ac
         with:
           changedFiles: ${{ steps.filelists.outputs.git_diff }}
           deletedFiles: ${{ steps.filelists.outputs.git_diff_deleted }}
