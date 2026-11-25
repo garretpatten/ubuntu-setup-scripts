@@ -149,7 +149,4 @@ fi
 
 run_script "$DIR/apps/pass-cli.sh"
 
-# After NodeSource nodejs (apt) and the async dev phase (nvm) have finished.
-run_script "$DIR/dev/google-mcp-server.sh"
-
 run_script "$DIR/post-install/all.sh"

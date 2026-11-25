@@ -46,18 +46,18 @@ Each app uses one install path:
 
 ## Install layout
 
-| Path                          | Role                                                                                 |
-| ----------------------------- | ------------------------------------------------------------------------------------ |
-| `install/preflight/`          | apt update, essentials (git, curl, universe), timezone                               |
-| `install/all.sh`              | Full install orchestrator (`--cli` for CLI-only mode)                                |
-| `install/cli.sh`              | Thin wrapper that runs `install/all.sh --cli`                                        |
-| `install/packages/*.packages` | One apt package per line; installed by `install/all.sh`                              |
-| `install/repos/manifest`      | Third-party apt repo definitions consumed by `install/repos/setup.sh`                |
-| `install/snaps.txt`           | Snap packages installed by `install/apps/snaps.sh`                                   |
-| `install/apps/`               | `.deb` downloads and app-specific installers                                         |
-| `install/dev/`                | NodeSource, nvm, LSP language stacks, rustup, gems, pip/npm tools, google-mcp-server |
-| `install/shell/`              | Ghostty, Meslo font, Oh My Posh                                                      |
-| `install/post-install/`       | apt maintain, Docker service, tldr cache, completion banner                          |
+| Path                          | Role                                                                  |
+| ----------------------------- | --------------------------------------------------------------------- |
+| `install/preflight/`          | apt update, essentials (git, curl, universe), timezone                |
+| `install/all.sh`              | Full install orchestrator (`--cli` for CLI-only mode)                 |
+| `install/cli.sh`              | Thin wrapper that runs `install/all.sh --cli`                         |
+| `install/packages/*.packages` | One apt package per line; installed by `install/all.sh`               |
+| `install/repos/manifest`      | Third-party apt repo definitions consumed by `install/repos/setup.sh` |
+| `install/snaps.txt`           | Snap packages installed by `install/apps/snaps.sh`                    |
+| `install/apps/`               | `.deb` downloads and app-specific installers                          |
+| `install/dev/`                | NodeSource, nvm, LSP language stacks, rustup, gems, pip/npm tools     |
+| `install/shell/`              | Ghostty, Meslo font, Oh My Posh                                       |
+| `install/post-install/`       | apt maintain, Docker service, tldr cache, completion banner           |
 
 ### Validation scripts (`scripts/`)
 
@@ -99,22 +99,10 @@ official GitHub `.deb` as fallback (`apps/fastfetch.sh`) for Launchpad outages.
 Node.js (NodeSource 24.x), nvm, Docker CE + Compose, rustup, Solargraph gem, Semgrep,
 Vue CLI, Cursor Agent CLI.
 
-`install/dev/google-mcp-server.sh` clones
-[google-mcp-server](https://github.com/garretpatten/google-mcp-server) into
-`~/Projects/google-mcp-server` (or fast-forwards an existing checkout), runs
-`npm ci` and `npm run build` (requires Node >= 24, installed earlier in
-`install/all.sh`), and copies `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` from
-`~/Projects/system-scripts/.env` (or `~/Scripts/system-scripts/.env`) into the
-new repo's `.env` (chmod 600; never committed). An existing
-`GOOGLE_REFRESH_TOKEN` is left in place. It then prompts to run the interactive
-`npm run auth` consent flow (opt-in, default no; skipped when the session is not
-a TTY) and verifies `dist/index.js` exists. When all three OAuth values are set,
-it starts the stdio server briefly to confirm it comes up cleanly. Secret values
-are never printed or logged.
-
-The opencode config in [dotfiles](https://github.com/garretpatten/dotfiles)
-already points at `/home/garret/Projects/google-mcp-server/dist/index.js`; this
-step only provisions that checkout.
+The opencode config in [dotfiles](https://github.com/garretpatten/dotfiles) uses
+Google's official remote Google Workspace MCP servers (Calendar, People, Tasks); their
+per-machine OAuth client credentials and `opencode mcp auth` sign-in are set up
+manually, so no local server checkout is provisioned.
 
 ### Preflight & post-install
 
@@ -147,7 +135,7 @@ session; 6 static workspaces switched with `Ctrl+1`–`Ctrl+6`), UFW defaults an
 
 Tests come in two layers:
 
-- **Unit tests** (`tests/`, [bats-core](https://github.com/bats-core/bats-core)): fast checks for the sourced helpers in `src/scripts/lib/`, `scripts/check-shellcheck.sh`, and `install/dev/google-mcp-server.sh`. Each test runs in a `mktemp -d` sandbox with `HOME` pointed into it and fake `apt-get`/`sudo`/`curl`/`npm` binaries from `tests/stubs/` (or a per-test `$SANDBOX/bin`). There is no network access and no real apt, snap, or sudo.
+- **Unit tests** (`tests/`, [bats-core](https://github.com/bats-core/bats-core)): fast checks for the sourced helpers in `src/scripts/lib/` and `scripts/check-shellcheck.sh`. Each test runs in a `mktemp -d` sandbox with `HOME` pointed into it and fake `apt-get`/`sudo`/`curl`/`npm` binaries from `tests/stubs/` (or a per-test `$SANDBOX/bin`). There is no network access and no real apt, snap, or sudo.
 - **Container integration** (`test-cli`, `test-config`, `test-full`, `test-master` in `.github/workflows/test-runner.yaml`): the full provisioning run plus `scripts/validate*.sh` gates. That is the coverage for leaf installers under `src/scripts/install/` and `src/scripts/config/`.
 
 Run the unit tests locally:
@@ -169,7 +157,6 @@ Layout:
 tests/
 ├── lib/*.bats                 # src/scripts/lib/*.sh
 ├── scripts/check-shellcheck.bats
-├── install/google-mcp-server.bats
 ├── helpers/setup.bash         # sandbox, stubs, fixture git repos
 ├── stubs/                     # fake apt-get, sudo, curl, snap, …
 └── fixtures/                  # package lists, snaps, dotfiles, shellcheck samples
