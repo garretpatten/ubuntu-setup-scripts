@@ -101,8 +101,7 @@ yamllint .
 ### Unit tests
 
 `tests/` holds [bats-core](https://github.com/bats-core/bats-core) unit tests for
-`src/scripts/lib/`, `scripts/check-shellcheck.sh`, and
-`src/scripts/install/dev/google-mcp-server.sh`. Install bats locally with
+`src/scripts/lib/` and `scripts/check-shellcheck.sh`. Install bats locally with
 `./scripts/install-bats.sh`, then run `npm run test:shell` or
 `bats --recursive tests/`. Tests sandbox `HOME` and stub apt, sudo, curl, and
 npm; they must not use the network or real credentials.
@@ -122,9 +121,8 @@ file under `tests/` (including extensionless stubs, excluding fixtures).
 - `test-master`: `master.sh` → `scripts/validate.sh` (full installs + config)
 
 GNOME gsettings scripts no-op without an active GNOME session. Leaf installers
-under `src/scripts/install/` and `src/scripts/config/` (except
-`install/dev/google-mcp-server.sh`) are covered by the container jobs, not by
-bats.
+under `src/scripts/install/` and `src/scripts/config/` are covered by the
+container jobs, not by bats.
 
 ## Layout
 

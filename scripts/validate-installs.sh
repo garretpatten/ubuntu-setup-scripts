@@ -24,7 +24,6 @@ validate_dev_desktop
 validate_security_cli
 validate_security_desktop
 validate_pass_cli
-validate_google_mcp_server
 validate_shell
 validate_gnome
 
