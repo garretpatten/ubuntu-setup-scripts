@@ -1,0 +1,8 @@
+root = true
+
+# shfmt reads this file and applies it to the files it formats, so shell
+# scripts must keep the repo's 4-space indentation instead of shfmt's
+# tab default. Kept scoped to shell files so other tools are unaffected.
+[*.{sh,bash,bats}]
+indent_style = space
+indent_size = 4

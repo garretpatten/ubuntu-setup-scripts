@@ -99,6 +99,11 @@ official GitHub `.deb` as fallback (`apps/fastfetch.sh`) for Launchpad outages.
 Node.js (NodeSource 24.x), nvm, Docker CE + Compose, rustup, Solargraph gem, Semgrep,
 Vue CLI, Cursor Agent CLI.
 
+The opencode config in [dotfiles](https://github.com/garretpatten/dotfiles) uses
+Google's official remote Google Workspace MCP servers (Calendar, People, Tasks); their
+per-machine OAuth client credentials and `opencode mcp auth` sign-in are set up
+manually, so no local server checkout is provisioned.
+
 ### Preflight & post-install
 
 - apt update/upgrade, essentials, universe, timezone (Los Angeles)
