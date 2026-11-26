@@ -13,6 +13,35 @@ validate_config_dotfiles() {
     check_path dotfiles-zsh "$HOME/.config/zsh"
     check_path dotfiles-zsh-ubuntu "$HOME/.config/zsh/ubuntu.zsh"
     check_path zshrc "$HOME/.zshrc"
+    validate_config_cooldown_configs
+}
+
+validate_config_cooldown_configs() {
+    section 'Package cooldown configs'
+    check_path cooldown-npmrc "$HOME/.npmrc"
+    check_path cooldown-pip-conf "$HOME/.config/pip/pip.conf"
+    check_path cooldown-uv-toml "$HOME/.config/uv/uv.toml"
+    check_path cooldown-cargo-config "$HOME/.cargo/config.toml"
+    if grep -q 'min-release-age=7' "$HOME/.npmrc" 2>/dev/null; then
+        pass cooldown-npmrc-age 'min-release-age=7 in ~/.npmrc'
+    else
+        fail cooldown-npmrc-age 'expected min-release-age=7 in ~/.npmrc'
+    fi
+    if grep -q 'uploaded-prior-to' "$HOME/.config/pip/pip.conf" 2>/dev/null; then
+        pass cooldown-pip-age 'uploaded-prior-to in ~/.config/pip/pip.conf'
+    else
+        fail cooldown-pip-age 'expected uploaded-prior-to in ~/.config/pip/pip.conf'
+    fi
+    if grep -q 'exclude-newer' "$HOME/.config/uv/uv.toml" 2>/dev/null; then
+        pass cooldown-uv-age 'exclude-newer in ~/.config/uv/uv.toml'
+    else
+        fail cooldown-uv-age 'expected exclude-newer in ~/.config/uv/uv.toml'
+    fi
+    if grep -q 'global-min-publish-age' "$HOME/.cargo/config.toml" 2>/dev/null; then
+        pass cooldown-cargo-age 'global-min-publish-age in ~/.cargo/config.toml'
+    else
+        fail cooldown-cargo-age 'expected global-min-publish-age in ~/.cargo/config.toml'
+    fi
 }
 
 validate_config_tmux() {
@@ -55,6 +84,25 @@ validate_config_system_core() {
         pass apport-disabled /etc/default/apport
     else
         fail apport-disabled 'enabled=0 in /etc/default/apport'
+    fi
+}
+
+validate_config_apt_cooldown() {
+    local apt_os_version
+    apt_os_version="$(. /etc/os-release && printf '%s' "$VERSION_ID")"
+    if [[ "$apt_os_version" != 24.04 && "$apt_os_version" != 26.04 ]]; then
+        pass apt-cooldown 'skipped: requires Ubuntu 24.04+ apt'
+        return 0
+    fi
+
+    section 'apt cooldown'
+    check_path apt-cooldown-script /usr/local/sbin/apt-cooldown-snapshot
+    check_path apt-cooldown-service /etc/systemd/system/apt-cooldown-snapshot.service
+    check_path apt-cooldown-timer /etc/systemd/system/apt-cooldown-snapshot.timer
+    if systemctl is-enabled apt-cooldown-snapshot.timer >/dev/null 2>&1; then
+        pass apt-cooldown-timer-enabled 'apt-cooldown-snapshot.timer enabled'
+    else
+        fail apt-cooldown-timer-enabled 'systemctl is-enabled apt-cooldown-snapshot.timer'
     fi
 }
 
