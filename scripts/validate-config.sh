@@ -14,6 +14,7 @@ validate_config_tmux
 validate_config_home
 validate_config_git
 validate_config_system
+validate_config_apt_cooldown
 validate_config_gnome_workspaces
 
 finish_validation 'Config validation'

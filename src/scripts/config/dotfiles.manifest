@@ -1,4 +1,9 @@
 # File copies only; XDG config dirs are symlinked via link_dotfiles_xdg_config_dirs in dotfiles.sh
 
+# Package supply-chain cooldowns. Copy .cargo/config.toml per file — never
+# symlink the whole .cargo tree (rustup owns ~/.cargo/bin, env, registry).
+file home/.npmrc ~/.npmrc
+file home/.cargo/config.toml ~/.cargo/config.toml
+
 file home/.vimrc ~/.vimrc
 file vs-code/settings.json ~/.config/Code/User/settings.json

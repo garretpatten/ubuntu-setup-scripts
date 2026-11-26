@@ -15,6 +15,7 @@ validate_config_home
 
 section 'System'
 validate_config_system_core
+validate_config_apt_cooldown
 validate_config_gnome_workspaces
 # UFW is skipped in config-only runs because ufw is installed by the install scripts.
 
