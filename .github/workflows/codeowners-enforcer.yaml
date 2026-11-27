@@ -61,7 +61,7 @@ jobs:
 
       - name: Configure Git Safe Directory
         run: |
-          git config --global --add safe.directory $GITHUB_WORKSPACE
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
       - name: Compute changed and deleted paths
         id: filelists
@@ -78,13 +78,17 @@ jobs:
           dlen=$(printf '%s' "$git_diff_deleted_fixed" | wc -c | tr -d ' ')
           max=100000
           if [ "$clen" -gt "$max" ] || [ "$dlen" -gt "$max" ]; then
-            echo "skip_verify=true" >> "$GITHUB_OUTPUT"
-            echo "git_diff=" >> "$GITHUB_OUTPUT"
-            echo "git_diff_deleted=" >> "$GITHUB_OUTPUT"
+            {
+              echo "skip_verify=true"
+              echo "git_diff="
+              echo "git_diff_deleted="
+            } >> "$GITHUB_OUTPUT"
           else
-            echo "skip_verify=false" >> "$GITHUB_OUTPUT"
-            echo "git_diff=$git_diff_fixed" >> "$GITHUB_OUTPUT"
-            echo "git_diff_deleted=$git_diff_deleted_fixed" >> "$GITHUB_OUTPUT"
+            {
+              echo "skip_verify=false"
+              echo "git_diff=$git_diff_fixed"
+              echo "git_diff_deleted=$git_diff_deleted_fixed"
+            } >> "$GITHUB_OUTPUT"
           fi
 
       - name: Enforce CODEOWNERS
@@ -203,7 +207,7 @@ jobs:
       - name: Container Cleanup
         if: always()
         run: |
-          find $GITHUB_WORKSPACE -mindepth 1 -delete \
+          find "$GITHUB_WORKSPACE" -mindepth 1 -delete \
             || echo "Container Cleanup Complete"
         shell: sh
 
@@ -211,5 +215,5 @@ jobs:
         if: always()
         run: |
           # Thoroughly clean workspace
-          find $GITHUB_WORKSPACE -mindepth 1 -delete 2>/dev/null || \
-          rm -rf $GITHUB_WORKSPACE/* $GITHUB_WORKSPACE/.[!.]* 2>/dev/null
+          find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || \
+          rm -rf "${GITHUB_WORKSPACE:?}"/* "${GITHUB_WORKSPACE:?}"/.[!.]* 2>/dev/null
