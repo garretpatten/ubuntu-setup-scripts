@@ -216,4 +216,5 @@ jobs:
         run: |
           # Thoroughly clean workspace
           find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || \
-          rm -rf "${GITHUB_WORKSPACE:?}"/* "${GITHUB_WORKSPACE:?}"/.[!.]* 2>/dev/null
+          rm -rf "${GITHUB_WORKSPACE:?}"/* \
+            "${GITHUB_WORKSPACE:?}"/.[!.]* 2>/dev/null
